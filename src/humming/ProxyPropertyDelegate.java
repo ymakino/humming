@@ -47,7 +47,7 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
     @Override
     public ObjectData getUserData(LocalObject object, EPC epc) {
         try {
-            return getRemoteObject().getData(epc);
+            return getRemoteObject().getData(proxyEPC);
         } catch (SubnetException ex) {
             Logger.getLogger(ProxyPropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
         } catch (EchonetObjectException ex) {
@@ -60,7 +60,7 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
     @Override
     public boolean setUserData(LocalObject object, EPC epc, ObjectData data) {
         try {
-            return getRemoteObject().setData(epc, data);
+            return getRemoteObject().setData(proxyEPC, data);
         } catch (SubnetException ex) {
             Logger.getLogger(ProxyPropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
         } catch (EchonetObjectException ex) {
