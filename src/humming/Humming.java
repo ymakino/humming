@@ -1,8 +1,10 @@
 package humming;
 
+import echowand.logic.RequestDispatcher;
 import echowand.logic.TooManyObjectsException;
 import echowand.net.Inet4Subnet;
 import echowand.net.SubnetException;
+import echowand.object.LocalObjectManager;
 import echowand.service.Core;
 import echowand.service.LocalObjectConfig;
 import java.io.File;
@@ -68,6 +70,13 @@ public class Humming {
             }
         }
     }
+    
+    public static void replaceSetGetRequestDispatcher(Core core) {
+        LocalObjectManager localManager = core.getLocalObjectManager();
+        RequestDispatcher dispatcher = core.getRequestDispatcher();
+        dispatcher.removeRequestProcessor(core.getSetGetRequestProcessor());
+        dispatcher.addRequestProcessor(new ParallelSetGetRequestProcessor(localManager));
+    }
 
     /**
      * @param args the command line arguments
@@ -96,6 +105,10 @@ public class Humming {
         
         Humming humming = new Humming(core);
         humming.addXMLDocument(doc);
+        
+        core.initialize();
+        
+        replaceSetGetRequestDispatcher(core);
         
         core.startService();
     }
