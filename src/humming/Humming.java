@@ -32,6 +32,13 @@ public class Humming {
         this.core = core;
         nodes = new LinkedList<Node>();
         configs = new LinkedList<LocalObjectConfig>();
+        
+        PropertyDelegateFactory factory = PropertyDelegateFactory.getInstance();
+        factory.add("const", new ConstPropertyDelegateFactory());
+        factory.add("variable", new VariablePropertyDelegateFactory());
+        factory.add("file", new FilePropertyDelegateFactory());
+        factory.add("command", new CommandPropertyDelegateFactory());
+        factory.add("proxy", new ProxyPropertyDelegateFactory(core));
     }
     
     public Core getCore() {
@@ -47,24 +54,15 @@ public class Humming {
     }
     
     public void addXMLDocument(Document doc) {
-        PropertyDelegateFactory factory = PropertyDelegateFactory.getInstance();
-        factory.add("const", new ConstPropertyDelegateFactory());
-        factory.add("variable", new VariablePropertyDelegateFactory());
-        factory.add("file", new FilePropertyDelegateFactory());
-        factory.add("command", new CommandPropertyDelegateFactory());
-        factory.add("proxy", new ProxyPropertyDelegateFactory(core));
-        
-        NodeList deviceList = doc.getElementsByTagName("devices").item(0).getChildNodes();
-        for (int i=0; i<deviceList.getLength(); i++) {
-            Node deviceNode = deviceList.item(i);
-            if (deviceNode.getNodeName().equals("device")) {
-                nodes.add(deviceNode);
+        NodeList objectList = doc.getElementsByTagName("device").item(0).getChildNodes();
+        for (int i=0; i<objectList.getLength(); i++) {
+            Node objectNode = objectList.item(i);
+            if (objectNode.getNodeName().equals("object")) {
+                nodes.add(objectNode);
                 
-                // System.out.println(deviceNode);
-                XMLObjectConfigCreator creator = new XMLObjectConfigCreator(deviceNode);
+                XMLObjectConfigCreator creator = new XMLObjectConfigCreator(objectNode);
                 LocalObjectConfig config = creator.getConfig();
                 configs.add(config);
-                // System.out.println(config.getObjectInfo().getClassEOJ());
                 
                 core.addLocalObjectConfig(config);
             }
@@ -95,16 +93,14 @@ public class Humming {
             fileIndex = 0;
         }
         
-        String filename = "/tmp/hoge.xml";
-        if (args.length > fileIndex) {
-            filename = args[fileIndex];
-        }
-        
-        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Document doc = builder.parse(new File(filename));
-        
         Humming humming = new Humming(core);
-        humming.addXMLDocument(doc);
+        
+        for (int i=fileIndex; i<args.length; i++) {
+            String filename = args[i];
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document doc = builder.parse(new File(filename));
+            humming.addXMLDocument(doc);
+        }
         
         core.initialize();
         

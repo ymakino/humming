@@ -93,12 +93,11 @@ public class XMLObjectConfigCreator {
         return true;
     }
     
-    private void parseDevice(Node deviceNode) {
-        
-        Node ceojNode = deviceNode.getAttributes().getNamedItem("ceoj");
+    private void parseDevice(Node objectNode) {
+        Node ceojNode = objectNode.getAttributes().getNamedItem("ceoj");
         parseClassEOJ(ceojNode);
         
-        NodeList nodes = deviceNode.getChildNodes();
+        NodeList nodes = objectNode.getChildNodes();
         for (int i=0; i<nodes.getLength(); i++) {
             Node node = nodes.item(i);
             String nodeName = node.getNodeName().toLowerCase();
@@ -115,11 +114,11 @@ public class XMLObjectConfigCreator {
         }
     }
 
-    public XMLObjectConfigCreator(Node node) {
+    public XMLObjectConfigCreator(Node objectNode) {
         info = new DeviceObjectInfo();
         delegates = new LinkedList<PropertyDelegate>();
         
-        parseDevice(node);
+        parseDevice(objectNode);
         
         config = new LocalObjectConfig(info);
         
