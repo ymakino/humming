@@ -45,7 +45,7 @@ public class ProxyPropertyDelegateFactory extends PropertyDelegateFactory {
                     if (epcName.toLowerCase().startsWith("0x")) {
                         epcName = epcName.substring(2);
                     }
-                    System.out.println(epcName);
+                    
                     byte b = (byte)Integer.parseInt(epcName, 16);
                     proxyEPC = EPC.fromByte(b);
                 }

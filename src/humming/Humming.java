@@ -47,7 +47,9 @@ public class Humming {
     public void addXMLDocument(Document doc) {
         PropertyDelegateFactory factory = PropertyDelegateFactory.getInstance();
         factory.add("const", new ConstPropertyDelegateFactory());
+        factory.add("variable", new VariablePropertyDelegateFactory());
         factory.add("file", new FilePropertyDelegateFactory());
+        factory.add("command", new CommandPropertyDelegateFactory());
         factory.add("proxy", new ProxyPropertyDelegateFactory(core));
         
         NodeList deviceList = doc.getElementsByTagName("devices").item(0).getChildNodes();
