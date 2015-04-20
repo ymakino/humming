@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<devices>
+  <device>
+    <ceoj>0011</ceoj>
+    <property>
+      <epc>80</epc>
+      <data type="const">30</data>
+    </property>
+    <property>
+      <epc>E0</epc>
+      <data type="const">0117</data>
+    </property>
+  </device>
+  <device>
+    <ceoj>0012</ceoj>
+    <property>
+      <epc>80</epc>
+      <data type="file">/tmp/fuga</data>
+    </property>
+    <property>
+      <epc>E0</epc>
+      <data type="file">/tmp/hoge</data>
+    </property>
+  </device>
+  <device>
+    <ceoj>0012</ceoj>
+    <property>
+      <epc>80</epc>
+      <data type="file">/tmp/fuga</data>
+    </property>
+    <property>
+      <epc>E0</epc>
+      <data type="proxy"><addr>150.65.231.35</addr><eoj>001101</eoj><epc>0xE0</epc></data>
+    </property>
+  </device>
+</devices>
