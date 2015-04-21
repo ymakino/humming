@@ -94,9 +94,18 @@ public class Humming {
     }
     
     public void parseXMLDocument(Document document) throws HummingException {
-        NodeList objectList = document.getElementsByTagName("device").item(0).getChildNodes();
+        NodeList nodeList = document.getElementsByTagName("device");
+        
+        if (nodeList.getLength() != 1) {
+            throw new HummingException("invalide device: " + document);
+        }
+        
+        NodeList objectList = nodeList.item(0).getChildNodes();
         for (int i=0; i<objectList.getLength(); i++) {
-            addXMLObject(objectList.item(i));
+            Node objectNode = objectList.item(i);
+            if (objectNode.getNodeType() == Node.ELEMENT_NODE) {
+                addXMLObject(objectList.item(i));
+            }
         }
     }
     
@@ -146,7 +155,7 @@ public class Humming {
         
         Humming humming = new Humming(core);
         
-        humming.parseXMLString("<device><object ceoj=\"0011\"><property epc=\"80\"><data type=\"const\">1234</data></property></object></device>");
+        humming.parseXMLString("<device><object ceoj=\"0011\"><property epc=\"E0\"><data type=\"const\">0123</data></property></object></device>");
         
         for (int i=fileIndex; i<args.length; i++) {
             humming.parseXMLFile(args[i]);
