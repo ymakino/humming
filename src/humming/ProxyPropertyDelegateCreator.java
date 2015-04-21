@@ -17,13 +17,13 @@ import org.w3c.dom.NodeList;
  *
  * @author ymakino
  */
-public class ProxyPropertyDelegateFactory extends PropertyDelegateFactory {
-    private static final Logger logger = Logger.getLogger(ProxyPropertyDelegateFactory.class.getName());
-    private static final String className = ProxyPropertyDelegateFactory.class.getName();
+public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
+    private static final Logger logger = Logger.getLogger(ProxyPropertyDelegateCreator.class.getName());
+    private static final String className = ProxyPropertyDelegateCreator.class.getName();
     
     private Core core;
     
-    public ProxyPropertyDelegateFactory(Core core) {
+    public ProxyPropertyDelegateCreator(Core core) {
         this.core = core;
     }
     
@@ -54,7 +54,7 @@ public class ProxyPropertyDelegateFactory extends PropertyDelegateFactory {
                 }
             }
         } catch (UnknownHostException ex) {
-            Logger.getLogger(ProxyPropertyDelegateFactory.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ProxyPropertyDelegateCreator.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         if (proxyNode != null && proxyEOJ != null && proxyEPC != null) {

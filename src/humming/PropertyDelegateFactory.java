@@ -14,7 +14,7 @@ public class PropertyDelegateFactory {
     private static final Logger logger = Logger.getLogger(PropertyDelegateFactory.class.getName());
     private static final String className = PropertyDelegateFactory.class.getName();
     
-    private HashMap<String, PropertyDelegateFactory> factoryMap;
+    private HashMap<String, PropertyDelegateCreator> creatorMap;
     
     private static PropertyDelegateFactory instance = null;
     
@@ -26,28 +26,28 @@ public class PropertyDelegateFactory {
     }
     
     public PropertyDelegateFactory() {
-        factoryMap = new HashMap<String, PropertyDelegateFactory>();
+        creatorMap = new HashMap<String, PropertyDelegateCreator>();
     }
     
-    public PropertyDelegateFactory add(String name, PropertyDelegateFactory factory) {
-        return factoryMap.put(name, factory);
+    public PropertyDelegateCreator add(String name, PropertyDelegateCreator creator) {
+        return creatorMap.put(name, creator);
+    }
+    
+    public PropertyDelegateCreator get(String name) {
+        return creatorMap.get(name);
     }
     
     public boolean contains(String name) {
-        return factoryMap.containsKey(name);
+        return creatorMap.containsKey(name);
     }
     
-    public PropertyDelegate newPropertyDelegate(String name, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {
-        return factoryMap.get(name).newPropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, node);
-    }
-    
-    private class DefaultPropertyDelegate extends PropertyDelegate {
-        public DefaultPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled) {
-            super(epc, getEnabled, setEnabled, notifyEnabled);
+    public PropertyDelegate newPropertyDelegate(String name, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) throws HummingException {
+        PropertyDelegateCreator creator = creatorMap.get(name);
+        
+        if (creator == null) {
+            throw new HummingException("no such creator: " + name);
         }
-    }
-    
-    public PropertyDelegate newPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {
-        return new DefaultPropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled);
+        
+        return creator.newPropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, node);
     }
 }

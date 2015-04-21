@@ -16,10 +16,11 @@ import org.w3c.dom.NodeList;
  *
  * @author ymakino
  */
-public class XMLObjectConfigCreator {
-    private static final Logger logger = Logger.getLogger(XMLObjectConfigCreator.class.getName());
-    private static final String className = XMLObjectConfigCreator.class.getName();
+public class ObjectConfigCreator {
+    private static final Logger logger = Logger.getLogger(ObjectConfigCreator.class.getName());
+    private static final String className = ObjectConfigCreator.class.getName();
     
+    private PropertyDelegateFactory delegateFactory;
     private LocalObjectConfig config;
     private DeviceObjectInfo info;
     private LinkedList<PropertyDelegate> delegates;
@@ -80,12 +81,16 @@ public class XMLObjectConfigCreator {
         return builder.toString();
     }
     
-    private boolean parseProperty(Node propNode) {
+    private boolean parseProperty(Node propNode) throws HummingException {
         NodeList propInfoList = propNode.getChildNodes();
         EPC epc = null;
         
         Node epcNode = propNode.getAttributes().getNamedItem("epc");
-        byte b = (byte)Integer.parseInt(epcNode.getTextContent(), 16);
+        String epcStr = epcNode.getTextContent().toLowerCase();
+        if (epcStr.startsWith("0x")) {
+            epcStr = epcStr.substring(2);
+        }
+        byte b = (byte)Integer.parseInt(epcStr, 16);
         epc = EPC.fromByte(b);
         
         boolean getEnabled = true;
@@ -123,15 +128,11 @@ public class XMLObjectConfigCreator {
             Node typeNode = propInfo.getAttributes().getNamedItem("type");
             if (typeNode != null) {
                 String typeName = typeNode.getTextContent();
-                PropertyDelegateFactory factory = PropertyDelegateFactory.getInstance();
-                
-                if (factory.contains(typeName)) {
-                    PropertyDelegate delegate = factory.newPropertyDelegate(typeName, epc, getEnabled, setEnabled, notifyEnabled, propInfo);
-                    delegates.add(delegate);
-                    logger.logp(Level.INFO, className, "parseProperty", "delegate: " + delegate + ", type: " + typeName + ", ClassEOJ: " + info.getClassEOJ() + ", EPC: " + epc + ", GET: " + getEnabled + ", SET: " + setEnabled + ", Notify: " + notifyEnabled + ", info: " + toInfoString(propInfo));
-                } else {
-                    logger.logp(Level.WARNING, className, "parseProperty", "invalid type: " + typeName + ", info: " + toInfoString(propInfo));
-                }
+
+                PropertyDelegate delegate = delegateFactory.newPropertyDelegate(typeName, epc, getEnabled, setEnabled, notifyEnabled, propInfo);
+                delegates.add(delegate);
+                logger.logp(Level.INFO, className, "parseProperty", "delegate: " + delegate + ", type: " + typeName + ", ClassEOJ: " + info.getClassEOJ() + ", EPC: " + epc + ", GET: " + getEnabled + ", SET: " + setEnabled + ", Notify: " + notifyEnabled + ", info: " + toInfoString(propInfo));
+
             } else {
                 logger.logp(Level.WARNING, className, "parseProperty", "invalid property: " + toInfoString(propInfo));
             }
@@ -146,8 +147,14 @@ public class XMLObjectConfigCreator {
         return true;
     }
     
-    private void parseObject(Node objectNode) {
+    private void parseObject(Node objectNode) throws HummingException {
         Node ceojNode = objectNode.getAttributes().getNamedItem("ceoj");
+        
+        if (ceojNode == null) {
+            logger.logp(Level.WARNING, className, "parseObject", "invalid ClassEOJ: " + ceojNode);
+            throw new HummingException("invalid ClassEOJ: " + ceojNode);
+        }
+        
         parseClassEOJ(ceojNode);
         
         NodeList nodes = objectNode.getChildNodes();
@@ -167,7 +174,9 @@ public class XMLObjectConfigCreator {
         }
     }
 
-    public XMLObjectConfigCreator(Node objectNode) {
+    public ObjectConfigCreator(Node objectNode, PropertyDelegateFactory factory) throws HummingException {
+        delegateFactory = factory;
+        
         info = new DeviceObjectInfo();
         delegates = new LinkedList<PropertyDelegate>();
         

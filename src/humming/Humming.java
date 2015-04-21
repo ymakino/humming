@@ -1,16 +1,20 @@
 package humming;
 
 import echowand.logic.RequestDispatcher;
+import echowand.logic.RequestProcessor;
 import echowand.logic.TooManyObjectsException;
 import echowand.net.Inet4Subnet;
 import echowand.net.SubnetException;
 import echowand.object.LocalObjectManager;
 import echowand.service.Core;
 import echowand.service.LocalObjectConfig;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.LinkedList;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,6 +33,7 @@ public class Humming {
     private static final String className = Humming.class.getName();
     
     private Core core;
+    private PropertyDelegateFactory factory;
     private LinkedList<Node> nodes;
     private LinkedList<LocalObjectConfig> configs;
     
@@ -37,12 +42,16 @@ public class Humming {
         nodes = new LinkedList<Node>();
         configs = new LinkedList<LocalObjectConfig>();
         
-        PropertyDelegateFactory factory = PropertyDelegateFactory.getInstance();
-        factory.add("const", new ConstPropertyDelegateFactory());
-        factory.add("variable", new VariablePropertyDelegateFactory());
-        factory.add("file", new FilePropertyDelegateFactory());
-        factory.add("command", new CommandPropertyDelegateFactory());
-        factory.add("proxy", new ProxyPropertyDelegateFactory(core));
+        factory = PropertyDelegateFactory.getInstance();
+        factory.add("const", new ConstPropertyDelegateCreator());
+        factory.add("variable", new VariablePropertyDelegateCreator());
+        factory.add("file", new FilePropertyDelegateCreator());
+        factory.add("command", new CommandPropertyDelegateCreator());
+        factory.add("proxy", new ProxyPropertyDelegateCreator(core));
+    }
+    
+    public PropertyDelegateFactory getDelegateFactory() {
+        return factory;
     }
     
     public Core getCore() {
@@ -57,33 +66,72 @@ public class Humming {
         return configs.get(index);
     }
     
-    public void addXMLDocument(Document doc) {
-        NodeList objectList = doc.getElementsByTagName("device").item(0).getChildNodes();
+    public void addXMLObject(Node objectNode) throws HummingException {
+        if (!objectNode.getNodeName().equals("object")) {
+            logger.logp(Level.WARNING, className, "addXMLObject", "invalid object: " + objectNode.getNodeName());
+            throw new HummingException("invalid object: " + objectNode.getNodeName());
+        }
+        
+        nodes.add(objectNode);
+
+        ObjectConfigCreator creator = new ObjectConfigCreator(objectNode, factory);
+        LocalObjectConfig config = creator.getConfig();
+        configs.add(config);
+
+        core.addLocalObjectConfig(config);
+    }
+    
+    public void parseXMLString(String xmlString) throws HummingException {
+        try {
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            parseXMLDocument(builder.parse(new ByteArrayInputStream(xmlString.getBytes())));
+        } catch (ParserConfigurationException ex) {
+            throw new HummingException("failed", ex);
+        } catch (SAXException ex) {
+            throw new HummingException("failed", ex);
+        } catch (IOException ex) {
+            throw new HummingException("failed", ex);
+        }
+    }
+    
+    public void parseXMLDocument(Document document) throws HummingException {
+        NodeList objectList = document.getElementsByTagName("device").item(0).getChildNodes();
         for (int i=0; i<objectList.getLength(); i++) {
-            Node objectNode = objectList.item(i);
-            if (objectNode.getNodeName().equals("object")) {
-                nodes.add(objectNode);
-                
-                XMLObjectConfigCreator creator = new XMLObjectConfigCreator(objectNode);
-                LocalObjectConfig config = creator.getConfig();
-                configs.add(config);
-                
-                core.addLocalObjectConfig(config);
-            }
+            addXMLObject(objectList.item(i));
+        }
+    }
+    
+    public void parseXMLFile(String filename) throws HummingException {
+        parseXMLFile(new File(filename));
+    }
+    
+    public void parseXMLFile(File file) throws HummingException {
+        try {
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document doc = builder.parse(file);
+            parseXMLDocument(doc);
+        } catch (ParserConfigurationException ex) {
+            throw new HummingException("failed", ex);
+        } catch (SAXException ex) {
+            throw new HummingException("failed", ex);
+        } catch (IOException ex) {
+            throw new HummingException("failed", ex);
         }
     }
     
     public static void replaceSetGetRequestDispatcher(Core core) {
-        LocalObjectManager localManager = core.getLocalObjectManager();
+        RequestProcessor lastProcessor = core.getSetGetRequestProcessor();
+        RequestProcessor newProcessor = new ParallelSetGetRequestProcessor(core.getLocalObjectManager());
+        
         RequestDispatcher dispatcher = core.getRequestDispatcher();
-        dispatcher.removeRequestProcessor(core.getSetGetRequestProcessor());
-        dispatcher.addRequestProcessor(new ParallelSetGetRequestProcessor(localManager));
+        dispatcher.removeRequestProcessor(lastProcessor);
+        dispatcher.addRequestProcessor(newProcessor);
     }
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, SubnetException, TooManyObjectsException {
+    public static void main(String[] args) throws HummingException, SocketException, SubnetException, ParserConfigurationException, SAXException, TooManyObjectsException, IOException {
         
         Core core;
         int fileIndex;
@@ -99,11 +147,10 @@ public class Humming {
         
         Humming humming = new Humming(core);
         
+        humming.parseXMLString("<device><object ceoj=\"0011\"><property epc=\"80\"><data type=\"const\">1234</data></property></object></device>");
+        
         for (int i=fileIndex; i<args.length; i++) {
-            String filename = args[i];
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = builder.parse(new File(filename));
-            humming.addXMLDocument(doc);
+            humming.parseXMLFile(args[i]);
         }
         
         core.initialize();

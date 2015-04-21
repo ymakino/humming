@@ -9,9 +9,9 @@ import org.w3c.dom.Node;
  *
  * @author ymakino
  */
-public class FilePropertyDelegateFactory extends PropertyDelegateFactory {
-    private static final Logger logger = Logger.getLogger(FilePropertyDelegateFactory.class.getName());
-    private static final String className = FilePropertyDelegateFactory.class.getName();
+public class FilePropertyDelegateCreator implements PropertyDelegateCreator {
+    private static final Logger logger = Logger.getLogger(FilePropertyDelegateCreator.class.getName());
+    private static final String className = FilePropertyDelegateCreator.class.getName();
     
     @Override
     public PropertyDelegate newPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {

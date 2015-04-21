@@ -2,6 +2,7 @@ package humming;
 
 import echowand.common.EPC;
 import echowand.service.PropertyDelegate;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -10,9 +11,9 @@ import org.w3c.dom.NodeList;
  *
  * @author ymakino
  */
-public class CommandPropertyDelegateFactory extends PropertyDelegateFactory {
-    private static final Logger logger = Logger.getLogger(CommandPropertyDelegateFactory.class.getName());
-    private static final String className = CommandPropertyDelegateFactory.class.getName();
+public class CommandPropertyDelegateCreator implements PropertyDelegateCreator {
+    private static final Logger logger = Logger.getLogger(CommandPropertyDelegateCreator.class.getName());
+    private static final String className = CommandPropertyDelegateCreator.class.getName();
     
     @Override
     public PropertyDelegate newPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {
@@ -27,11 +28,15 @@ public class CommandPropertyDelegateFactory extends PropertyDelegateFactory {
                 getCommand = commandInfo.getTextContent();
             } else if (infoName.equals("set")) {
                 setCommand = commandInfo.getTextContent();
+            } else {
+                logger.logp(Level.WARNING, className, "parseProperty", "invalid tag: " + infoName);
             }
         }
         
         if (getCommand != null || setCommand != null) {
             return new CommandPropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, getCommand, setCommand);
+        } else {
+            logger.logp(Level.WARNING, className, "parseProperty", "no command");
         }
         
         return null;
