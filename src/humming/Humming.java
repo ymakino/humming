@@ -5,7 +5,6 @@ import echowand.logic.RequestProcessor;
 import echowand.logic.TooManyObjectsException;
 import echowand.net.Inet4Subnet;
 import echowand.net.SubnetException;
-import echowand.object.LocalObjectManager;
 import echowand.service.Core;
 import echowand.service.LocalObjectConfig;
 import java.io.ByteArrayInputStream;
