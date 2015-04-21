@@ -53,4 +53,15 @@
       <data type="proxy"><addr>150.65.231.31</addr><eoj>060401</eoj><epc>0xF1</epc></data>
     </property>
   </object>
+  <object ceoj="0132">
+    <property epc="80" set="enabled" notify="enabled">
+      <data type="proxy"><addr>150.65.230.55</addr><eoj>013201</eoj><epc>0x80</epc></data>
+    </property>
+    <property epc="81" set="enabled" notify="enabled">
+      <data type="proxy"><addr>150.65.230.55</addr><eoj>013201</eoj><epc>0x81</epc></data>
+    </property>
+    <property epc="A0" set="enabled">
+      <data type="proxy"><addr>150.65.230.55</addr><eoj>013201</eoj><epc>0xA0</epc></data>
+    </property>
+  </object>
 </device>
