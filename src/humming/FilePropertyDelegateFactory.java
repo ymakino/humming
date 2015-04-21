@@ -14,7 +14,7 @@ public class FilePropertyDelegateFactory extends PropertyDelegateFactory {
     private static final String className = FilePropertyDelegateFactory.class.getName();
     
     @Override
-    public PropertyDelegate newPropertyDelegate(EPC epc, Node node) {
-        return new FilePropertyDelegate(epc, node.getTextContent());
+    public PropertyDelegate newPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {
+        return new FilePropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, node.getTextContent());
     }
 }

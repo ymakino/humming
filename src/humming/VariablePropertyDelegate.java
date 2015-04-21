@@ -18,8 +18,8 @@ public class VariablePropertyDelegate extends PropertyDelegate {
     
     private byte[] data;
     
-    public VariablePropertyDelegate(EPC epc, byte[] data) {
-        super(epc, true, true, true);
+    public VariablePropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, byte[] data) {
+        super(epc, getEnabled, setEnabled, notifyEnabled);
         this.data = Arrays.copyOf(data, data.length);
         logger.logp(Level.INFO, className, "VariablePropertyDelegate", "epc: " + epc + " -> data: " + new ObjectData(data));
     }

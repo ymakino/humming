@@ -4,7 +4,7 @@
     <property epc="80">
       <data type="proxy"><addr>150.65.231.35</addr><eoj>001101</eoj><epc>0x80</epc></data>
     </property>
-    <property epc="81" set="enabled" anno="enabled">
+    <property epc="81" set="enabled" notify="enabled">
       <data type="proxy"><addr>150.65.231.35</addr><eoj>001101</eoj><epc>0x81</epc></data>
     </property>
     <property epc="E0">
@@ -13,10 +13,10 @@
     <property epc="E1" set="enabled">
       <data type="file">/tmp/hoge</data>
     </property>
-    <property epc="E2" set="enabled" anno="enabled">
+    <property epc="E2" set="enabled" notify="enabled">
       <data type="variable">1234</data>
     </property>
-    <property epc="E3" set="enabled" anno="enabled">
+    <property epc="E3" set="enabled" notify="enabled">
       <data type="command">
           <get>/tmp/get.sh</get>
           <set>/tmp/set.sh</set>

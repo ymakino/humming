@@ -33,8 +33,12 @@ public class PropertyDelegateFactory {
         return factoryMap.put(name, factory);
     }
     
-    public PropertyDelegate newPropertyDelegate(String name, EPC epc, Node node) {
-        return factoryMap.get(name).newPropertyDelegate(epc, node);
+    public boolean contains(String name) {
+        return factoryMap.containsKey(name);
+    }
+    
+    public PropertyDelegate newPropertyDelegate(String name, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {
+        return factoryMap.get(name).newPropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, node);
     }
     
     private class DefaultPropertyDelegate extends PropertyDelegate {
@@ -43,7 +47,7 @@ public class PropertyDelegateFactory {
         }
     }
     
-    public PropertyDelegate newPropertyDelegate(EPC epc, Node node) {
-        return new DefaultPropertyDelegate(epc, true, false, false);
+    public PropertyDelegate newPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {
+        return new DefaultPropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled);
     }
 }

@@ -20,8 +20,8 @@ public class CommandPropertyDelegate extends PropertyDelegate {
     private String getCommand;
     private String setCommand;
     
-    public CommandPropertyDelegate(EPC epc, String getCommand, String setCommand) {
-        super(epc, true, true, true);
+    public CommandPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, String getCommand, String setCommand) {
+        super(epc, getEnabled, setEnabled, notifyEnabled);
         this.getCommand = getCommand;
         this.setCommand = setCommand;
         logger.logp(Level.INFO, className, "CommandPropertyDelegate", "epc: " + epc + " -> get: " + getCommand + ", set: " + setCommand);

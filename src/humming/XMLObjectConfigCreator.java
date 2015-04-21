@@ -31,6 +31,55 @@ public class XMLObjectConfigCreator {
         logger.logp(Level.INFO, className, "parseClassEOJ", "ClassEOJ: " + ceoj);
     }
     
+    private String toNodeString(Node node, boolean enableAttributes) {
+        if (node.getNodeType() == Node.TEXT_NODE) {
+            return node.getTextContent().trim();
+        }
+        
+        StringBuilder builder = new StringBuilder();
+        builder.append("<" + node.getNodeName());
+        
+        if (enableAttributes) {
+            for (int i=0; i<node.getAttributes().getLength(); i++) {
+                Node attr = node.getAttributes().item(i);
+                builder.append(" " + attr.getNodeName() + "=\"" + attr.getTextContent() + "\"");
+            }
+        }
+        
+        StringBuilder childrenBuilder = new StringBuilder();
+        for (int i=0; i<node.getChildNodes().getLength(); i++) {
+            Node child = node.getChildNodes().item(i);
+            childrenBuilder.append(toNodeString(child, true));
+        }
+        
+        if (childrenBuilder.length() == 0) {
+            builder.append("/>");
+        } else {
+            builder.append(">");
+            builder.append(childrenBuilder);
+            builder.append("</" + node.getNodeName() + ">");
+        }
+        
+        return builder.toString();
+    }
+    
+    private String toInfoString(Node node) {
+        if (!node.getNodeName().equals("data")) {
+            return toNodeString(node, true);
+        }
+        
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
+        
+        for (int i=0; i<node.getChildNodes().getLength(); i++) {
+            Node child = node.getChildNodes().item(i);
+            builder.append(toNodeString(child, true));
+        }
+        
+        builder.append("]");
+        return builder.toString();
+    }
+    
     private boolean parseProperty(Node propNode) {
         NodeList propInfoList = propNode.getChildNodes();
         EPC epc = null;
@@ -41,7 +90,7 @@ public class XMLObjectConfigCreator {
         
         boolean getEnabled = true;
         boolean setEnabled = false;
-        boolean annoEnabled = false;
+        boolean notifyEnabled = false;
         
         Node setNode = propNode.getAttributes().getNamedItem("set");
         if (setNode != null) {
@@ -53,34 +102,38 @@ public class XMLObjectConfigCreator {
             getEnabled = getNode.getTextContent().equals("enabled");
         }
         
-        Node annoNode = propNode.getAttributes().getNamedItem("anno");
-        if (annoNode != null) {
-            annoEnabled = annoNode.getTextContent().equals("enabled");
+        Node notifyNode = propNode.getAttributes().getNamedItem("notify");
+        if (notifyNode != null) {
+            notifyEnabled = notifyNode.getTextContent().equals("enabled");
         }
         
         for (int i=0; i < propInfoList.getLength(); i++) {
             Node propInfo = propInfoList.item(i);
-            String infoName = propInfo.getNodeName().toLowerCase();
+            String infoName = propInfo.getNodeName();
             
             if (propInfo.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
             }
             
-            if (infoName.equals("data")) {
-                Node typeNode = propInfo.getAttributes().getNamedItem("type");
-                if (typeNode != null) {
-                    String typeName = typeNode.getTextContent();
-                    PropertyDelegateFactory factory = PropertyDelegateFactory.getInstance();
-                    PropertyDelegate delegate = factory.newPropertyDelegate(typeName, epc, propInfo);
-                    delegates.add(delegate);
-                    
-                    logger.logp(Level.INFO, className, "parseProperty", "delegate: " + delegate + ", type: " + typeName + ", ClassEOJ: " + info.getClassEOJ() + ", EPC: " + epc + ", info: " + propInfo);
-                } else {
-                    logger.logp(Level.WARNING, className, "parseProperty", "no type: " + propInfo);
-                }
+            if (!infoName.equals("data")) {
+                logger.logp(Level.WARNING, className, "parseProperty", "invalid property: " + toNodeString(propInfo, true));
+                continue;
+            }
+            
+            Node typeNode = propInfo.getAttributes().getNamedItem("type");
+            if (typeNode != null) {
+                String typeName = typeNode.getTextContent();
+                PropertyDelegateFactory factory = PropertyDelegateFactory.getInstance();
                 
+                if (factory.contains(typeName)) {
+                    PropertyDelegate delegate = factory.newPropertyDelegate(typeName, epc, getEnabled, setEnabled, notifyEnabled, propInfo);
+                    delegates.add(delegate);
+                    logger.logp(Level.INFO, className, "parseProperty", "delegate: " + delegate + ", type: " + typeName + ", ClassEOJ: " + info.getClassEOJ() + ", EPC: " + epc + ", GET: " + getEnabled + ", SET: " + setEnabled + ", Notify: " + notifyEnabled + ", info: " + toInfoString(propInfo));
+                } else {
+                    logger.logp(Level.WARNING, className, "parseProperty", "invalid type: " + typeName + ", info: " + toInfoString(propInfo));
+                }
             } else {
-                logger.logp(Level.WARNING, className, "parseProperty", "invalid property: " + propInfo);
+                logger.logp(Level.WARNING, className, "parseProperty", "invalid property: " + toInfoString(propInfo));
             }
         }
         
@@ -88,19 +141,19 @@ public class XMLObjectConfigCreator {
             return false;
         }
         
-        info.add(epc, getEnabled, setEnabled, annoEnabled, 1, new ConstraintAny());
+        info.add(epc, getEnabled, setEnabled, notifyEnabled, 1, new ConstraintAny());
         
         return true;
     }
     
-    private void parseDevice(Node objectNode) {
+    private void parseObject(Node objectNode) {
         Node ceojNode = objectNode.getAttributes().getNamedItem("ceoj");
         parseClassEOJ(ceojNode);
         
         NodeList nodes = objectNode.getChildNodes();
         for (int i=0; i<nodes.getLength(); i++) {
             Node node = nodes.item(i);
-            String nodeName = node.getNodeName().toLowerCase();
+            String nodeName = node.getNodeName();
             
             if (node.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
@@ -109,7 +162,7 @@ public class XMLObjectConfigCreator {
             if (nodeName.equals("property")) {
                 parseProperty(node);
             } else {
-                logger.logp(Level.WARNING, className, "parseDevice", "invalid node: " + nodeName);
+                logger.logp(Level.WARNING, className, "parseObject", "invalid property: " + nodeName);
             }
         }
     }
@@ -118,7 +171,7 @@ public class XMLObjectConfigCreator {
         info = new DeviceObjectInfo();
         delegates = new LinkedList<PropertyDelegate>();
         
-        parseDevice(objectNode);
+        parseObject(objectNode);
         
         config = new LocalObjectConfig(info);
         

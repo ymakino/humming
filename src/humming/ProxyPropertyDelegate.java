@@ -38,8 +38,8 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
         }
     }
     
-    public ProxyPropertyDelegate(Core core, EPC epc, NodeInfo proxyNode, EOJ proxyEOJ, EPC proxyEPC) {
-        super(epc, true, true, true);
+    public ProxyPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Core core, NodeInfo proxyNode, EOJ proxyEOJ, EPC proxyEPC) {
+        super(epc, getEnabled, setEnabled, notifyEnabled);
         this.core = core;
         this.proxyNode = proxyNode;
         this.proxyEOJ = proxyEOJ;

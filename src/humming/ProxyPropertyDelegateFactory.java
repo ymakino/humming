@@ -28,7 +28,7 @@ public class ProxyPropertyDelegateFactory extends PropertyDelegateFactory {
     }
     
     @Override
-    public PropertyDelegate newPropertyDelegate(EPC epc, Node node) {
+    public PropertyDelegate newPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {
         NodeInfo proxyNode = null;
         EOJ proxyEOJ = null;
         EPC proxyEPC = null;
@@ -37,7 +37,7 @@ public class ProxyPropertyDelegateFactory extends PropertyDelegateFactory {
             NodeList nodeList = node.getChildNodes();
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node proxyInfo = nodeList.item(i);
-                String infoName = proxyInfo.getNodeName().toLowerCase();
+                String infoName = proxyInfo.getNodeName();
                 if (infoName.equals("addr")) {
                     InetAddress addr = InetAddress.getByName(proxyInfo.getTextContent());
                     proxyNode = new InetNodeInfo(addr);
@@ -58,7 +58,7 @@ public class ProxyPropertyDelegateFactory extends PropertyDelegateFactory {
         }
         
         if (proxyNode != null && proxyEOJ != null && proxyEPC != null) {
-            return new ProxyPropertyDelegate(core, epc, proxyNode, proxyEOJ, proxyEPC);
+            return new ProxyPropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, core, proxyNode, proxyEOJ, proxyEPC);
         }
         
         return null;

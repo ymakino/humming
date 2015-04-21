@@ -23,8 +23,8 @@ public class FilePropertyDelegate extends PropertyDelegate {
     
     private String filename;
     
-    public FilePropertyDelegate(EPC epc, String filename) {
-        super(epc, true, true, true);
+    public FilePropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, String filename) {
+        super(epc, getEnabled, setEnabled, notifyEnabled);
         this.filename = filename;
         logger.logp(Level.INFO, className, "FilePropertyDelegate", "epc: " + epc + " -> file: " + filename);
     }

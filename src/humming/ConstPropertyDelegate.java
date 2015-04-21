@@ -18,8 +18,8 @@ public class ConstPropertyDelegate extends PropertyDelegate {
     
     private byte[] data;
     
-    public ConstPropertyDelegate(EPC epc, byte[] data) {
-        super(epc, true, false, false);
+    public ConstPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, byte[] data) {
+        super(epc, getEnabled, setEnabled, notifyEnabled);
         this.data = Arrays.copyOf(data, data.length);
         logger.logp(Level.INFO, className, "ConstPropertyDelegate", "epc: " + epc + " -> data: " + new ObjectData(data));
     }

@@ -14,7 +14,7 @@ public class ConstPropertyDelegateFactory extends PropertyDelegateFactory {
     private static final String className = ConstPropertyDelegateFactory.class.getName();
     
     @Override
-    public PropertyDelegate newPropertyDelegate(EPC epc, Node node) {
+    public PropertyDelegate newPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {
         String dataStr = node.getTextContent();
         byte[] dataBytes = new byte[dataStr.length()/2];
         
@@ -22,6 +22,6 @@ public class ConstPropertyDelegateFactory extends PropertyDelegateFactory {
             dataBytes[i/2] = (byte)Integer.parseInt(dataStr.substring(i, i+2), 16);
         }
         
-        return new ConstPropertyDelegate(epc, dataBytes);
+        return new ConstPropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, dataBytes);
     }
 }
