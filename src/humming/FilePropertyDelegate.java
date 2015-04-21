@@ -26,6 +26,7 @@ public class FilePropertyDelegate extends PropertyDelegate {
     public FilePropertyDelegate(EPC epc, String filename) {
         super(epc, true, true, true);
         this.filename = filename;
+        logger.logp(Level.INFO, className, "FilePropertyDelegate", "epc: " + epc + " -> file: " + filename);
     }
     
     @Override

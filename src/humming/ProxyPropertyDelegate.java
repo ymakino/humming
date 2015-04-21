@@ -44,6 +44,7 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
         this.proxyNode = proxyNode;
         this.proxyEOJ = proxyEOJ;
         this.proxyEPC = proxyEPC;
+        logger.logp(Level.INFO, className, "ProxyPropertyDelegate", "epc: " + epc + " -> proxyNode: " + proxyNode + ", proxyEOJ: " + proxyEOJ + ", proxyEPC: " + proxyEPC);
     }
     
     private Service getService() {

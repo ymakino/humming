@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.NetworkInterface;
 import java.util.LinkedList;
+import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -24,6 +25,9 @@ import org.xml.sax.SAXException;
  * @author ymakino
  */
 public class Humming {
+    private static final Logger logger = Logger.getLogger(Humming.class.getName());
+    private static final String className = Humming.class.getName();
+    
     private Core core;
     private LinkedList<Node> nodes;
     private LinkedList<LocalObjectConfig> configs;

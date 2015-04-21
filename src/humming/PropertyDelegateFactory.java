@@ -3,6 +3,7 @@ package humming;
 import echowand.common.EPC;
 import echowand.service.PropertyDelegate;
 import java.util.HashMap;
+import java.util.logging.Logger;
 import org.w3c.dom.Node;
 
 /**
@@ -10,6 +11,9 @@ import org.w3c.dom.Node;
  * @author ymakino
  */
 public class PropertyDelegateFactory {
+    private static final Logger logger = Logger.getLogger(PropertyDelegateFactory.class.getName());
+    private static final String className = PropertyDelegateFactory.class.getName();
+    
     private HashMap<String, PropertyDelegateFactory> factoryMap;
     
     private static PropertyDelegateFactory instance = null;

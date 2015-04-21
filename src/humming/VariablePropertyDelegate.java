@@ -21,6 +21,7 @@ public class VariablePropertyDelegate extends PropertyDelegate {
     public VariablePropertyDelegate(EPC epc, byte[] data) {
         super(epc, true, true, true);
         this.data = Arrays.copyOf(data, data.length);
+        logger.logp(Level.INFO, className, "VariablePropertyDelegate", "epc: " + epc + " -> data: " + new ObjectData(data));
     }
     
     @Override

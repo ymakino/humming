@@ -24,6 +24,7 @@ public class CommandPropertyDelegate extends PropertyDelegate {
         super(epc, true, true, true);
         this.getCommand = getCommand;
         this.setCommand = setCommand;
+        logger.logp(Level.INFO, className, "CommandPropertyDelegate", "epc: " + epc + " -> get: " + getCommand + ", set: " + setCommand);
     }
     
     @Override
