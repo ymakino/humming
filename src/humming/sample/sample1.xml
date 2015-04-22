@@ -21,7 +21,7 @@
       <data type="file">/tmp/fuga</data>
     </property>
     <property epc="E0">
-      <data type="proxy"><addr>150.65.231.35</addr><eoj>001101</eoj><epc>0xE0</epc></data>
+      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj><epc>0xE0</epc></data>
     </property>
   </object>
 </device>

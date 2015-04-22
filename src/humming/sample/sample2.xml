@@ -2,13 +2,13 @@
 <device>
   <object ceoj="0011">
     <property epc="80">
-      <data type="proxy"><addr>150.65.231.35</addr><eoj>001101</eoj><epc>0x80</epc></data>
+      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj><epc>0x80</epc></data>
     </property>
     <property epc="81" set="enabled" notify="enabled">
-      <data type="proxy"><addr>150.65.231.35</addr><eoj>001101</eoj><epc>0x81</epc></data>
+      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj><epc>0x81</epc></data>
     </property>
     <property epc="E0">
-      <data type="proxy"><addr>150.65.231.35</addr><eoj>001101</eoj><epc>0xE0</epc></data>
+      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj><epc>0xE0</epc></data>
     </property>
     <property epc="E1" set="enabled">
       <data type="file">/tmp/hoge</data>
@@ -23,23 +23,23 @@
       </data>
     </property>
     <property epc="E4" set="enabled">
-      <data type="proxy"><addr>150.65.231.31</addr><eoj>001101</eoj><epc>0xE0</epc></data>
+      <data type="proxy"><node>150.65.231.31</node><eoj>001101</eoj><epc>0xE0</epc></data>
     </property>
   </object>
   <object ceoj="002d">
     <property epc="80">
-      <data type="proxy"><addr>150.65.231.35</addr><eoj>002d01</eoj><epc>0x80</epc></data>
+      <data type="proxy"><node>150.65.231.35</node><eoj>002d01</eoj><epc>0x80</epc></data>
     </property>
     <property epc="E0">
-      <data type="proxy"><addr>150.65.231.35</addr><eoj>002d01</eoj><epc>0xE0</epc></data>
+      <data type="proxy"><node>150.65.231.35</node><eoj>002d01</eoj><epc>0xE0</epc></data>
     </property>
   </object>
   <object ceoj="0011">
     <property epc="80">
-      <data type="proxy"><addr>150.65.231.31</addr><eoj>001101</eoj><epc>0x80</epc></data>
+      <data type="proxy"><node>150.65.231.31</node><eoj>001101</eoj><epc>0x80</epc></data>
     </property>
     <property epc="E0">
-      <data type="proxy"><addr>150.65.231.31</addr><eoj>001101</eoj><epc>0xE0</epc></data>
+      <data type="proxy"><node>150.65.231.31</node><eoj>001101</eoj><epc>0xE0</epc></data>
     </property>
   </object>
 </device>

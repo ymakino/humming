@@ -1,5 +1,6 @@
 package humming;
 
+import echowand.common.ClassEOJ;
 import echowand.common.EPC;
 import echowand.service.PropertyDelegate;
 import java.util.HashMap;
@@ -41,13 +42,13 @@ public class PropertyDelegateFactory {
         return creatorMap.containsKey(name);
     }
     
-    public PropertyDelegate newPropertyDelegate(String name, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) throws HummingException {
+    public PropertyDelegate newPropertyDelegate(String name, ClassEOJ ceoj, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) throws HummingException {
         PropertyDelegateCreator creator = creatorMap.get(name);
         
         if (creator == null) {
             throw new HummingException("no such creator: " + name);
         }
         
-        return creator.newPropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, node);
+        return creator.newPropertyDelegate(ceoj, epc, getEnabled, setEnabled, notifyEnabled, node);
     }
 }

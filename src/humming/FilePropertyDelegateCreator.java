@@ -1,5 +1,6 @@
 package humming;
 
+import echowand.common.ClassEOJ;
 import echowand.common.EPC;
 import echowand.service.PropertyDelegate;
 import java.util.logging.Logger;
@@ -14,7 +15,7 @@ public class FilePropertyDelegateCreator implements PropertyDelegateCreator {
     private static final String className = FilePropertyDelegateCreator.class.getName();
     
     @Override
-    public PropertyDelegate newPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {
+    public PropertyDelegate newPropertyDelegate(ClassEOJ ceoj, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {
         return new FilePropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, node.getTextContent());
     }
 }

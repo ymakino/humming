@@ -1,9 +1,11 @@
 package humming;
 
+import echowand.common.ClassEOJ;
 import echowand.common.EOJ;
 import echowand.common.EPC;
 import echowand.net.InetNodeInfo;
 import echowand.net.NodeInfo;
+import echowand.net.SubnetException;
 import echowand.service.Core;
 import echowand.service.PropertyDelegate;
 import java.net.InetAddress;
@@ -27,8 +29,32 @@ public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
         this.core = core;
     }
     
+    private NodeInfo parseNodeInfo(Node node) throws SubnetException {
+        return core.getSubnet().getRemoteNode(node.getTextContent()).getNodeInfo();
+    }
+    
+    private EOJ parseEOJInfo(Node node) throws SubnetException {
+        return new EOJ(node.getTextContent());
+    }
+    
+    private EPC parseEPCInfo(Node node) throws SubnetException {
+        String epcName = node.getTextContent();
+        if (epcName.toLowerCase().startsWith("0x")) {
+            epcName = epcName.substring(2);
+        }
+
+        byte b = (byte)Integer.parseInt(epcName, 16);
+        return EPC.fromByte(b);
+    }
+    
+    private EOJ parseInstanceInfo(Node node, ClassEOJ ceoj) throws SubnetException {
+        String instanceStr = node.getTextContent();
+        byte instanceCode = (byte)Integer.parseInt(instanceStr);
+        return ceoj.getEOJWithInstanceCode(instanceCode);
+    }
+    
     @Override
-    public PropertyDelegate newPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {
+    public PropertyDelegate newPropertyDelegate(ClassEOJ ceoj, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {
         NodeInfo proxyNode = null;
         EOJ proxyEOJ = null;
         EPC proxyEPC = null;
@@ -38,23 +64,23 @@ public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node proxyInfo = nodeList.item(i);
                 String infoName = proxyInfo.getNodeName();
-                if (infoName.equals("addr")) {
-                    InetAddress addr = InetAddress.getByName(proxyInfo.getTextContent());
-                    proxyNode = new InetNodeInfo(addr);
+                if (infoName.equals("node")) {
+                    proxyNode = parseNodeInfo(proxyInfo);
                 } else if (infoName.equals("eoj")) {
-                    proxyEOJ = new EOJ(proxyInfo.getTextContent());
+                    proxyEOJ = parseEOJInfo(proxyInfo);
+                } else if (infoName.equals("instance")) {
+                    proxyEOJ = parseInstanceInfo(proxyInfo, ceoj);
                 } else if (infoName.equals("epc")) {
-                    String epcName = proxyInfo.getTextContent();
-                    if (epcName.toLowerCase().startsWith("0x")) {
-                        epcName = epcName.substring(2);
-                    }
-                    
-                    byte b = (byte)Integer.parseInt(epcName, 16);
-                    proxyEPC = EPC.fromByte(b);
+                    proxyEPC = parseEPCInfo(proxyInfo);
                 }
             }
-        } catch (UnknownHostException ex) {
+        } catch (SubnetException ex) {
             Logger.getLogger(ProxyPropertyDelegateCreator.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+        
+        if (proxyEPC == null) {
+            proxyEPC = epc;
         }
         
         if (proxyNode != null && proxyEOJ != null && proxyEPC != null) {

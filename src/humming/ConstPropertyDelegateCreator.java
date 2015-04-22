@@ -1,5 +1,6 @@
 package humming;
 
+import echowand.common.ClassEOJ;
 import echowand.common.EPC;
 import echowand.service.PropertyDelegate;
 import java.util.logging.Level;
@@ -15,7 +16,7 @@ public class ConstPropertyDelegateCreator implements PropertyDelegateCreator {
     private static final String className = ConstPropertyDelegateCreator.class.getName();
     
     @Override
-    public PropertyDelegate newPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) throws HummingException {
+    public PropertyDelegate newPropertyDelegate(ClassEOJ ceoj, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) throws HummingException {
         String dataStr = node.getTextContent();
         byte[] dataBytes = new byte[dataStr.length()/2];
         
