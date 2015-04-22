@@ -23,12 +23,12 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
     private static final Logger logger = Logger.getLogger(ProxyPropertyDelegate.class.getName());
     private static final String className = ProxyPropertyDelegate.class.getName();
     
-    private Core core;
-    private Service service;
+    private Service proxyService;
     private NodeInfo proxyNode;
     private EOJ proxyEOJ;
     private EPC proxyEPC;
     private LocalObject localObject = null;
+    private boolean observing = false;
     
     private class ProxyRemoteObjectObserver implements RemoteObjectObserver {
         @Override
@@ -42,10 +42,9 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
         }
     }
     
-    public ProxyPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Core core, NodeInfo proxyNode, EOJ proxyEOJ, EPC proxyEPC) {
+    public ProxyPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Core proxyCore, NodeInfo proxyNode, EOJ proxyEOJ, EPC proxyEPC) {
         super(epc, getEnabled, setEnabled, notifyEnabled);
-        this.core = core;
-        service = new Service(core);
+        proxyService = new Service(proxyCore);
         this.proxyNode = proxyNode;
         this.proxyEOJ = proxyEOJ;
         this.proxyEPC = proxyEPC;
@@ -53,11 +52,17 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
     }
     
     private RemoteObject getRemoteObject() throws SubnetException {
-        RemoteObject remoteObject = service.getRemoteObject(proxyNode, proxyEOJ);
+        RemoteObject remoteObject = proxyService.getRemoteObject(proxyNode, proxyEOJ);
+        
         if (remoteObject == null) {
-            remoteObject = service.registerRemoteEOJ(proxyNode, proxyEOJ);
-            remoteObject.addObserver(new ProxyRemoteObjectObserver());
+            remoteObject = proxyService.registerRemoteEOJ(proxyNode, proxyEOJ);
         }
+        
+        if (!observing) {
+            remoteObject.addObserver(new ProxyRemoteObjectObserver());
+            observing = true;
+        }
+        
         return remoteObject;
     }
     

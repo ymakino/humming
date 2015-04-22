@@ -3,13 +3,11 @@ package humming;
 import echowand.common.ClassEOJ;
 import echowand.common.EOJ;
 import echowand.common.EPC;
-import echowand.net.InetNodeInfo;
 import echowand.net.NodeInfo;
 import echowand.net.SubnetException;
 import echowand.service.Core;
 import echowand.service.PropertyDelegate;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.w3c.dom.Node;
@@ -24,12 +22,18 @@ public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
     private static final String className = ProxyPropertyDelegateCreator.class.getName();
     
     private Core core;
+    private HashMap<String, Core> coreMap;
     
-    public ProxyPropertyDelegateCreator(Core core) {
-        this.core = core;
+    public ProxyPropertyDelegateCreator(Core proxyCore) {
+        core = proxyCore;
+        coreMap = new HashMap<String, Core>();
     }
     
-    private NodeInfo parseNodeInfo(Node node) throws SubnetException {
+    public Core addCore(String name, Core proxyCore) {
+        return coreMap.put(name, proxyCore);
+    }
+    
+    private NodeInfo parseNodeInfo(Core core, Node node) throws SubnetException {
         return core.getSubnet().getRemoteNode(node.getTextContent()).getNodeInfo();
     }
     
@@ -55,24 +59,64 @@ public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
     
     @Override
     public PropertyDelegate newPropertyDelegate(ClassEOJ ceoj, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {
+        Core proxyCore;
         NodeInfo proxyNode = null;
         EOJ proxyEOJ = null;
         EPC proxyEPC = null;
         
         try {
+            Node proxySubnetInfo = null;
+            Node proxyNodeInfo = null;
+            Node proxyEOJInfo = null;
+            Node proxyInstanceInfo = null;
+            Node proxyEPCInfo = null;
+        
             NodeList nodeList = node.getChildNodes();
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node proxyInfo = nodeList.item(i);
                 String infoName = proxyInfo.getNodeName();
-                if (infoName.equals("node")) {
-                    proxyNode = parseNodeInfo(proxyInfo);
+                if (infoName.equals("subnet")) {
+                    proxySubnetInfo = proxyInfo;
+                } else if (infoName.equals("node")) {
+                    proxyNodeInfo = proxyInfo;
                 } else if (infoName.equals("eoj")) {
-                    proxyEOJ = parseEOJInfo(proxyInfo);
+                    proxyEOJInfo = proxyInfo;
                 } else if (infoName.equals("instance")) {
-                    proxyEOJ = parseInstanceInfo(proxyInfo, ceoj);
+                    proxyInstanceInfo = proxyInfo;
                 } else if (infoName.equals("epc")) {
-                    proxyEPC = parseEPCInfo(proxyInfo);
+                    proxyEPCInfo = proxyInfo;
                 }
+            }
+            
+            proxyCore = core;
+            if (proxySubnetInfo != null) {
+                String subnetName = proxySubnetInfo.getTextContent();
+                proxyCore = coreMap.get(subnetName);
+         
+                if (proxyCore == null) {
+                    logger.logp(Level.WARNING, className, "newPropertyDelegate", "invalid subnet: " + subnetName);
+                    return null;
+                }
+            }
+            
+            if (proxyNodeInfo != null) {
+                proxyNode = parseNodeInfo(proxyCore, proxyNodeInfo);
+            }
+            
+            if (proxyInstanceInfo != null) {
+                proxyEOJ = parseInstanceInfo(proxyInstanceInfo, ceoj);
+            }
+            
+            if (proxyEOJInfo != null) {
+                proxyEOJ = parseEOJInfo(proxyEOJInfo);
+            }
+            
+            if (proxyEPCInfo != null) {
+                proxyEPC = parseEPCInfo(proxyEPCInfo);
+            }
+            
+            if (proxyEPC == null) {
+                proxyEPC = epc;
             }
         } catch (SubnetException ex) {
             Logger.getLogger(ProxyPropertyDelegateCreator.class.getName()).log(Level.SEVERE, null, ex);
@@ -83,10 +127,10 @@ public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
             proxyEPC = epc;
         }
         
-        if (proxyNode != null && proxyEOJ != null && proxyEPC != null) {
-            return new ProxyPropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, core, proxyNode, proxyEOJ, proxyEPC);
+        if (proxyNode == null || proxyEOJ == null || proxyEPC == null) {
+            return null;
         }
         
-        return null;
+        return new ProxyPropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, proxyCore, proxyNode, proxyEOJ, proxyEPC);
     }
 }

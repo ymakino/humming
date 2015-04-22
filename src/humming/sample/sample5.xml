@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device>
+  <object ceoj="0011">
+    <property epc="80" set="enabled" notify="enabled">
+<!--
+      <data type="proxy"><subnet>internal</subnet><node>LOCAL(0)</node><eoj>001101</eoj></data>
+-->
+      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj></data>
+    </property>
+    <property epc="81" set="enabled" notify="enabled">
+      <data type="proxy"><subnet>internal</subnet><node>LOCAL(0)</node><eoj>001101</eoj></data>
+<!--
+      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj></data>
+-->
+    </property>
+    <property epc="E0" set="enabled" notify="enabled">
+      <data type="proxy"><subnet>internal</subnet><node>LOCAL(0)</node><eoj>001101</eoj></data>
+<!--
+      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj></data>
+-->
+    </property>
+  </object>
+</device>

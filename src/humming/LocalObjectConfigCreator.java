@@ -130,9 +130,10 @@ public class LocalObjectConfigCreator {
                 String typeName = typeNode.getTextContent();
 
                 PropertyDelegate delegate = delegateFactory.newPropertyDelegate(typeName, info.getClassEOJ(), epc, getEnabled, setEnabled, notifyEnabled, propInfo);
-                delegates.add(delegate);
-                logger.logp(Level.INFO, className, "parseProperty", "delegate: " + delegate + ", type: " + typeName + ", ClassEOJ: " + info.getClassEOJ() + ", EPC: " + epc + ", GET: " + getEnabled + ", SET: " + setEnabled + ", Notify: " + notifyEnabled + ", info: " + toInfoString(propInfo));
-
+                if (delegate != null) {
+                    delegates.add(delegate);
+                    logger.logp(Level.INFO, className, "parseProperty", "delegate: " + delegate + ", type: " + typeName + ", ClassEOJ: " + info.getClassEOJ() + ", EPC: " + epc + ", GET: " + getEnabled + ", SET: " + setEnabled + ", Notify: " + notifyEnabled + ", info: " + toInfoString(propInfo));
+                }
             } else {
                 logger.logp(Level.WARNING, className, "parseProperty", "invalid property: " + toInfoString(propInfo));
             }

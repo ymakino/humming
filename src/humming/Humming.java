@@ -1,9 +1,12 @@
 package humming;
 
+import echowand.common.EPC;
+import echowand.info.TemperatureSensorInfo;
 import echowand.logic.RequestDispatcher;
 import echowand.logic.RequestProcessor;
 import echowand.logic.TooManyObjectsException;
 import echowand.net.Inet4Subnet;
+import echowand.net.InternalSubnet;
 import echowand.net.SubnetException;
 import echowand.service.Core;
 import echowand.service.LocalObjectConfig;
@@ -36,7 +39,24 @@ public class Humming {
     private LinkedList<Node> nodes;
     private LinkedList<LocalObjectConfig> configs;
     
-    public Humming(Core core) {
+    public final void createTestInternalCore(ProxyPropertyDelegateCreator creator) throws TooManyObjectsException {
+        
+        Core peerCore = new Core(new InternalSubnet());
+        TemperatureSensorInfo info = new TemperatureSensorInfo();
+        info.add(EPC.x80, true, true, true, new byte[]{0x30});
+        info.add(EPC.x81, true, true, true, new byte[]{0x00});
+        info.add(EPC.xE0, true, true, true, 2);
+        LocalObjectConfig config = new LocalObjectConfig(info);
+        peerCore.addLocalObjectConfig(config);
+        peerCore.startService();
+        
+        Core internalCore = new Core(new InternalSubnet());
+        internalCore.startService();
+        
+        creator.addCore("internal", internalCore);
+    }
+    
+    public Humming(Core core) throws TooManyObjectsException {
         this.core = core;
         nodes = new LinkedList<Node>();
         configs = new LinkedList<LocalObjectConfig>();
@@ -46,7 +66,11 @@ public class Humming {
         factory.add("variable", new VariablePropertyDelegateCreator());
         factory.add("file", new FilePropertyDelegateCreator());
         factory.add("command", new CommandPropertyDelegateCreator());
-        factory.add("proxy", new ProxyPropertyDelegateCreator(core));
+        
+        ProxyPropertyDelegateCreator creator = new ProxyPropertyDelegateCreator(core);
+        factory.add("proxy", creator);
+        
+        createTestInternalCore(creator);
     }
     
     public PropertyDelegateFactory getDelegateFactory() {
