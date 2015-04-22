@@ -135,6 +135,10 @@ public class Humming {
         dispatcher.removeRequestProcessor(lastProcessor);
         dispatcher.addRequestProcessor(newProcessor);
     }
+    
+    public static void showUsage(String name) {
+        System.out.println("Usage: " + name + " [ -i interface] [xmlfile...]");
+    }
 
     /**
      * @param args the command line arguments
@@ -143,6 +147,11 @@ public class Humming {
         
         Core core;
         int fileIndex;
+        
+        if (args.length > 0 && args[0].equals("-h")) {
+            showUsage("humming");
+            return;
+        }
         
         if (args.length > 0 && args[0].equals("-i")) {
             NetworkInterface nif = NetworkInterface.getByName(args[1]);
