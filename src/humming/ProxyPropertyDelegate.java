@@ -24,37 +24,38 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
     private static final String className = ProxyPropertyDelegate.class.getName();
     
     private Core core;
+    private Service service;
     private NodeInfo proxyNode;
     private EOJ proxyEOJ;
     private EPC proxyEPC;
     private LocalObject localObject = null;
     
-    class ProxyRemoteObjectObserver implements RemoteObjectObserver {
+    private class ProxyRemoteObjectObserver implements RemoteObjectObserver {
         @Override
         public void notifyData(RemoteObject object, EPC epc, ObjectData data) {
-            if (localObject != null) {
-                localObject.notifyDataChanged(epc, data, null);
+            if (localObject == null || !isNotifyEnabled() || proxyEPC != epc) {
+                return;
             }
+            
+            logger.logp(Level.INFO, className, "ProxyRemoteObjectObserver.notifyData", object + ", EPC: " + proxyEPC + ", data: " + data + " -> " + localObject + ", EPC: " + getEPC());
+            localObject.notifyDataChanged(getEPC(), data, null);
         }
     }
     
     public ProxyPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Core core, NodeInfo proxyNode, EOJ proxyEOJ, EPC proxyEPC) {
         super(epc, getEnabled, setEnabled, notifyEnabled);
         this.core = core;
+        service = new Service(core);
         this.proxyNode = proxyNode;
         this.proxyEOJ = proxyEOJ;
         this.proxyEPC = proxyEPC;
         logger.logp(Level.INFO, className, "ProxyPropertyDelegate", "epc: " + epc + " -> proxyNode: " + proxyNode + ", proxyEOJ: " + proxyEOJ + ", proxyEPC: " + proxyEPC);
     }
     
-    private Service getService() {
-        return new Service(core);
-    }
-    
     private RemoteObject getRemoteObject() throws SubnetException {
-        RemoteObject remoteObject = getService().getRemoteObject(proxyNode, proxyEOJ);
+        RemoteObject remoteObject = service.getRemoteObject(proxyNode, proxyEOJ);
         if (remoteObject == null) {
-            remoteObject = getService().registerRemoteEOJ(proxyNode, proxyEOJ);
+            remoteObject = service.registerRemoteEOJ(proxyNode, proxyEOJ);
             remoteObject.addObserver(new ProxyRemoteObjectObserver());
         }
         return remoteObject;
