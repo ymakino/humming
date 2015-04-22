@@ -16,9 +16,9 @@ import org.w3c.dom.NodeList;
  *
  * @author ymakino
  */
-public class ObjectConfigCreator {
-    private static final Logger logger = Logger.getLogger(ObjectConfigCreator.class.getName());
-    private static final String className = ObjectConfigCreator.class.getName();
+public class LocalObjectConfigCreator {
+    private static final Logger logger = Logger.getLogger(LocalObjectConfigCreator.class.getName());
+    private static final String className = LocalObjectConfigCreator.class.getName();
     
     private PropertyDelegateFactory delegateFactory;
     private LocalObjectConfig config;
@@ -174,7 +174,7 @@ public class ObjectConfigCreator {
         }
     }
 
-    public ObjectConfigCreator(Node objectNode, PropertyDelegateFactory factory) throws HummingException {
+    public LocalObjectConfigCreator(Node objectNode, PropertyDelegateFactory factory) throws HummingException {
         delegateFactory = factory;
         
         info = new DeviceObjectInfo();

@@ -73,7 +73,7 @@ public class Humming {
         
         nodes.add(objectNode);
 
-        ObjectConfigCreator creator = new ObjectConfigCreator(objectNode, factory);
+        LocalObjectConfigCreator creator = new LocalObjectConfigCreator(objectNode, factory);
         LocalObjectConfig config = creator.getConfig();
         configs.add(config);
 
