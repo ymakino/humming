@@ -46,15 +46,11 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
         @Override
         public void initialized(Core core) {
             try {
+                proxyService.registerRemoteEOJ(proxyNode, proxyEOJ);
                 RemoteObject remoteObject = proxyService.getRemoteObject(proxyNode, proxyEOJ);
-
-                if (remoteObject == null) {
-                    proxyService.registerRemoteEOJ(proxyNode, proxyEOJ);
-                    remoteObject = proxyService.getRemoteObject(proxyNode, proxyEOJ);
-                }
                 
                 if (remoteObject == null) {
-                    logger.logp(Level.WARNING, className, "ProxyPropertyDelegateCoreListener.started", "cannot register: " + proxyNode + " " + proxyEOJ);
+                    logger.logp(Level.WARNING, className, "ProxyPropertyDelegateCoreListener.initialized", "cannot register: " + proxyNode + " " + proxyEOJ);
                     return;
                 }
                 
