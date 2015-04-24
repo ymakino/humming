@@ -16,17 +16,23 @@ public class ConstPropertyDelegate extends PropertyDelegate {
     private static final Logger logger = Logger.getLogger(ConstPropertyDelegate.class.getName());
     private static final String className = ConstPropertyDelegate.class.getName();
     
-    private byte[] data;
+    private byte[] value;
     
-    public ConstPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, byte[] data) {
+    public ConstPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, byte[] value) {
         super(epc, getEnabled, setEnabled, notifyEnabled);
-        this.data = Arrays.copyOf(data, data.length);
-        logger.logp(Level.INFO, className, "ConstPropertyDelegate", "epc: " + epc + " -> data: " + new ObjectData(data));
+        this.value = Arrays.copyOf(value, value.length);
+        logger.logp(Level.INFO, className, "ConstPropertyDelegate", "epc: " + epc + " -> data: " + new ObjectData(value));
+    }
+    
+    public byte[] getValue() {
+        return Arrays.copyOf(value, value.length);
     }
     
     @Override
     public ObjectData getUserData(LocalObject object, EPC epc) {
-        return new ObjectData(data);
+        ObjectData data = new ObjectData(value);
+        logger.logp(Level.INFO, className, "getUserData", object + ", EPC: " + epc + ", data: " + data);
+        return data;
     }
 
     @Override

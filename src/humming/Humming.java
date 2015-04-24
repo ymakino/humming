@@ -8,8 +8,11 @@ import echowand.logic.TooManyObjectsException;
 import echowand.net.Inet4Subnet;
 import echowand.net.InternalSubnet;
 import echowand.net.SubnetException;
+import echowand.object.LocalObject;
+import echowand.object.ObjectData;
 import echowand.service.Core;
 import echowand.service.LocalObjectConfig;
+import echowand.service.PropertyUpdater;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +50,24 @@ public class Humming {
         info.add(EPC.x81, true, true, true, new byte[]{0x00});
         info.add(EPC.xE0, true, true, true, 2);
         LocalObjectConfig config = new LocalObjectConfig(info);
+        config.addPropertyUpdater(new PropertyUpdater() {
+            @Override
+            public void loop(LocalObject localObject) {
+                setIntervalPeriod(5000);
+                
+                ObjectData data = localObject.getData(EPC.xE0);
+                int num = ((int)(data.get(0) << 8))| data.get(1);
+                num++;
+                if (num > 300) {
+                    num = -300;
+                }
+                
+                byte b0 = (byte)((num & 0xff00) >> 8);
+                byte b1 = (byte)(num & 0x00ff);
+                ObjectData newData = new ObjectData(b0, b1);
+                localObject.forceSetData(EPC.xE0, newData);
+            }
+        });
         peerCore.addLocalObjectConfig(config);
         peerCore.startService();
         
@@ -188,7 +209,7 @@ public class Humming {
         
         Humming humming = new Humming(core);
         
-        humming.parseXMLString("<device><object ceoj=\"0011\"><property epc=\"E0\"><data type=\"const\">0123</data></property></object></device>");
+        humming.parseXMLString("<device><object ceoj=\"0011\"><property epc=\"E0\"><data type=\"const\">0123</data></property><property epc=\"E1\" set=\"enabled\"><data type=\"variable\">0123</data></property></object></device>");
         
         for (int i=fileIndex; i<args.length; i++) {
             humming.parseXMLFile(args[i]);

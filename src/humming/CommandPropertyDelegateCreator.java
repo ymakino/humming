@@ -16,6 +16,9 @@ public class CommandPropertyDelegateCreator implements PropertyDelegateCreator {
     private static final Logger logger = Logger.getLogger(CommandPropertyDelegateCreator.class.getName());
     private static final String className = CommandPropertyDelegateCreator.class.getName();
     
+    public static final String GET_TAG = "get";
+    public static final String SET_TAG = "set";
+    
     @Override
     public PropertyDelegate newPropertyDelegate(ClassEOJ ceoj, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {
         String getCommand = null;
@@ -25,9 +28,9 @@ public class CommandPropertyDelegateCreator implements PropertyDelegateCreator {
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node commandInfo = nodeList.item(i);
             String infoName = commandInfo.getNodeName();
-            if (infoName.equals("get")) {
+            if (infoName.equals(GET_TAG)) {
                 getCommand = commandInfo.getTextContent();
-            } else if (infoName.equals("set")) {
+            } else if (infoName.equals(SET_TAG)) {
                 setCommand = commandInfo.getTextContent();
             } else {
                 logger.logp(Level.WARNING, className, "parseProperty", "invalid tag: " + infoName);

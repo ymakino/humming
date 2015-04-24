@@ -21,16 +21,22 @@ public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
     private static final Logger logger = Logger.getLogger(ProxyPropertyDelegateCreator.class.getName());
     private static final String className = ProxyPropertyDelegateCreator.class.getName();
     
-    private Core core;
+    public static final String SUBNET_TAG = "subnet";
+    public static final String NODE_TAG = "node";
+    public static final String EOJ_TAG = "eoj";
+    public static final String EPC_TAG = "epc";
+    public static final String INSTANCE_TAG = "instance";
+    
+    private Core defaultCore;
     private HashMap<String, Core> coreMap;
     
-    public ProxyPropertyDelegateCreator(Core proxyCore) {
-        core = proxyCore;
+    public ProxyPropertyDelegateCreator(Core core) {
+        defaultCore = core;
         coreMap = new HashMap<String, Core>();
     }
     
-    public Core addCore(String name, Core proxyCore) {
-        return coreMap.put(name, proxyCore);
+    public Core addCore(String name, Core core) {
+        return coreMap.put(name, core);
     }
     
     private NodeInfo parseNodeInfo(Core core, Node node) throws SubnetException {
@@ -58,7 +64,7 @@ public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
     }
     
     @Override
-    public PropertyDelegate newPropertyDelegate(ClassEOJ ceoj, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {
+    public PropertyDelegate newPropertyDelegate(ClassEOJ ceoj, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) throws HummingException {
         Core proxyCore;
         NodeInfo proxyNode = null;
         EOJ proxyEOJ = null;
@@ -75,20 +81,20 @@ public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node proxyInfo = nodeList.item(i);
                 String infoName = proxyInfo.getNodeName();
-                if (infoName.equals("subnet")) {
+                if (infoName.equals(SUBNET_TAG)) {
                     proxySubnetInfo = proxyInfo;
-                } else if (infoName.equals("node")) {
+                } else if (infoName.equals(NODE_TAG)) {
                     proxyNodeInfo = proxyInfo;
-                } else if (infoName.equals("eoj")) {
+                } else if (infoName.equals(EOJ_TAG)) {
                     proxyEOJInfo = proxyInfo;
-                } else if (infoName.equals("instance")) {
+                } else if (infoName.equals(INSTANCE_TAG)) {
                     proxyInstanceInfo = proxyInfo;
-                } else if (infoName.equals("epc")) {
+                } else if (infoName.equals(EPC_TAG)) {
                     proxyEPCInfo = proxyInfo;
                 }
             }
             
-            proxyCore = core;
+            proxyCore = defaultCore;
             if (proxySubnetInfo != null) {
                 String subnetName = proxySubnetInfo.getTextContent();
                 proxyCore = coreMap.get(subnetName);
