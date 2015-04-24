@@ -10,7 +10,6 @@ import echowand.object.ObjectData;
 import echowand.object.RemoteObject;
 import echowand.object.RemoteObjectObserver;
 import echowand.service.Core;
-import echowand.service.CoreDefaultListener;
 import echowand.service.PropertyDelegate;
 import echowand.service.Service;
 import java.util.logging.Level;
@@ -42,25 +41,6 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
         }
     }
     
-    private class ProxyPropertyDelegateCoreListener extends CoreDefaultListener {
-        @Override
-        public void initialized(Core core) {
-            try {
-                proxyService.registerRemoteEOJ(proxyNode, proxyEOJ);
-                RemoteObject remoteObject = proxyService.getRemoteObject(proxyNode, proxyEOJ);
-                
-                if (remoteObject == null) {
-                    logger.logp(Level.WARNING, className, "ProxyPropertyDelegateCoreListener.initialized", "cannot register: " + proxyNode + " " + proxyEOJ);
-                    return;
-                }
-                
-                remoteObject.addObserver(new ProxyRemoteObjectObserver());
-            } catch (SubnetException ex) {
-                Logger.getLogger(ProxyPropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-    
     public ProxyPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Core proxyCore, NodeInfo proxyNode, EOJ proxyEOJ, EPC proxyEPC) {
         super(epc, getEnabled, setEnabled, notifyEnabled);
         
@@ -69,10 +49,18 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
         this.proxyEOJ = proxyEOJ;
         this.proxyEPC = proxyEPC;
         
-        if (proxyCore.isInitialized()) {
-            new ProxyPropertyDelegateCoreListener().initialized(proxyCore);
-        } else {
-            proxyCore.addListener(new ProxyPropertyDelegateCoreListener());
+        try {
+            proxyService.registerRemoteEOJ(proxyNode, proxyEOJ);
+            RemoteObject remoteObject = proxyService.getRemoteObject(proxyNode, proxyEOJ);
+
+            if (remoteObject == null) {
+                logger.logp(Level.WARNING, className, "ProxyPropertyDelegateCoreListener.initialized", "cannot register: " + proxyNode + " " + proxyEOJ);
+                return;
+            }
+
+            remoteObject.addObserver(new ProxyRemoteObjectObserver());
+        } catch (SubnetException ex) {
+            logger.logp(Level.WARNING, className, "ProxyPropertyDelegateCoreListener.initialized", "cannot register: " + proxyNode + " " + proxyEOJ, ex);
         }
                 
         logger.logp(Level.INFO, className, "ProxyPropertyDelegate", "epc: " + epc + " -> proxyNode: " + proxyNode + ", proxyEOJ: " + proxyEOJ + ", proxyEPC: " + proxyEPC);
