@@ -36,8 +36,11 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
             }
             
             LocalObject localObject = getLocalObject();
-            logger.logp(Level.INFO, className, "ProxyRemoteObjectObserver.notifyData", object + ", EPC: " + proxyEPC + ", data: " + data + " -> " + localObject + ", EPC: " + getEPC());
-            localObject.notifyDataChanged(getEPC(), data, null);
+            
+            if (localObject != null) {
+                logger.logp(Level.INFO, className, "ProxyRemoteObjectObserver.notifyData", object + ", EPC: " + proxyEPC + ", data: " + data + " -> " + localObject + ", EPC: " + getEPC());
+                localObject.notifyDataChanged(getEPC(), data, null);
+            }
         }
     }
     
