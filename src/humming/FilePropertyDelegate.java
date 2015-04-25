@@ -18,15 +18,15 @@ import java.util.logging.Logger;
  * @author ymakino
  */
 public class FilePropertyDelegate extends PropertyDelegate {
-    private static final Logger logger = Logger.getLogger(FilePropertyDelegate.class.getName());
-    private static final String className = FilePropertyDelegate.class.getName();
+    private static final Logger LOGGER = Logger.getLogger(FilePropertyDelegate.class.getName());
+    private static final String CLASS_NAME = FilePropertyDelegate.class.getName();
     
     private String filename;
     
     public FilePropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, String filename) {
         super(epc, getEnabled, setEnabled, notifyEnabled);
         this.filename = filename;
-        logger.logp(Level.INFO, className, "FilePropertyDelegate", "epc: " + epc + " -> file: " + filename);
+        LOGGER.logp(Level.INFO, CLASS_NAME, "FilePropertyDelegate", "epc: " + epc + " -> file: " + filename);
     }
     
     public String getFileName() {
@@ -37,7 +37,7 @@ public class FilePropertyDelegate extends PropertyDelegate {
     public ObjectData getUserData(LocalObject object, EPC epc) {
         InputStreamReader reader;
         try {
-            logger.logp(Level.INFO, className, "getUserData begin", object + ", EPC: " + epc + " -> " + filename);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData begin", object + ", EPC: " + epc + " -> " + filename);
             reader = new InputStreamReader(new FileInputStream(filename));
         } catch (FileNotFoundException ex) {
             Logger.getLogger(FilePropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
@@ -63,7 +63,7 @@ public class FilePropertyDelegate extends PropertyDelegate {
                 data = new ObjectData();
             }
             
-            logger.logp(Level.INFO, className, "getUserData end", object + ", EPC: " + epc + " -> " + filename + ", data: " + data);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData end", object + ", EPC: " + epc + " -> " + filename + ", data: " + data);
             return data;
         } catch (IOException ex) {
             Logger.getLogger(FilePropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
@@ -92,9 +92,9 @@ public class FilePropertyDelegate extends PropertyDelegate {
         }
             
         try {
-            logger.logp(Level.INFO, className, "setUserData begin", object + ", EPC: " + epc + " -> " + filename + ", data: " + data);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData begin", object + ", EPC: " + epc + " -> " + filename + ", data: " + data);
             writer.write(data.toString());
-            logger.logp(Level.INFO, className, "setUserData end", object + ", EPC: " + epc + " -> " + filename + ", data: " + data);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData end", object + ", EPC: " + epc + " -> " + filename + ", data: " + data);
             return true;
         } catch (FileNotFoundException ex) {
             Logger.getLogger(FilePropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);

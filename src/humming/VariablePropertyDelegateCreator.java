@@ -12,8 +12,8 @@ import org.w3c.dom.Node;
  * @author ymakino
  */
 public class VariablePropertyDelegateCreator implements PropertyDelegateCreator {
-    private static final Logger logger = Logger.getLogger(VariablePropertyDelegateCreator.class.getName());
-    private static final String className = VariablePropertyDelegateCreator.class.getName();
+    private static final Logger LOGGER = Logger.getLogger(VariablePropertyDelegateCreator.class.getName());
+    private static final String CLASS_NAME = VariablePropertyDelegateCreator.class.getName();
     
     @Override
     public PropertyDelegate newPropertyDelegate(ClassEOJ ceoj, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) throws HummingException {
@@ -25,7 +25,7 @@ public class VariablePropertyDelegateCreator implements PropertyDelegateCreator 
                 dataBytes[i/2] = (byte)Integer.parseInt(dataStr.substring(i, i+2), 16);
             }
         } catch (NumberFormatException ex) {
-            logger.logp(Level.WARNING, className, "parseProperty", "invalid data: " + dataStr);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "invalid data: " + dataStr);
             throw new HummingException("failed" + ex);
         }
         

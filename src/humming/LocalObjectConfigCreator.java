@@ -17,8 +17,8 @@ import org.w3c.dom.NodeList;
  * @author ymakino
  */
 public class LocalObjectConfigCreator {
-    private static final Logger logger = Logger.getLogger(LocalObjectConfigCreator.class.getName());
-    private static final String className = LocalObjectConfigCreator.class.getName();
+    private static final Logger LOGGER = Logger.getLogger(LocalObjectConfigCreator.class.getName());
+    private static final String CLASS_NAME = LocalObjectConfigCreator.class.getName();
     
     private PropertyDelegateFactory delegateFactory;
     private LocalObjectConfig config;
@@ -29,7 +29,7 @@ public class LocalObjectConfigCreator {
         ClassEOJ ceoj = new ClassEOJ(ceojNode.getTextContent());
         info.setClassEOJ(ceoj);
         
-        logger.logp(Level.INFO, className, "parseClassEOJ", "ClassEOJ: " + ceoj);
+        LOGGER.logp(Level.INFO, CLASS_NAME, "parseClassEOJ", "ClassEOJ: " + ceoj);
     }
     
     private String toNodeString(Node node, boolean enableAttributes) {
@@ -121,7 +121,7 @@ public class LocalObjectConfigCreator {
             }
             
             if (!infoName.equals("data")) {
-                logger.logp(Level.WARNING, className, "parseProperty", "invalid property: " + toNodeString(propInfo, true));
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "invalid property: " + toNodeString(propInfo, true));
                 continue;
             }
             
@@ -132,10 +132,10 @@ public class LocalObjectConfigCreator {
                 PropertyDelegate delegate = delegateFactory.newPropertyDelegate(typeName, info.getClassEOJ(), epc, getEnabled, setEnabled, notifyEnabled, propInfo);
                 if (delegate != null) {
                     delegates.add(delegate);
-                    logger.logp(Level.INFO, className, "parseProperty", "delegate: " + delegate + ", type: " + typeName + ", ClassEOJ: " + info.getClassEOJ() + ", EPC: " + epc + ", GET: " + getEnabled + ", SET: " + setEnabled + ", Notify: " + notifyEnabled + ", info: " + toInfoString(propInfo));
+                    LOGGER.logp(Level.INFO, CLASS_NAME, "parseProperty", "delegate: " + delegate + ", type: " + typeName + ", ClassEOJ: " + info.getClassEOJ() + ", EPC: " + epc + ", GET: " + getEnabled + ", SET: " + setEnabled + ", Notify: " + notifyEnabled + ", info: " + toInfoString(propInfo));
                 }
             } else {
-                logger.logp(Level.WARNING, className, "parseProperty", "invalid property: " + toInfoString(propInfo));
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "invalid property: " + toInfoString(propInfo));
             }
         }
         
@@ -152,7 +152,7 @@ public class LocalObjectConfigCreator {
         Node ceojNode = objectNode.getAttributes().getNamedItem("ceoj");
         
         if (ceojNode == null) {
-            logger.logp(Level.WARNING, className, "parseObject", "invalid ClassEOJ: " + ceojNode);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "parseObject", "invalid ClassEOJ: " + ceojNode);
             throw new HummingException("invalid ClassEOJ: " + ceojNode);
         }
         
@@ -170,7 +170,7 @@ public class LocalObjectConfigCreator {
             if (nodeName.equals("property")) {
                 parseProperty(node);
             } else {
-                logger.logp(Level.WARNING, className, "parseObject", "invalid property: " + nodeName);
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "parseObject", "invalid property: " + nodeName);
             }
         }
     }

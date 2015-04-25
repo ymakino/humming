@@ -18,8 +18,8 @@ import org.w3c.dom.NodeList;
  * @author ymakino
  */
 public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
-    private static final Logger logger = Logger.getLogger(ProxyPropertyDelegateCreator.class.getName());
-    private static final String className = ProxyPropertyDelegateCreator.class.getName();
+    private static final Logger LOGGER = Logger.getLogger(ProxyPropertyDelegateCreator.class.getName());
+    private static final String CLASS_NAME = ProxyPropertyDelegateCreator.class.getName();
     
     public static final String SUBNET_TAG = "subnet";
     public static final String NODE_TAG = "node";
@@ -100,7 +100,7 @@ public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
                 proxyCore = coreMap.get(subnetName);
          
                 if (proxyCore == null) {
-                    logger.logp(Level.WARNING, className, "newPropertyDelegate", "invalid subnet: " + subnetName);
+                    LOGGER.logp(Level.WARNING, CLASS_NAME, "newPropertyDelegate", "invalid subnet: " + subnetName);
                     return null;
                 }
             }

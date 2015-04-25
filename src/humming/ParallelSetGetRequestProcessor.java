@@ -23,8 +23,8 @@ import java.util.logging.Logger;
  * @author ymakino
  */
 public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
-    private static final Logger logger = Logger.getLogger(ParallelSetGetRequestProcessor.class.getName());
-    private static final String className = ParallelSetGetRequestProcessor.class.getName();
+    private static final Logger LOGGER = Logger.getLogger(ParallelSetGetRequestProcessor.class.getName());
+    private static final String CLASS_NAME = ParallelSetGetRequestProcessor.class.getName();
     
     private LocalObjectManager manager;
     
@@ -34,78 +34,78 @@ public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
      * @param manager Set、Getの対象となるローカルオブジェクト群
      */
     public ParallelSetGetRequestProcessor(LocalObjectManager manager) {
-        logger.entering(className, "ParallelSetGetRequestProcessor", manager);
+        LOGGER.entering(CLASS_NAME, "ParallelSetGetRequestProcessor", manager);
         
         this.manager = manager;
         
-        logger.exiting(className, "ParallelSetGetRequestProcessor");
+        LOGGER.exiting(CLASS_NAME, "ParallelSetGetRequestProcessor");
     }
     
     private void addAllSetFromFirst(LocalSetGetAtomic localSetGetAtomic, StandardPayload payload) {
-        logger.entering(className, "addAllSetFromFirst", new Object[]{localSetGetAtomic, payload});
+        LOGGER.entering(CLASS_NAME, "addAllSetFromFirst", new Object[]{localSetGetAtomic, payload});
         
         int len = payload.getFirstOPC();
         for (int i=0; i<len; i++) {
             localSetGetAtomic.addSet(payload.getFirstPropertyAt(i));
         }
         
-        logger.exiting(className, "addAllSetFromFirst");
+        LOGGER.exiting(CLASS_NAME, "addAllSetFromFirst");
     }
     
     private void addAllGetFromFirst(LocalSetGetAtomic localSetGetAtomic, StandardPayload payload) {
-        logger.entering(className, "addAllGetFromFirst", new Object[]{localSetGetAtomic, payload});
+        LOGGER.entering(CLASS_NAME, "addAllGetFromFirst", new Object[]{localSetGetAtomic, payload});
         
         int len = payload.getFirstOPC();
         for (int i=0; i<len; i++) {
             localSetGetAtomic.addGet(payload.getFirstPropertyAt(i));
         }
         
-        logger.exiting(className, "addAllGetFromFirst");
+        LOGGER.exiting(CLASS_NAME, "addAllGetFromFirst");
     }
     
     private void addAllGetFromSecond(LocalSetGetAtomic localSetGetAtomic, StandardPayload payload) {
-        logger.entering(className, "addAllGetFromSecond", new Object[]{localSetGetAtomic, payload});
+        LOGGER.entering(CLASS_NAME, "addAllGetFromSecond", new Object[]{localSetGetAtomic, payload});
         
         int len = payload.getSecondOPC();
         for (int i=0; i<len; i++) {
             localSetGetAtomic.addGet(payload.getSecondPropertyAt(i));
         }
         
-        logger.exiting(className, "addAllGetFromSecond");
+        LOGGER.exiting(CLASS_NAME, "addAllGetFromSecond");
     }
     
     private void addAllSetToFirst(LocalSetGetAtomic localSetGetAtomic, StandardPayload payload) {
-        logger.entering(className, "addAllSetToFirst", new Object[]{localSetGetAtomic, payload});
+        LOGGER.entering(CLASS_NAME, "addAllSetToFirst", new Object[]{localSetGetAtomic, payload});
         
         for (Property property : localSetGetAtomic.getSetResult()) {
             payload.addFirstProperty(property);
         }
         
-        logger.exiting(className, "addAllSetToFirst");
+        LOGGER.exiting(CLASS_NAME, "addAllSetToFirst");
     }
     
     private void addAllGetToFirst(LocalSetGetAtomic localSetGetAtomic, StandardPayload payload) {
-        logger.entering(className, "addAllGetToFirst", new Object[]{localSetGetAtomic, payload});
+        LOGGER.entering(CLASS_NAME, "addAllGetToFirst", new Object[]{localSetGetAtomic, payload});
         
         for (Property property : localSetGetAtomic.getGetResult()) {
             payload.addFirstProperty(property);
         }
         
-        logger.exiting(className, "addAllGetToFirst");
+        LOGGER.exiting(CLASS_NAME, "addAllGetToFirst");
     }
     
     private void addAllGetToSecond(LocalSetGetAtomic localSetGetAtomic, StandardPayload payload) {
-        logger.entering(className, "addAllGetToSecond", new Object[]{localSetGetAtomic, payload});
+        LOGGER.entering(CLASS_NAME, "addAllGetToSecond", new Object[]{localSetGetAtomic, payload});
         
         for (Property property : localSetGetAtomic.getGetResult()) {
             payload.addSecondProperty(property);
         }
         
-        logger.exiting(className, "addAllGetToSecond");
+        LOGGER.exiting(CLASS_NAME, "addAllGetToSecond");
     }
     
     private boolean doSetAllData(Frame frame, LocalObject object, StandardPayload res) {
-        logger.entering(className, "doSetAllData", new Object[]{frame, object, res});
+        LOGGER.entering(CLASS_NAME, "doSetAllData", new Object[]{frame, object, res});
         
         StandardPayload req = (StandardPayload)frame.getCommonFrame().getEDATA();
         
@@ -119,12 +119,12 @@ public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
         
         boolean success = localSetGetAtomic.isSuccess();
         
-        logger.exiting(className, "doSetAllData", success);
+        LOGGER.exiting(CLASS_NAME, "doSetAllData", success);
         return success;
     }
     
     private boolean doGetAllData(Frame frame, LocalObject object, StandardPayload res, boolean announce) {
-        logger.entering(className, "doGetAllData", new Object[]{frame, object, res, announce});
+        LOGGER.entering(CLASS_NAME, "doGetAllData", new Object[]{frame, object, res, announce});
         
         StandardPayload req = (StandardPayload)frame.getCommonFrame().getEDATA();
         
@@ -139,12 +139,12 @@ public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
         
         boolean success = localSetGetAtomic.isSuccess();
         
-        logger.exiting(className, "doGetAllData", success);
+        LOGGER.exiting(CLASS_NAME, "doGetAllData", success);
         return success;
     }
     
     private boolean doSetGetAllData(Frame frame, LocalObject object, StandardPayload res) {
-        logger.entering(className, "doSetGetAllData", new Object[]{frame, object, res});
+        LOGGER.entering(CLASS_NAME, "doSetGetAllData", new Object[]{frame, object, res});
         
         StandardPayload req = (StandardPayload)frame.getCommonFrame().getEDATA();
         
@@ -160,21 +160,21 @@ public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
         
         boolean success = localSetGetAtomic.isSuccess();
         
-        logger.exiting(className, "doSetGetAllData", success);
+        LOGGER.exiting(CLASS_NAME, "doSetGetAllData", success);
         return success;
     }
     
     private Frame createResponse(Node sender, Frame frame, LocalObject object, StandardPayload res) {
-        logger.entering(className, "createResponse", new Object[]{sender, frame, object, res});
+        LOGGER.entering(CLASS_NAME, "createResponse", new Object[]{sender, frame, object, res});
         
         Frame resFrame = createResponse(sender, frame, object, res, false, null);
         
-        logger.exiting(className, "createResponse", resFrame);
+        LOGGER.exiting(CLASS_NAME, "createResponse", resFrame);
         return resFrame;
     }
     
     private Frame createResponse(Node sender, Frame frame, LocalObject object, StandardPayload res, boolean useGroup, Subnet subnet) {
-        logger.entering(className, "createResponse", new Object[]{sender, frame, object, res, useGroup, subnet});
+        LOGGER.entering(CLASS_NAME, "createResponse", new Object[]{sender, frame, object, res, useGroup, subnet});
         
         short tid = frame.getCommonFrame().getTID();
         CommonFrame cf = new CommonFrame();
@@ -192,7 +192,7 @@ public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
         
         Frame resFrame =  new Frame(sender, peer, cf, frame.getConnection());
         
-        logger.exiting(className, "createResponse", resFrame);
+        LOGGER.exiting(CLASS_NAME, "createResponse", resFrame);
         return resFrame;
     }
     
@@ -213,7 +213,7 @@ public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
     }
     
     private void processObjectSetI(final Subnet subnet, final Frame frame, final LocalObject object, boolean processed) {
-        logger.entering(className, "processObjectSetI", new Object[]{subnet, frame, object, processed});
+        LOGGER.entering(CLASS_NAME, "processObjectSetI", new Object[]{subnet, frame, object, processed});
         
         new Thread() {
             @Override
@@ -230,11 +230,11 @@ public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
             }
         }.start();
         
-        logger.entering(className, "processObjectSetI");
+        LOGGER.entering(CLASS_NAME, "processObjectSetI");
     }
     
     private void processObjectSetC(final Subnet subnet, final Frame frame, final LocalObject object, boolean processed) {
-        logger.entering(className, "processObjectSetC", new Object[]{subnet, frame, object, processed});
+        LOGGER.entering(CLASS_NAME, "processObjectSetC", new Object[]{subnet, frame, object, processed});
         
         new Thread() {
             @Override
@@ -253,11 +253,11 @@ public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
             }
         }.start();
         
-        logger.exiting(className, "processObjectSetC");
+        LOGGER.exiting(CLASS_NAME, "processObjectSetC");
     }
     
     private void processObjectGet(final Subnet subnet, final Frame frame, final LocalObject object, boolean processed) {
-        logger.entering(className, "processObjectGet", new Object[]{subnet, frame, object, processed});
+        LOGGER.entering(CLASS_NAME, "processObjectGet", new Object[]{subnet, frame, object, processed});
 
         new Thread() {
             @Override
@@ -276,11 +276,11 @@ public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
             }
         }.start();
         
-        logger.exiting(className, "processObjectGet");
+        LOGGER.exiting(CLASS_NAME, "processObjectGet");
     }
 
     private void processObjectSetGet(final Subnet subnet, final Frame frame, final LocalObject object, boolean processed) {
-        logger.entering(className, "processObjectSetGet", new Object[]{subnet, frame, object, processed});
+        LOGGER.entering(CLASS_NAME, "processObjectSetGet", new Object[]{subnet, frame, object, processed});
         
         new Thread() {
             @Override
@@ -299,10 +299,10 @@ public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
             }
         }.start();
         
-        logger.exiting(className, "processObjectSetGet");
+        LOGGER.exiting(CLASS_NAME, "processObjectSetGet");
     }
     private void processObjectINF_REQ(final Subnet subnet, final Frame frame, final LocalObject object, boolean processed) {
-        logger.entering(className, "processObjectINF_REQ", new Object[]{subnet, frame, object, processed});
+        LOGGER.entering(CLASS_NAME, "processObjectINF_REQ", new Object[]{subnet, frame, object, processed});
         
         new Thread() {
             @Override
@@ -326,20 +326,20 @@ public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
             }
         }.start();
         
-        logger.exiting(className, "processObjectINF_REQ");
+        LOGGER.exiting(CLASS_NAME, "processObjectINF_REQ");
     }
     
     private boolean processRequest(Subnet subnet, Frame frame, ESV esv, boolean processed) {
-        logger.entering(className, "processRequest", new Object[]{subnet, frame, esv, processed});
+        LOGGER.entering(CLASS_NAME, "processRequest", new Object[]{subnet, frame, esv, processed});
         
         if (processed) {
-            logger.exiting(className, "processRequest", false);
+            LOGGER.exiting(CLASS_NAME, "processRequest", false);
             return false;
         }
         
         List<LocalObject> objects = getDestinationObject(frame);
         if (objects.isEmpty()) {
-            logger.exiting(className, "processRequest", false);
+            LOGGER.exiting(CLASS_NAME, "processRequest", false);
             return false;
         }
         
@@ -361,12 +361,12 @@ public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
                     processObjectINF_REQ(subnet, frame, object, processed);
                     break;
                 default:
-                    logger.exiting(className, "processRequest", false);
+                    LOGGER.exiting(CLASS_NAME, "processRequest", false);
                     return false;
             }
         }
 
-        logger.exiting(className, "processRequest", true);
+        LOGGER.exiting(CLASS_NAME, "processRequest", true);
         return true;
     }
     
@@ -379,11 +379,11 @@ public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
      */
     @Override
     public boolean processSetI(Subnet subnet, Frame frame, boolean processed) {
-        logger.entering(className, "processRequest", new Object[]{subnet, frame, processed});
+        LOGGER.entering(CLASS_NAME, "processRequest", new Object[]{subnet, frame, processed});
         
         boolean ret = processRequest(subnet, frame, ESV.SetI, processed);
         
-        logger.entering(className, "processRequest", ret);
+        LOGGER.entering(CLASS_NAME, "processRequest", ret);
         return ret;
     }
     
@@ -396,11 +396,11 @@ public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
      */
     @Override
     public boolean processSetC(Subnet subnet, Frame frame, boolean processed) {
-        logger.entering(className, "processSetC", new Object[]{subnet, frame, processed});
+        LOGGER.entering(CLASS_NAME, "processSetC", new Object[]{subnet, frame, processed});
         
         boolean ret = processRequest(subnet, frame, ESV.SetC, processed);
         
-        logger.entering(className, "processSetC", ret);
+        LOGGER.entering(CLASS_NAME, "processSetC", ret);
         return ret;
     }
     
@@ -413,11 +413,11 @@ public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
      */
     @Override
     public boolean processGet(Subnet subnet, Frame frame, boolean processed) {
-        logger.entering(className, "processGet", new Object[]{subnet, frame, processed});
+        LOGGER.entering(CLASS_NAME, "processGet", new Object[]{subnet, frame, processed});
         
         boolean ret = processRequest(subnet, frame, ESV.Get, processed);
         
-        logger.exiting(className, "processGet", ret);
+        LOGGER.exiting(CLASS_NAME, "processGet", ret);
         return ret;
     }
 
@@ -430,11 +430,11 @@ public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
      */
     @Override
     public boolean processSetGet(Subnet subnet, Frame frame, boolean processed) {
-        logger.entering(className, "processSetGet", new Object[]{subnet, frame, processed});
+        LOGGER.entering(CLASS_NAME, "processSetGet", new Object[]{subnet, frame, processed});
         
         boolean ret = processRequest(subnet, frame, ESV.SetGet, processed);
         
-        logger.exiting(className, "processSetGet", ret);
+        LOGGER.exiting(CLASS_NAME, "processSetGet", ret);
         return ret;
     }
     
@@ -447,11 +447,11 @@ public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
      */
     @Override
     public boolean processINF_REQ(Subnet subnet, Frame frame, boolean processed) {
-        logger.entering(className, "processSetGet", new Object[]{subnet, frame, processed});
+        LOGGER.entering(CLASS_NAME, "processSetGet", new Object[]{subnet, frame, processed});
         
         boolean ret = processRequest(subnet, frame, ESV.INF_REQ, processed);
         
-        logger.exiting(className, "processSetGet", ret);
+        LOGGER.exiting(CLASS_NAME, "processSetGet", ret);
         return ret;
     }
 }

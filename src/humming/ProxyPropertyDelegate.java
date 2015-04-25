@@ -20,8 +20,8 @@ import java.util.logging.Logger;
  * @author ymakino
  */
 public class ProxyPropertyDelegate extends PropertyDelegate {
-    private static final Logger logger = Logger.getLogger(ProxyPropertyDelegate.class.getName());
-    private static final String className = ProxyPropertyDelegate.class.getName();
+    private static final Logger LOGGER = Logger.getLogger(ProxyPropertyDelegate.class.getName());
+    private static final String CLASS_NAME = ProxyPropertyDelegate.class.getName();
     
     private Service proxyService;
     private NodeInfo proxyNode;
@@ -38,7 +38,7 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
             LocalObject localObject = getLocalObject();
             
             if (localObject != null) {
-                logger.logp(Level.INFO, className, "ProxyRemoteObjectObserver.notifyData", object + ", EPC: " + proxyEPC + ", data: " + data + " -> " + localObject + ", EPC: " + getEPC());
+                LOGGER.logp(Level.INFO, CLASS_NAME, "ProxyRemoteObjectObserver.notifyData", object + ", EPC: " + proxyEPC + ", data: " + data + " -> " + localObject + ", EPC: " + getEPC());
                 localObject.notifyDataChanged(getEPC(), data, null);
             }
         }
@@ -57,16 +57,16 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
             RemoteObject remoteObject = proxyService.getRemoteObject(proxyNode, proxyEOJ);
 
             if (remoteObject == null) {
-                logger.logp(Level.WARNING, className, "ProxyPropertyDelegateCoreListener.initialized", "cannot register: " + proxyNode + " " + proxyEOJ);
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "ProxyPropertyDelegateCoreListener.initialized", "cannot register: " + proxyNode + " " + proxyEOJ);
                 return;
             }
 
             remoteObject.addObserver(new ProxyRemoteObjectObserver());
         } catch (SubnetException ex) {
-            logger.logp(Level.WARNING, className, "ProxyPropertyDelegateCoreListener.initialized", "cannot register: " + proxyNode + " " + proxyEOJ, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "ProxyPropertyDelegateCoreListener.initialized", "cannot register: " + proxyNode + " " + proxyEOJ, ex);
         }
                 
-        logger.logp(Level.INFO, className, "ProxyPropertyDelegate", "epc: " + epc + " -> proxyNode: " + proxyNode + ", proxyEOJ: " + proxyEOJ + ", proxyEPC: " + proxyEPC);
+        LOGGER.logp(Level.INFO, CLASS_NAME, "ProxyPropertyDelegate", "epc: " + epc + " -> proxyNode: " + proxyNode + ", proxyEOJ: " + proxyEOJ + ", proxyEPC: " + proxyEPC);
     }
     
     public RemoteObject getRemoteObject() throws SubnetException {
@@ -79,41 +79,41 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
     
     @Override
     public ObjectData getUserData(LocalObject object, EPC epc) {
-        logger.entering(className, "getUserData", new Object[]{object, epc});
+        LOGGER.entering(CLASS_NAME, "getUserData", new Object[]{object, epc});
         
         ObjectData data = null;
         
         try {
-            logger.logp(Level.INFO, className, "getUserData begin", object + ", EPC: " + epc + " -> " + getRemoteObject() + ", EPC: " + proxyEPC);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData begin", object + ", EPC: " + epc + " -> " + getRemoteObject() + ", EPC: " + proxyEPC);
             data = getRemoteObject().getData(proxyEPC);
-            logger.logp(Level.INFO, className, "getUserData end", object + ", EPC: " + epc + " -> " + getRemoteObject() + ", EPC: " + proxyEPC + ", data: " + data);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData end", object + ", EPC: " + epc + " -> " + getRemoteObject() + ", EPC: " + proxyEPC + ", data: " + data);
         } catch (SubnetException ex) {
             Logger.getLogger(ProxyPropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
         } catch (EchonetObjectException ex) {
             Logger.getLogger(ProxyPropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        logger.exiting(className, "getUserData", data);
+        LOGGER.exiting(CLASS_NAME, "getUserData", data);
         return data;
     }
 
     @Override
     public boolean setUserData(LocalObject object, EPC epc, ObjectData data) {
-        logger.entering(className, "setUserData", new Object[]{object, epc, data});
+        LOGGER.entering(CLASS_NAME, "setUserData", new Object[]{object, epc, data});
         
         boolean result = false;
         
         try {
-            logger.logp(Level.INFO, className, "setUserData begin", object + ", EPC: " + epc + " -> " + getRemoteObject() + ", EPC: " + proxyEPC + ", data: " + data);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData begin", object + ", EPC: " + epc + " -> " + getRemoteObject() + ", EPC: " + proxyEPC + ", data: " + data);
             result = getRemoteObject().setData(proxyEPC, data);
-            logger.logp(Level.INFO, className, "setUserData end", object + ", EPC: " + epc + " -> " + getRemoteObject() + ", EPC: " + proxyEPC + ", data: " + data + ", result: " + result);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData end", object + ", EPC: " + epc + " -> " + getRemoteObject() + ", EPC: " + proxyEPC + ", data: " + data + ", result: " + result);
         } catch (SubnetException ex) {
             Logger.getLogger(ProxyPropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
         } catch (EchonetObjectException ex) {
             Logger.getLogger(ProxyPropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        logger.exiting(className, "setUserData", result);
+        LOGGER.exiting(CLASS_NAME, "setUserData", result);
         return result;
     }
 }

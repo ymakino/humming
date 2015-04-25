@@ -12,19 +12,10 @@ import org.w3c.dom.Node;
  * @author ymakino
  */
 public class PropertyDelegateFactory {
-    private static final Logger logger = Logger.getLogger(PropertyDelegateFactory.class.getName());
-    private static final String className = PropertyDelegateFactory.class.getName();
+    private static final Logger LOGGER = Logger.getLogger(PropertyDelegateFactory.class.getName());
+    private static final String CLASS_NAME = PropertyDelegateFactory.class.getName();
     
     private HashMap<String, PropertyDelegateCreator> creatorMap;
-    
-    private static PropertyDelegateFactory instance = null;
-    
-    public static PropertyDelegateFactory getInstance() {
-        if (instance == null) {
-            instance = new PropertyDelegateFactory();
-        }
-        return instance;
-    }
     
     public PropertyDelegateFactory() {
         creatorMap = new HashMap<String, PropertyDelegateCreator>();

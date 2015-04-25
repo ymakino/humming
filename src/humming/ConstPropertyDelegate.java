@@ -13,15 +13,15 @@ import java.util.logging.Logger;
  * @author ymakino
  */
 public class ConstPropertyDelegate extends PropertyDelegate {
-    private static final Logger logger = Logger.getLogger(ConstPropertyDelegate.class.getName());
-    private static final String className = ConstPropertyDelegate.class.getName();
+    private static final Logger LOGGER = Logger.getLogger(ConstPropertyDelegate.class.getName());
+    private static final String CLASS_NAME = ConstPropertyDelegate.class.getName();
     
     private byte[] value;
     
     public ConstPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, byte[] value) {
         super(epc, getEnabled, setEnabled, notifyEnabled);
         this.value = Arrays.copyOf(value, value.length);
-        logger.logp(Level.INFO, className, "ConstPropertyDelegate", "epc: " + epc + " -> data: " + new ObjectData(value));
+        LOGGER.logp(Level.INFO, CLASS_NAME, "ConstPropertyDelegate", "epc: " + epc + " -> data: " + new ObjectData(value));
     }
     
     public byte[] getValue() {
@@ -31,7 +31,7 @@ public class ConstPropertyDelegate extends PropertyDelegate {
     @Override
     public ObjectData getUserData(LocalObject object, EPC epc) {
         ObjectData data = new ObjectData(value);
-        logger.logp(Level.INFO, className, "getUserData", object + ", EPC: " + epc + ", data: " + data);
+        LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData", object + ", EPC: " + epc + ", data: " + data);
         return data;
     }
 

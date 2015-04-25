@@ -34,55 +34,58 @@ import org.xml.sax.SAXException;
  * @author ymakino
  */
 public class Humming {
-    private static final Logger logger = Logger.getLogger(Humming.class.getName());
-    private static final String className = Humming.class.getName();
+    private static final Logger LOGGER = Logger.getLogger(Humming.class.getName());
+    private static final String CLASS_NAME = Humming.class.getName();
     
     private Core core;
     private PropertyDelegateFactory factory;
     private LinkedList<Node> nodes;
     private LinkedList<LocalObjectConfig> configs;
     
-    public final void createTestInternalCore(ProxyPropertyDelegateCreator creator) throws TooManyObjectsException {
-        
-        Core peerCore = new Core(new InternalSubnet());
-        TemperatureSensorInfo info = new TemperatureSensorInfo();
-        info.add(EPC.x80, true, true, true, new byte[]{0x30});
-        info.add(EPC.x81, true, true, true, new byte[]{0x00});
-        info.add(EPC.xE0, true, true, true, 2);
-        LocalObjectConfig config = new LocalObjectConfig(info);
-        config.addPropertyUpdater(new PropertyUpdater() {
-            @Override
-            public void loop(LocalObject localObject) {
-                setIntervalPeriod(5000);
-                
-                ObjectData data = localObject.getData(EPC.xE0);
-                int num = ((int)(data.get(0) << 8))| data.get(1);
-                num++;
-                if (num > 300) {
-                    num = -300;
+    public final void createTestInternalCore(ProxyPropertyDelegateCreator creator) {
+        try {
+            Core peerCore = new Core(new InternalSubnet());
+            TemperatureSensorInfo info = new TemperatureSensorInfo();
+            info.add(EPC.x80, true, true, true, new byte[]{0x30});
+            info.add(EPC.x81, true, true, true, new byte[]{0x00});
+            info.add(EPC.xE0, true, true, true, 2);
+            LocalObjectConfig config = new LocalObjectConfig(info);
+            config.addPropertyUpdater(new PropertyUpdater() {
+                @Override
+                public void loop(LocalObject localObject) {
+                    setIntervalPeriod(5000);
+                    
+                    ObjectData data = localObject.getData(EPC.xE0);
+                    int num = ((int)(data.get(0) << 8))| data.get(1);
+                    num++;
+                    if (num > 300) {
+                        num = -300;
+                    }
+                    
+                    byte b0 = (byte)((num & 0xff00) >> 8);
+                    byte b1 = (byte)(num & 0x00ff);
+                    ObjectData newData = new ObjectData(b0, b1);
+                    localObject.forceSetData(EPC.xE0, newData);
                 }
-                
-                byte b0 = (byte)((num & 0xff00) >> 8);
-                byte b1 = (byte)(num & 0x00ff);
-                ObjectData newData = new ObjectData(b0, b1);
-                localObject.forceSetData(EPC.xE0, newData);
-            }
-        });
-        peerCore.addLocalObjectConfig(config);
-        peerCore.startService();
-        
-        Core internalCore = new Core(new InternalSubnet());
-        internalCore.startService();
-        
-        creator.addCore("internal", internalCore);
+            });
+            peerCore.addLocalObjectConfig(config);
+            peerCore.startService();
+            
+            Core internalCore = new Core(new InternalSubnet());
+            internalCore.startService();
+            
+            creator.addCore("internal", internalCore);
+        } catch (TooManyObjectsException ex) {
+            Logger.getLogger(Humming.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
-    public Humming(Core core) throws TooManyObjectsException {
+    public Humming(Core core) {
         this.core = core;
         nodes = new LinkedList<Node>();
         configs = new LinkedList<LocalObjectConfig>();
         
-        factory = PropertyDelegateFactory.getInstance();
+        factory = new PropertyDelegateFactory();
         factory.add("const", new ConstPropertyDelegateCreator());
         factory.add("variable", new VariablePropertyDelegateCreator());
         factory.add("file", new FilePropertyDelegateCreator());
@@ -112,7 +115,7 @@ public class Humming {
     
     public void addXMLObject(Node objectNode) throws HummingException {
         if (!objectNode.getNodeName().equals("object")) {
-            logger.logp(Level.WARNING, className, "addXMLObject", "invalid object: " + objectNode.getNodeName());
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "addXMLObject", "invalid object: " + objectNode.getNodeName());
             throw new HummingException("invalid object: " + objectNode.getNodeName());
         }
         

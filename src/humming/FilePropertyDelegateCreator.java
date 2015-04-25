@@ -11,8 +11,8 @@ import org.w3c.dom.Node;
  * @author ymakino
  */
 public class FilePropertyDelegateCreator implements PropertyDelegateCreator {
-    private static final Logger logger = Logger.getLogger(FilePropertyDelegateCreator.class.getName());
-    private static final String className = FilePropertyDelegateCreator.class.getName();
+    private static final Logger LOGGER = Logger.getLogger(FilePropertyDelegateCreator.class.getName());
+    private static final String CLASS_NAME = FilePropertyDelegateCreator.class.getName();
     
     @Override
     public PropertyDelegate newPropertyDelegate(ClassEOJ ceoj, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {
