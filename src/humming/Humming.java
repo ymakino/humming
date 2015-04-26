@@ -42,44 +42,6 @@ public class Humming {
     private LinkedList<Node> nodes;
     private LinkedList<LocalObjectConfig> configs;
     
-    public final void createTestInternalCore(ProxyPropertyDelegateCreator creator) {
-        try {
-            Core peerCore = new Core(new InternalSubnet());
-            TemperatureSensorInfo info = new TemperatureSensorInfo();
-            info.add(EPC.x80, true, true, true, new byte[]{0x30});
-            info.add(EPC.x81, true, true, true, new byte[]{0x00});
-            info.add(EPC.xE0, true, true, true, 2);
-            LocalObjectConfig config = new LocalObjectConfig(info);
-            config.addPropertyUpdater(new PropertyUpdater() {
-                @Override
-                public void loop(LocalObject localObject) {
-                    setIntervalPeriod(5000);
-                    
-                    ObjectData data = localObject.getData(EPC.xE0);
-                    int num = ((int)(data.get(0) << 8))| data.get(1);
-                    num++;
-                    if (num > 300) {
-                        num = -300;
-                    }
-                    
-                    byte b0 = (byte)((num & 0xff00) >> 8);
-                    byte b1 = (byte)(num & 0x00ff);
-                    ObjectData newData = new ObjectData(b0, b1);
-                    localObject.forceSetData(EPC.xE0, newData);
-                }
-            });
-            peerCore.addLocalObjectConfig(config);
-            peerCore.startService();
-            
-            Core internalCore = new Core(new InternalSubnet());
-            internalCore.startService();
-            
-            creator.addCore("internal", internalCore);
-        } catch (TooManyObjectsException ex) {
-            Logger.getLogger(Humming.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
     public Humming(Core core) {
         this.core = core;
         nodes = new LinkedList<Node>();
@@ -90,15 +52,19 @@ public class Humming {
         factory.add("variable", new VariablePropertyDelegateCreator());
         factory.add("file", new FilePropertyDelegateCreator());
         factory.add("command", new CommandPropertyDelegateCreator());
-        
-        ProxyPropertyDelegateCreator creator = new ProxyPropertyDelegateCreator(core);
-        factory.add("proxy", creator);
-        
-        createTestInternalCore(creator);
+        factory.add("proxy", new ProxyPropertyDelegateCreator(core));
     }
     
     public PropertyDelegateFactory getDelegateFactory() {
         return factory;
+    }
+    
+    public PropertyDelegateCreator getPropertyDelegateCreator(String name) {
+        return factory.get(name);
+    }
+    
+    public PropertyDelegateCreator addPropertyDelegateCreator(String name, PropertyDelegateCreator creator) {
+        return factory.add(name, creator);
     }
     
     public Core getCore() {
@@ -175,6 +141,48 @@ public class Humming {
         }
     }
     
+    public static Core createTestInternalCore(Humming humming) {
+        try {
+            Core peerCore = new Core(new InternalSubnet());
+            TemperatureSensorInfo info = new TemperatureSensorInfo();
+            info.add(EPC.x80, true, true, true, new byte[]{0x30});
+            info.add(EPC.x81, true, true, true, new byte[]{0x00});
+            info.add(EPC.xE0, true, true, true, 2);
+            LocalObjectConfig config = new LocalObjectConfig(info);
+            config.addPropertyUpdater(new PropertyUpdater() {
+                @Override
+                public void loop(LocalObject localObject) {
+                    setIntervalPeriod(5000);
+                    
+                    ObjectData data = localObject.getData(EPC.xE0);
+                    int num = ((int)(data.get(0) << 8))| data.get(1);
+                    num++;
+                    if (num > 300) {
+                        num = -300;
+                    }
+                    
+                    byte b0 = (byte)((num & 0xff00) >> 8);
+                    byte b1 = (byte)(num & 0x00ff);
+                    ObjectData newData = new ObjectData(b0, b1);
+                    localObject.forceSetData(EPC.xE0, newData);
+                }
+            });
+            peerCore.addLocalObjectConfig(config);
+            peerCore.startService();
+            
+            Core internalCore = new Core(new InternalSubnet());
+            internalCore.startService();
+            
+            ProxyPropertyDelegateCreator creator = (ProxyPropertyDelegateCreator)humming.getPropertyDelegateCreator("proxy");
+            creator.addCore("internal", internalCore);
+            
+            return internalCore;
+        } catch (TooManyObjectsException ex) {
+            Logger.getLogger(Humming.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+    }
+    
     public static void replaceSetGetRequestDispatcher(Core core) {
         RequestProcessor lastProcessor = core.getSetGetRequestProcessor();
         RequestProcessor newProcessor = new ParallelSetGetRequestProcessor(core.getLocalObjectManager());
@@ -214,6 +222,8 @@ public class Humming {
         replaceSetGetRequestDispatcher(core);
         
         Humming humming = new Humming(core);
+        
+        Core internalCore = createTestInternalCore(humming);
         
         humming.parseXMLString("<device><object ceoj=\"0011\"><property epc=\"E0\"><data type=\"const\">0123</data></property><property epc=\"E1\" set=\"enabled\"><data type=\"variable\">0123</data></property></object></device>");
         
