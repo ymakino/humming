@@ -185,7 +185,7 @@ public class Humming {
     
     public static void replaceSetGetRequestDispatcher(Core core) {
         RequestProcessor lastProcessor = core.getSetGetRequestProcessor();
-        RequestProcessor newProcessor = new ParallelSetGetRequestProcessor(core.getLocalObjectManager());
+        RequestProcessor newProcessor = new ThreadedSetGetRequestProcessor(core.getLocalObjectManager());
         
         RequestDispatcher dispatcher = core.getRequestDispatcher();
         dispatcher.removeRequestProcessor(lastProcessor);

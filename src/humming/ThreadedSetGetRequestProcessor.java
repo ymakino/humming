@@ -22,23 +22,22 @@ import java.util.logging.Logger;
  *
  * @author ymakino
  */
-public class ParallelSetGetRequestProcessor extends DefaultRequestProcessor {
-    private static final Logger LOGGER = Logger.getLogger(ParallelSetGetRequestProcessor.class.getName());
-    private static final String CLASS_NAME = ParallelSetGetRequestProcessor.class.getName();
+public class ThreadedSetGetRequestProcessor extends DefaultRequestProcessor {
+    private static final Logger LOGGER = Logger.getLogger(ThreadedSetGetRequestProcessor.class.getName());
+    private static final String CLASS_NAME = ThreadedSetGetRequestProcessor.class.getName();
     
     private LocalObjectManager manager;
     
     /**
-     * ParallelSetGetRequestProcessor。
      * ローカルオブジェクトのSetやGetを行うためにLocalObjectManagerを持っている必要がある。
      * @param manager Set、Getの対象となるローカルオブジェクト群
      */
-    public ParallelSetGetRequestProcessor(LocalObjectManager manager) {
-        LOGGER.entering(CLASS_NAME, "ParallelSetGetRequestProcessor", manager);
+    public ThreadedSetGetRequestProcessor(LocalObjectManager manager) {
+        LOGGER.entering(CLASS_NAME, "ThreadedSetGetRequestProcessor", manager);
         
         this.manager = manager;
         
-        LOGGER.exiting(CLASS_NAME, "ParallelSetGetRequestProcessor");
+        LOGGER.exiting(CLASS_NAME, "ThreadedSetGetRequestProcessor");
     }
     
     private void addAllSetFromFirst(LocalSetGetAtomic localSetGetAtomic, StandardPayload payload) {
