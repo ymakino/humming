@@ -1,6 +1,7 @@
 package humming;
 
 import echowand.common.ClassEOJ;
+import echowand.common.Data;
 import echowand.common.EPC;
 import echowand.info.DeviceObjectInfo;
 import echowand.service.LocalObjectConfig;
@@ -98,6 +99,8 @@ public class LocalObjectConfigCreator {
         boolean getEnabled = true;
         boolean setEnabled = false;
         boolean notifyEnabled = false;
+        byte[] dataBytes = new byte[]{0x00};
+        boolean dataSizeFixed = false;
         
         Node setNode = propNode.getAttributes().getNamedItem("set");
         if (setNode != null) {
@@ -113,6 +116,26 @@ public class LocalObjectConfigCreator {
         if (notifyNode != null) {
             notifyEnabled = notifyNode.getTextContent().equals("enabled");
         }
+        
+        Node valueNode = propNode.getAttributes().getNamedItem("value");
+        if (valueNode != null) {
+            String valueStr = valueNode.getTextContent();
+            
+            if (valueStr.length() == 0 || (valueStr.length() % 2) != 0) {
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "invalid value: " + valueStr);
+            }
+            
+            dataBytes = new byte[valueStr.length() / 2];
+            dataSizeFixed = true;
+            
+            for (int i=0; i<valueStr.length(); i+=2) {
+                String numStr = valueStr.substring(i, i+2);
+                int num = Integer.parseInt(numStr, 16);
+                dataBytes[i/2] = (byte)num;
+            }
+        }
+        
+        LOGGER.logp(Level.INFO, CLASS_NAME, "parseProperty", "property: ClassEOJ: " + info.getClassEOJ() + ", EPC: " + epc + ", GET: " + getEnabled + ", SET: " + setEnabled + ", Notify: " + notifyEnabled + ", data: " + new Data(dataBytes));
         
         for (int i=0; i < propInfoList.getLength(); i++) {
             Node propInfo = propInfoList.item(i);
@@ -145,7 +168,11 @@ public class LocalObjectConfigCreator {
             return false;
         }
         
-        info.add(epc, getEnabled, setEnabled, notifyEnabled, 1, new ConstraintAny());
+        if (dataSizeFixed) {
+            info.add(epc, getEnabled, setEnabled, notifyEnabled, dataBytes);
+        } else {
+            info.add(epc, getEnabled, setEnabled, notifyEnabled, dataBytes, new ConstraintAny());
+        }
         
         return true;
     }
@@ -161,6 +188,9 @@ public class LocalObjectConfigCreator {
             if (intervalNode != null ) {
                 int interval = Integer.parseInt(intervalNode.getTextContent());
                 propertyUpdater.setIntervalPeriod(interval);
+                LOGGER.logp(Level.INFO, CLASS_NAME, "parseUpdater", "class: " +  updaterName + ", interval: " + interval);
+            } else {
+                LOGGER.logp(Level.INFO, CLASS_NAME, "parseUpdater", "class: " +  updaterName);
             }
             
             updaters.add(propertyUpdater);

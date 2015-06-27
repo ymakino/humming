@@ -5,6 +5,7 @@
     <property epc="E0" set="enabled" notify="enabled">
       <data type="delegate"><class>humming.sample.SamplePropertyDelegate</class></data>
     </property>
-    <property epc="E1" set="disabled" notify="enabled" />
+    <property epc="E1" set="disabled" notify="enabled" value="0101"/>
+    <property epc="E2" set="enabled" notify="enabled" value="0101" />
   </object>
 </device>
