@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device>
+  <object ceoj="0011">
+    <updater interval="1000">humming.sample.SamplePropertyUpdater</updater>
+    <property epc="E0" set="enabled" notify="enabled">
+      <data type="delegate"><class>humming.sample.SamplePropertyDelegate</class></data>
+    </property>
+    <property epc="E1" set="disabled" notify="enabled" />
+  </object>
+</device>

@@ -5,6 +5,7 @@ import echowand.common.EPC;
 import echowand.info.DeviceObjectInfo;
 import echowand.service.LocalObjectConfig;
 import echowand.service.PropertyDelegate;
+import echowand.service.PropertyUpdater;
 import echowand.util.ConstraintAny;
 import java.util.LinkedList;
 import java.util.logging.Level;
@@ -24,6 +25,7 @@ public class LocalObjectConfigCreator {
     private LocalObjectConfig config;
     private DeviceObjectInfo info;
     private LinkedList<PropertyDelegate> delegates;
+    private LinkedList<PropertyUpdater> updaters;
     
     private void parseClassEOJ(Node ceojNode) {
         ClassEOJ ceoj = new ClassEOJ(ceojNode.getTextContent());
@@ -148,6 +150,34 @@ public class LocalObjectConfigCreator {
         return true;
     }
     
+    private boolean parseUpdater(Node propNode) throws HummingException {
+        String updaterName = propNode.getTextContent().trim();
+        Node intervalNode = propNode.getAttributes().getNamedItem("interval");
+        
+        try {
+            Class<?> cls = Class.forName(updaterName);
+            PropertyUpdater propertyUpdater = (PropertyUpdater)cls.newInstance();
+            
+            if (intervalNode != null ) {
+                int interval = Integer.parseInt(intervalNode.getTextContent());
+                propertyUpdater.setIntervalPeriod(interval);
+            }
+            
+            updaters.add(propertyUpdater);
+            return true;
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NumberFormatException ex) {
+            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return false;
+    }
+    
     private void parseObject(Node objectNode) throws HummingException {
         Node ceojNode = objectNode.getAttributes().getNamedItem("ceoj");
         
@@ -169,8 +199,10 @@ public class LocalObjectConfigCreator {
             
             if (nodeName.equals("property")) {
                 parseProperty(node);
+            } else if (nodeName.equals("updater")) {
+                parseUpdater(node);
             } else {
-                LOGGER.logp(Level.WARNING, CLASS_NAME, "parseObject", "invalid property: " + nodeName);
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "parseObject", "invalid XML node: " + nodeName);
             }
         }
     }
@@ -180,6 +212,7 @@ public class LocalObjectConfigCreator {
         
         info = new DeviceObjectInfo();
         delegates = new LinkedList<PropertyDelegate>();
+        updaters = new LinkedList<PropertyUpdater>();
         
         parseObject(objectNode);
         
@@ -187,6 +220,10 @@ public class LocalObjectConfigCreator {
         
         for (PropertyDelegate delegate : delegates) {
             config.addPropertyDelegate(delegate);
+        }
+        
+        for (PropertyUpdater updater : updaters) {
+            config.addPropertyUpdater(updater);
         }
     }
     

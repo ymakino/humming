@@ -53,6 +53,7 @@ public class Humming {
         factory.add("file", new FilePropertyDelegateCreator());
         factory.add("command", new CommandPropertyDelegateCreator());
         factory.add("proxy", new ProxyPropertyDelegateCreator(core));
+        factory.add("delegate", new DelegatePropertyDelegateCreator());
     }
     
     public PropertyDelegateFactory getDelegateFactory() {

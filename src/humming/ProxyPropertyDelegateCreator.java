@@ -101,7 +101,7 @@ public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
          
                 if (proxyCore == null) {
                     LOGGER.logp(Level.WARNING, CLASS_NAME, "newPropertyDelegate", "invalid subnet: " + subnetName);
-                    return null;
+                    throw new HummingException("invalid subnet: " + subnetName);
                 }
             }
             
@@ -126,7 +126,7 @@ public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
             }
         } catch (SubnetException ex) {
             Logger.getLogger(ProxyPropertyDelegateCreator.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
+            throw new HummingException("failed", ex);
         }
         
         if (proxyEPC == null) {
@@ -134,7 +134,9 @@ public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
         }
         
         if (proxyNode == null || proxyEOJ == null || proxyEPC == null) {
-            return null;
+            String errorMessage = "invalid proxy information: Node: " + proxyNode + " EOJ: " + proxyEOJ + " EPC: " + proxyEPC;
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "newPropertyDelegate", errorMessage);
+            throw new HummingException(errorMessage);
         }
         
         return new ProxyPropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, proxyCore, proxyNode, proxyEOJ, proxyEPC);
