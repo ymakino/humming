@@ -24,6 +24,7 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
     private static final String CLASS_NAME = ProxyPropertyDelegate.class.getName();
     
     private Service proxyService;
+    private Core proxyCore;
     private NodeInfo proxyNode;
     private EOJ proxyEOJ;
     private EPC proxyEPC;
@@ -47,10 +48,25 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
     public ProxyPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Core proxyCore, NodeInfo proxyNode, EOJ proxyEOJ, EPC proxyEPC) {
         super(epc, getEnabled, setEnabled, notifyEnabled);
         
-        proxyService = new Service(proxyCore);
+        this.proxyCore = proxyCore;
         this.proxyNode = proxyNode;
         this.proxyEOJ = proxyEOJ;
         this.proxyEPC = proxyEPC;
+                
+        LOGGER.logp(Level.INFO, CLASS_NAME, "ProxyPropertyDelegate", "epc: " + epc + " -> proxyNode: " + proxyNode + ", proxyEOJ: " + proxyEOJ + ", proxyEPC: " + proxyEPC);
+    }
+    
+    public RemoteObject getRemoteObject() throws SubnetException {
+        if (!proxyService.getCore().isInitialized()) {
+            return null;
+        }
+        
+        return proxyService.getRemoteObject(proxyNode, proxyEOJ);
+    }
+    
+    @Override
+    public void notifyCreated(LocalObject object) {
+        proxyService = new Service(proxyCore);
         
         try {
             proxyService.registerRemoteEOJ(proxyNode, proxyEOJ);
@@ -65,16 +81,6 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
         } catch (SubnetException ex) {
             LOGGER.logp(Level.WARNING, CLASS_NAME, "ProxyPropertyDelegateCoreListener.initialized", "cannot register: " + proxyNode + " " + proxyEOJ, ex);
         }
-                
-        LOGGER.logp(Level.INFO, CLASS_NAME, "ProxyPropertyDelegate", "epc: " + epc + " -> proxyNode: " + proxyNode + ", proxyEOJ: " + proxyEOJ + ", proxyEPC: " + proxyEPC);
-    }
-    
-    public RemoteObject getRemoteObject() throws SubnetException {
-        if (!proxyService.getCore().isInitialized()) {
-            return null;
-        }
-        
-        return proxyService.getRemoteObject(proxyNode, proxyEOJ);
     }
     
     @Override
