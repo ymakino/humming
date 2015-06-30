@@ -1,0 +1,47 @@
+package humming.tools;
+
+import echowand.logic.TooManyObjectsException;
+import echowand.net.Inet4Subnet;
+import echowand.net.SubnetException;
+import echowand.object.EchonetObjectException;
+import echowand.service.Core;
+import echowand.service.Service;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+
+/**
+ *
+ * @author ymakino
+ */
+public class HummingXMLGenerator {
+
+    public static void main(String[] args) throws SubnetException, TooManyObjectsException, GeneratorException, EchonetObjectException, UnknownHostException, SocketException {
+        try {
+            int startIndex = 0;
+            Core core;
+
+            if (args[0].equals("-i")) {
+                NetworkInterface nif = NetworkInterface.getByName(args[1]);
+                Inet4Subnet subnet = Inet4Subnet.startSubnet(nif);
+                core = new Core(subnet);
+                startIndex = 2;
+            } else {
+                core = new Core();
+            }
+
+            core.startService();
+            Service service = new Service(core);
+
+            for (int i = startIndex; i < args.length; i++) {
+                DeviceXMLGenerator generator = new DeviceXMLGenerator(service, service.getRemoteNode(args[i]));
+                System.out.println(generator.generate());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            System.exit(1);
+        } finally {
+            System.exit(0);
+        }
+    }
+}

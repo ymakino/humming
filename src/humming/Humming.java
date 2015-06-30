@@ -226,7 +226,7 @@ public class Humming {
         
         Core internalCore = createTestInternalCore(humming);
         
-        humming.parseXMLString("<device><object ceoj=\"0011\"><property epc=\"E0\"><data type=\"const\">0123</data></property><property epc=\"E1\" set=\"enabled\"><data type=\"variable\">0123</data></property></object></device>");
+        //humming.parseXMLString("<device><object ceoj=\"0011\"><property epc=\"E0\"><data type=\"const\">0123</data></property><property epc=\"E1\" set=\"enabled\"><data type=\"variable\">0123</data></property></object></device>");
         
         for (int i=fileIndex; i<args.length; i++) {
             humming.parseXMLFile(args[i]);
