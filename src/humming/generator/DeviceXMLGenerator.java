@@ -1,4 +1,4 @@
-package humming.tools;
+package humming.generator;
 
 import echowand.common.EOJ;
 import echowand.common.EPC;
@@ -36,13 +36,7 @@ public class DeviceXMLGenerator {
         
         LOGGER.logp(Level.INFO, CLASS_NAME, "generate", "generate: " + nodeProfile);
         
-        ObjectData eojs;
-        try {
-            eojs = nodeProfile.getData(EPC.xD6);
-        } catch (EchonetObjectException ex) {
-            GeneratorException exception = new GeneratorException("failed", ex);
-            throw exception;
-        }
+        ObjectData eojs = Helper.getData(nodeProfile, EPC.xD6);
         
         List<EOJ> eojList = new LinkedList<EOJ>();
         

@@ -1,4 +1,4 @@
-package humming.tools;
+package humming.generator;
 
 /**
  *

@@ -1,4 +1,4 @@
-package humming.tools;
+package humming.generator;
 
 import echowand.common.EPC;
 import echowand.object.EchonetObject;
@@ -48,11 +48,11 @@ public class PropertyXMLGenerator {
         private ObjectData data = null;
         
         @Override
-        public void notifyData(RemoteObject remoteObject, EPC epc, ObjectData data) {
+        public synchronized void notifyData(RemoteObject remoteObject, EPC epc, ObjectData data) {
             this.data = data;
         }
         
-        public ObjectData getData() {
+        public synchronized ObjectData getData() {
             return data;
         }
     }
@@ -62,11 +62,20 @@ public class PropertyXMLGenerator {
         
         try {
             remoteObject.addObserver(notificationObserver);
-            remoteObject.observeData(epc);
             
-            Thread.sleep(5000);
+            for (int i=0; i<3; i++) {
+                remoteObject.observeData(epc);
+
+                for (int j=0; j<40; j++) {
+                    Thread.sleep(100);
+                    ObjectData objectData = notificationObserver.getData();
+                    if (objectData != null) {
+                        return objectData;
+                    }
+                }
+            }
             
-            return notificationObserver.getData();
+            return null;
         } catch (InterruptedException ex) {
             GeneratorException exception = new GeneratorException("getObservableData failed", ex);
             throw exception;
@@ -87,7 +96,7 @@ public class PropertyXMLGenerator {
         try {
             if (object.isGettable(epc)) {
                 LOGGER.logp(Level.INFO, CLASS_NAME, "generate", "isGettable: " + epc);
-                data = object.getData(epc);
+                data = Helper.getData(object, epc);
             } else if (object.isObservable(epc)) {
                 LOGGER.logp(Level.INFO, CLASS_NAME, "generate", "isObservable: " + epc);
                 if (object instanceof LocalObject) {

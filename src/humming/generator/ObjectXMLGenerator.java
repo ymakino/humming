@@ -1,4 +1,4 @@
-package humming.tools;
+package humming.generator;
 
 import echowand.common.EPC;
 import echowand.common.PropertyMap;
@@ -23,30 +23,16 @@ public class ObjectXMLGenerator {
         this.object = object;
     }
     
-    private ObjectData getData(EPC epc) throws GeneratorException {
-        for (int i=0; i<3; i++) {
-            try {
-                ObjectData data = object.getData(epc);
-                LOGGER.logp(Level.INFO, CLASS_NAME, "getData", "getData(" + epc + "): " + data);
-                return data;
-            } catch (EchonetObjectException ex) {
-                LOGGER.logp(Level.WARNING, CLASS_NAME, "getData", "failed: ", ex);
-            }
-        }
-        
-        throw new GeneratorException("cannot get property map: " + epc);
-    }
-    
     private PropertyMap getGetPropertyMap() throws GeneratorException {
-        return new PropertyMap(getData(EPC.x9F).toBytes());
+        return new PropertyMap(Helper.getData(object, EPC.x9F).toBytes());
     }
     
     private PropertyMap getSetPropertyMap() throws GeneratorException {
-        return new PropertyMap(getData(EPC.x9D).toBytes());
+        return new PropertyMap(Helper.getData(object, EPC.x9D).toBytes());
     }
     
     private PropertyMap getAnnoPropertyMap() throws GeneratorException {
-        return new PropertyMap(getData(EPC.x9E).toBytes());
+        return new PropertyMap(Helper.getData(object, EPC.x9E).toBytes());
     }
     
     public String generate() throws GeneratorException {

@@ -1,4 +1,4 @@
-package humming.tools;
+package humming.generator;
 
 import echowand.logic.TooManyObjectsException;
 import echowand.net.Inet4Subnet;
