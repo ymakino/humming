@@ -15,31 +15,12 @@ import org.w3c.dom.NodeList;
  * @author ymakino
  */
 public class DelegatePropertyDelegateCreator implements PropertyDelegateCreator {
-    private static final Logger LOGGER = Logger.getLogger(ProxyPropertyDelegateCreator.class.getName());
-    private static final String CLASS_NAME = ProxyPropertyDelegateCreator.class.getName();
-    
-    public static final String CLASS_TAG = "class";
+    private static final Logger LOGGER = Logger.getLogger(DelegatePropertyDelegateCreator.class.getName());
+    private static final String CLASS_NAME = DelegatePropertyDelegateCreator.class.getName();
     
     @Override
     public PropertyDelegate newPropertyDelegate(ClassEOJ ceoj, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) throws HummingException {
-        Node classInfo = null;
-
-        NodeList nodeList = node.getChildNodes();
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node delegateInfo = nodeList.item(i);
-            String infoName = delegateInfo.getNodeName();
-            if (infoName.equals(CLASS_TAG)) {
-                classInfo = delegateInfo;
-            }
-        }
-
-        if (classInfo == null) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "newPropertyDelegate", "no class element");
-            throw new HummingException("no class element");
-        }
-
-
-        String delegateClassName = classInfo.getTextContent().trim();
+        String delegateClassName = node.getTextContent().trim();
 
         try {
             Class<?> cls = Class.forName(delegateClassName);

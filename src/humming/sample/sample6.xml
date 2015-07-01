@@ -3,7 +3,7 @@
   <object ceoj="0011">
     <updater interval="1000">humming.sample.SamplePropertyUpdater</updater>
     <property epc="E0" set="enabled" notify="enabled">
-      <data type="delegate"><class>humming.sample.SamplePropertyDelegate</class></data>
+      <data type="delegate">humming.sample.SamplePropertyDelegate</data>
     </property>
     <property epc="E1" set="disabled" notify="enabled" value="0101"/>
     <property epc="E2" set="enabled" notify="enabled" value="0101" />
