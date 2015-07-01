@@ -9,12 +9,15 @@ import echowand.service.Service;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.logging.Logger;
 
 /**
  *
  * @author ymakino
  */
 public class HummingXMLGenerator {
+    private static final Logger LOGGER = Logger.getLogger(DeviceXMLGenerator.class.getName());
+    private static final String CLASS_NAME = DeviceXMLGenerator.class.getName();
 
     public static void main(String[] args) throws SubnetException, TooManyObjectsException, GeneratorException, EchonetObjectException, UnknownHostException, SocketException {
         try {

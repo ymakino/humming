@@ -12,6 +12,9 @@ import java.util.logging.Logger;
  * @author ymakino
  */
 public class PropertyXMLGenerator {
+    private static final Logger LOGGER = Logger.getLogger(PropertyXMLGenerator.class.getName());
+    private static final String CLASS_NAME = PropertyXMLGenerator.class.getName();
+    
     private EchonetObject object;
     private EPC epc;
     private boolean getEnabled;
@@ -46,6 +49,7 @@ public class PropertyXMLGenerator {
         ObjectData data = new ObjectData((byte)0x00);
         try {
             data = object.getData(epc);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "generate", "generate: " + epc + " " + data);
         } catch (EchonetObjectException ex) {
             Logger.getLogger(PropertyXMLGenerator.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -11,12 +11,17 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author ymakino
  */
 public class DeviceXMLGenerator {
+    private static final Logger LOGGER = Logger.getLogger(DeviceXMLGenerator.class.getName());
+    private static final String CLASS_NAME = DeviceXMLGenerator.class.getName();
+    
     private Service service;
     private Node node;
     
@@ -28,6 +33,8 @@ public class DeviceXMLGenerator {
     public String generate() throws EchonetObjectException, GeneratorException {
         service.registerRemoteEOJ(node, new EOJ("0ef001"));
         RemoteObject nodeProfile = service.getRemoteObject(node, new EOJ("0ef001"));
+        
+        LOGGER.logp(Level.INFO, CLASS_NAME, "generate", "generate: " + nodeProfile);
         
         ObjectData eojs = nodeProfile.getData(EPC.xD6);
         

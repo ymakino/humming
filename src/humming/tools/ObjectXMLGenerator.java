@@ -52,6 +52,8 @@ public class ObjectXMLGenerator {
     public String generate() throws GeneratorException {
         StringBuilder builder = new StringBuilder();
         
+        LOGGER.logp(Level.INFO, CLASS_NAME, "generate", "generate: " + object);
+        
         builder.append(String.format(indent + "<object ceoj=\"%s\">\n", object.getEOJ().getClassEOJ().toString()));
         
         PropertyMap getMap = getGetPropertyMap();
