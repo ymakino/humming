@@ -30,13 +30,19 @@ public class DeviceXMLGenerator {
         this.node = node;
     }
     
-    public String generate() throws EchonetObjectException, GeneratorException {
+    public String generate() throws GeneratorException {
         service.registerRemoteEOJ(node, new EOJ("0ef001"));
         RemoteObject nodeProfile = service.getRemoteObject(node, new EOJ("0ef001"));
         
         LOGGER.logp(Level.INFO, CLASS_NAME, "generate", "generate: " + nodeProfile);
         
-        ObjectData eojs = nodeProfile.getData(EPC.xD6);
+        ObjectData eojs;
+        try {
+            eojs = nodeProfile.getData(EPC.xD6);
+        } catch (EchonetObjectException ex) {
+            GeneratorException exception = new GeneratorException("failed", ex);
+            throw exception;
+        }
         
         List<EOJ> eojList = new LinkedList<EOJ>();
         
@@ -62,7 +68,7 @@ public class DeviceXMLGenerator {
             builder.append(generator.generate());
         }
         
-        builder.append("</device>");
+        builder.append("</device>\n");
         
         return builder.toString();
     }

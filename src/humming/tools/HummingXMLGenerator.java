@@ -18,11 +18,20 @@ import java.util.logging.Logger;
 public class HummingXMLGenerator {
     private static final Logger LOGGER = Logger.getLogger(DeviceXMLGenerator.class.getName());
     private static final String CLASS_NAME = DeviceXMLGenerator.class.getName();
+    
+    public static void showUsage(String name) {
+        System.out.println("Usage: " + name + " [ -i interface ] address...");
+    }
 
     public static void main(String[] args) throws SubnetException, TooManyObjectsException, GeneratorException, EchonetObjectException, UnknownHostException, SocketException {
         try {
             int startIndex = 0;
             Core core;
+            
+            if (args[0].equals("-h")) {
+                showUsage("HummingXMLGenerator");
+                System.exit(0);
+            }
 
             if (args[0].equals("-i")) {
                 NetworkInterface nif = NetworkInterface.getByName(args[1]);
@@ -38,7 +47,7 @@ public class HummingXMLGenerator {
 
             for (int i = startIndex; i < args.length; i++) {
                 DeviceXMLGenerator generator = new DeviceXMLGenerator(service, service.getRemoteNode(args[i]));
-                System.out.println(generator.generate());
+                System.out.print(generator.generate());
             }
         } catch (Exception ex) {
             ex.printStackTrace();

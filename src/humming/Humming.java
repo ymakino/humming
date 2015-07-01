@@ -194,7 +194,7 @@ public class Humming {
     }
     
     public static void showUsage(String name) {
-        System.out.println("Usage: " + name + " [ -i interface] [xmlfile...]");
+        System.out.println("Usage: " + name + " [ -i interface ] [ xmlfile... ]");
     }
 
     /**
@@ -206,7 +206,7 @@ public class Humming {
         int fileIndex;
         
         if (args.length > 0 && args[0].equals("-h")) {
-            showUsage("humming");
+            showUsage("Humming");
             return;
         }
         
