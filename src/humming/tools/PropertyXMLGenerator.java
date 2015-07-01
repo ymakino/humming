@@ -96,6 +96,9 @@ public class PropertyXMLGenerator {
                 } else if (object instanceof RemoteObject) {
                     RemoteObject remoteObject = (RemoteObject)object;
                     data = getObservableData(remoteObject);
+                } else {
+                    GeneratorException exception = new GeneratorException("unsupported object: " + object);
+                    throw exception;
                 }
             }
             LOGGER.logp(Level.INFO, CLASS_NAME, "generate", "generate: " + epc + " " + data);
