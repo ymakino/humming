@@ -28,11 +28,11 @@ public class ObjectXMLGenerator {
     }
     
     private PropertyMap getSetPropertyMap() throws GeneratorException {
-        return new PropertyMap(Helper.getData(object, EPC.x9D).toBytes());
+        return new PropertyMap(Helper.getData(object, EPC.x9E).toBytes());
     }
     
     private PropertyMap getAnnoPropertyMap() throws GeneratorException {
-        return new PropertyMap(Helper.getData(object, EPC.x9E).toBytes());
+        return new PropertyMap(Helper.getData(object, EPC.x9D).toBytes());
     }
     
     public String generate() throws GeneratorException {
