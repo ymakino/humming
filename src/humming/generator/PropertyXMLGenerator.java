@@ -29,7 +29,9 @@ public class PropertyXMLGenerator {
     
     public enum GenerateMode {
         VARIABLE,
-        PROXY
+        PROXY,
+        FILE,
+        COMMAND
     }
     
     private GenerateMode generateMode = GenerateMode.VARIABLE;
@@ -94,7 +96,7 @@ public class PropertyXMLGenerator {
         switch (generateMode) {
             case PROXY: return generateProxyDataElement();
             case VARIABLE: return generateVariableDataElement();
-            default: return generateVariableDataElement();
+            default: throw new GeneratorException("unsupported mode: " + generateMode);
         }
     }
 
