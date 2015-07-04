@@ -3,10 +3,8 @@ package humming.generator;
 import echowand.common.EPC;
 import echowand.object.EchonetObject;
 import echowand.object.EchonetObjectException;
-import echowand.object.LocalObject;
 import echowand.object.ObjectData;
 import echowand.object.RemoteObject;
-import echowand.object.RemoteObjectObserver;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,6 +16,8 @@ public class PropertyXMLGenerator {
     private static final Logger LOGGER = Logger.getLogger(PropertyXMLGenerator.class.getName());
     private static final String CLASS_NAME = PropertyXMLGenerator.class.getName();
     
+    private ObjectData DEFAULT_DATA = new ObjectData((byte)0x00);
+    
     private EchonetObject object;
     private EPC epc;
     private boolean getEnabled;
@@ -26,6 +26,13 @@ public class PropertyXMLGenerator {
     
     private String indent1 = "    ";
     private String indent2 = "      ";
+    
+    public enum GenerateMode {
+        VARIABLE,
+        PROXY
+    }
+    
+    private GenerateMode generateMode = GenerateMode.VARIABLE;
     
     private static String b2s(boolean b) {
         if (b) {
@@ -44,72 +51,26 @@ public class PropertyXMLGenerator {
         this.notifyEnabled = notifyEnabled;
     }
     
-    private class NotificationObserver implements RemoteObjectObserver {
-        private ObjectData data = null;
-        
-        @Override
-        public synchronized void notifyData(RemoteObject remoteObject, EPC epc, ObjectData data) {
-            this.data = data;
-        }
-        
-        public synchronized ObjectData getData() {
-            return data;
-        }
+    public GenerateMode getGenerateType() {
+        return generateMode;
     }
     
-    public ObjectData getObservableData(RemoteObject remoteObject) throws GeneratorException {
-        NotificationObserver notificationObserver = new NotificationObserver();
+    public void setGenerateType(GenerateMode generateMode) {
+        this.generateMode = generateMode;
+    } 
+    
+    public String generateVariableDataElement() throws GeneratorException {
+        ObjectData data = DEFAULT_DATA;
         
-        try {
-            remoteObject.addObserver(notificationObserver);
-            
-            for (int i=0; i<3; i++) {
-                remoteObject.observeData(epc);
-
-                for (int j=0; j<40; j++) {
-                    Thread.sleep(100);
-                    ObjectData objectData = notificationObserver.getData();
-                    if (objectData != null) {
-                        return objectData;
-                    }
-                }
-            }
-            
-            return null;
-        } catch (InterruptedException ex) {
-            GeneratorException exception = new GeneratorException("getObservableData failed", ex);
-            throw exception;
-        } catch (EchonetObjectException ex) {
-            GeneratorException exception = new GeneratorException("getObservableData failed", ex);
-            throw exception;
-        } finally {
-            remoteObject.removeObserver(notificationObserver);
-        }
-    }
-
-    public String generate() throws GeneratorException  {
-        StringBuilder builder = new StringBuilder();
-        String beginElement = String.format(indent1 + "<property epc=\"%s\" get=\"%s\" set=\"%s\" notify=\"%s\">\n", epc.toString().substring(1), b2s(getEnabled), b2s(setEnabled), b2s(notifyEnabled));
-        builder.append(beginElement);
-        
-        ObjectData data = new ObjectData((byte)0x00);
         try {
             if (object.isGettable(epc)) {
                 LOGGER.logp(Level.INFO, CLASS_NAME, "generate", "isGettable: " + epc);
-                data = Helper.getData(object, epc);
+                data = EchonetObjectHelper.getData(object, epc);
             } else if (object.isObservable(epc)) {
                 LOGGER.logp(Level.INFO, CLASS_NAME, "generate", "isObservable: " + epc);
-                if (object instanceof LocalObject) {
-                    LocalObject localObject = (LocalObject)object;
-                    data = localObject.forceGetData(epc);
-                } else if (object instanceof RemoteObject) {
-                    RemoteObject remoteObject = (RemoteObject)object;
-                    data = getObservableData(remoteObject);
-                } else {
-                    GeneratorException exception = new GeneratorException("unsupported object: " + object);
-                    throw exception;
-                }
+                data = EchonetObjectHelper.observeData(object, epc);
             }
+            
             LOGGER.logp(Level.INFO, CLASS_NAME, "generate", "generate: " + epc + " " + data);
         } catch (EchonetObjectException ex) {
             Logger.getLogger(PropertyXMLGenerator.class.getName()).log(Level.SEVERE, null, ex);
@@ -120,8 +81,28 @@ public class PropertyXMLGenerator {
             throw exception;
         }
         
-        builder.append(String.format(indent2 + "<data type=\"variable\">%s</data>\n", data.toString()));
+        return String.format("<data type=\"variable\">%s</data>\n", data);
+    }
+    
+    public String generateProxyDataElement() {
+        String nodeElement = String.format("<node>%s</node>", ((RemoteObject)object).getNode());
+        String eojElement = String.format("<eoj>%s</eoj>", object.getEOJ());
+        return String.format("<data type=\"proxy\">%s%s</data>\n", nodeElement, eojElement);
+    }
+    
+    public String generateDataElement() throws GeneratorException {
+        switch (generateMode) {
+            case PROXY: return generateProxyDataElement();
+            case VARIABLE: return generateVariableDataElement();
+            default: return generateVariableDataElement();
+        }
+    }
+
+    public String generate() throws GeneratorException  {
         
+        StringBuilder builder = new StringBuilder();
+        builder.append(String.format(indent1 + "<property epc=\"%s\" get=\"%s\" set=\"%s\" notify=\"%s\">\n", epc.toString().substring(1), b2s(getEnabled), b2s(setEnabled), b2s(notifyEnabled)));
+        builder.append(indent2 + generateDataElement());
         builder.append(indent1 + "</property>\n");
         
         return builder.toString();

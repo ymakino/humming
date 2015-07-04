@@ -3,7 +3,6 @@ package humming.generator;
 import echowand.common.EOJ;
 import echowand.common.EPC;
 import echowand.net.Node;
-import echowand.object.EchonetObjectException;
 import echowand.object.ObjectData;
 import echowand.object.RemoteObject;
 import echowand.service.Service;
@@ -25,6 +24,8 @@ public class DeviceXMLGenerator {
     private Service service;
     private Node node;
     
+    private String indent = "";
+    
     public DeviceXMLGenerator(Service service, Node node) {
         this.service = service;
         this.node = node;
@@ -36,7 +37,7 @@ public class DeviceXMLGenerator {
         
         LOGGER.logp(Level.INFO, CLASS_NAME, "generate", "generate: " + nodeProfile);
         
-        ObjectData eojs = Helper.getData(nodeProfile, EPC.xD6);
+        ObjectData eojs = EchonetObjectHelper.getData(nodeProfile, EPC.xD6);
         
         List<EOJ> eojList = new LinkedList<EOJ>();
         
@@ -51,18 +52,20 @@ public class DeviceXMLGenerator {
             }
         });
         
-        StringBuilder builder = new StringBuilder();
-        builder.append("<device>\n");
+        StringBuilder objectBuilder = new StringBuilder();
         
         for (EOJ eoj : eojList) {
             service.registerRemoteEOJ(node, eoj);
             RemoteObject object = service.getRemoteObject(node, eoj);
 
             ObjectXMLGenerator generator = new ObjectXMLGenerator(object);
-            builder.append(generator.generate());
+            objectBuilder.append(generator.generate());
         }
         
-        builder.append("</device>\n");
+        StringBuilder builder = new StringBuilder();
+        builder.append(indent + "<device>\n");
+        builder.append(objectBuilder);
+        builder.append(indent + "</device>\n");
         
         return builder.toString();
     }
