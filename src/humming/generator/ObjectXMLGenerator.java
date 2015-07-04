@@ -1,6 +1,5 @@
 package humming.generator;
 
-import echowand.common.ClassEOJ;
 import echowand.common.EPC;
 import echowand.common.PropertyMap;
 import echowand.object.EchonetObject;
