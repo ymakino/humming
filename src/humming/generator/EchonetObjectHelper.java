@@ -18,7 +18,7 @@ public class EchonetObjectHelper {
     private static final Logger LOGGER = Logger.getLogger(EchonetObjectHelper.class.getName());
     private static final String CLASS_NAME = EchonetObjectHelper.class.getName();
     
-    public static ObjectData defaultData = new ObjectData();
+    public static ObjectData DEFAULT_DATA = new ObjectData();
     
     public static final int GET_RETRY_COUNT = 5;
     public static final int OBSERVE_RETRY_COUNT = 5;
@@ -173,7 +173,7 @@ public class EchonetObjectHelper {
             data = ((LocalObject)object).forceGetData(epc);
             LOGGER.logp(Level.INFO, CLASS_NAME, "forceGetData", "forceGetData(" + epc + "): " + data);
         } else {
-            data = defaultData;
+            data = DEFAULT_DATA;
             LOGGER.logp(Level.WARNING, CLASS_NAME, "forceGetData", "unsupported object: " + object);
         }
         
