@@ -18,8 +18,68 @@ public class EchonetObjectHelper {
     private static final Logger LOGGER = Logger.getLogger(EchonetObjectHelper.class.getName());
     private static final String CLASS_NAME = EchonetObjectHelper.class.getName();
     
+    public static ObjectData defaultData = new ObjectData();
+    
     public static final int GET_RETRY_COUNT = 5;
     public static final int OBSERVE_RETRY_COUNT = 5;
+    public static final int ACCESS_RULE_RETRY_COUNT = 5;
+
+    static boolean isGettable(EchonetObject object, EPC epc) throws GeneratorException {
+        for (int i=0; i<ACCESS_RULE_RETRY_COUNT; i++) {
+            LOGGER.logp(Level.INFO, CLASS_NAME, "isGettable", "isGettable(" + object + ", " + epc + ") retry: " + i);
+                    
+            try {
+                boolean result = object.isGettable(epc);
+                LOGGER.logp(Level.INFO, CLASS_NAME, "isGettable", "isGettable(" + object + ", " + epc + "): " + result);
+                LOGGER.exiting(CLASS_NAME, "isGettable", result);
+                return result;
+            } catch (EchonetObjectException ex) {
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "isGettable", "failed: ", ex);
+            }
+        }
+        
+        GeneratorException exception = new GeneratorException("cannot get GET access rule: " + epc);
+        LOGGER.throwing(CLASS_NAME, "isGettable", exception);
+        throw exception;
+    }
+
+    static boolean isObservable(EchonetObject object, EPC epc) throws GeneratorException {
+        for (int i=0; i<ACCESS_RULE_RETRY_COUNT; i++) {
+            LOGGER.logp(Level.INFO, CLASS_NAME, "isObservable", "isObservable(" + object + ", " + epc + ") retry: " + i);
+                    
+            try {
+                boolean result = object.isGettable(epc);
+                LOGGER.logp(Level.INFO, CLASS_NAME, "isObservable", "isObservable(" + object + ", " + epc + "): " + result);
+                LOGGER.exiting(CLASS_NAME, "isObservable", result);
+                return result;
+            } catch (EchonetObjectException ex) {
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "isObservable", "failed: ", ex);
+            }
+        }
+        
+        GeneratorException exception = new GeneratorException("cannot get OBSERVE access rule: " + epc);
+        LOGGER.throwing(CLASS_NAME, "isObservable", exception);
+        throw exception;
+    }
+
+    static boolean isSettable(EchonetObject object, EPC epc) throws GeneratorException {
+        for (int i=0; i<ACCESS_RULE_RETRY_COUNT; i++) {
+            LOGGER.logp(Level.INFO, CLASS_NAME, "isSettable", "isSettable(" + object + ", " + epc + ") retry: " + i);
+                    
+            try {
+                boolean result = object.isSettable(epc);
+                LOGGER.logp(Level.INFO, CLASS_NAME, "isSettable", "isSettable(" + object + ", " + epc + "): " + result);
+                LOGGER.exiting(CLASS_NAME, "isGettable", result);
+                return result;
+            } catch (EchonetObjectException ex) {
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "isSettable", "failed: ", ex);
+            }
+        }
+        
+        GeneratorException exception = new GeneratorException("cannot get SET access rule: " + epc);
+        LOGGER.throwing(CLASS_NAME, "isSettable", exception);
+        throw exception;
+    }
     
     public static ObjectData getData(EchonetObject object, EPC epc) throws GeneratorException {
         LOGGER.entering(CLASS_NAME, "getData", new Object[]{object, epc});
@@ -37,7 +97,7 @@ public class EchonetObjectHelper {
             }
         }
         
-        GeneratorException exception = new GeneratorException("cannot get property map: " + epc);
+        GeneratorException exception = new GeneratorException("cannot get data: " + epc);
         LOGGER.throwing(CLASS_NAME, "getData", exception);
         throw exception;
     }
@@ -101,6 +161,23 @@ public class EchonetObjectHelper {
         }
 
         LOGGER.exiting(CLASS_NAME, "obsereData", data);
+        return data;
+    }
+    
+    public static ObjectData forceGetData(EchonetObject object, EPC epc) throws GeneratorException {
+        LOGGER.entering(CLASS_NAME, "forceGetData", new Object[]{object, epc});
+        
+        ObjectData data;
+        
+        if (object instanceof LocalObject) {
+            data = ((LocalObject)object).forceGetData(epc);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "forceGetData", "forceGetData(" + epc + "): " + data);
+        } else {
+            data = defaultData;
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "forceGetData", "unsupported object: " + object);
+        }
+        
+        LOGGER.exiting(CLASS_NAME, "forceGetData", data);
         return data;
     }
 }
