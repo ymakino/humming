@@ -24,7 +24,7 @@ public class EchonetObjectHelper {
     public static final int OBSERVE_RETRY_COUNT = 5;
     public static final int ACCESS_RULE_RETRY_COUNT = 5;
 
-    static boolean isGettable(EchonetObject object, EPC epc) throws GeneratorException {
+    public static boolean isGettable(EchonetObject object, EPC epc) throws GeneratorException {
         for (int i=0; i<ACCESS_RULE_RETRY_COUNT; i++) {
             LOGGER.logp(Level.INFO, CLASS_NAME, "isGettable", "isGettable(" + object + ", " + epc + ") retry: " + i);
                     
@@ -43,7 +43,7 @@ public class EchonetObjectHelper {
         throw exception;
     }
 
-    static boolean isObservable(EchonetObject object, EPC epc) throws GeneratorException {
+    public static boolean isObservable(EchonetObject object, EPC epc) throws GeneratorException {
         for (int i=0; i<ACCESS_RULE_RETRY_COUNT; i++) {
             LOGGER.logp(Level.INFO, CLASS_NAME, "isObservable", "isObservable(" + object + ", " + epc + ") retry: " + i);
                     
@@ -62,7 +62,7 @@ public class EchonetObjectHelper {
         throw exception;
     }
 
-    static boolean isSettable(EchonetObject object, EPC epc) throws GeneratorException {
+    public static boolean isSettable(EchonetObject object, EPC epc) throws GeneratorException {
         for (int i=0; i<ACCESS_RULE_RETRY_COUNT; i++) {
             LOGGER.logp(Level.INFO, CLASS_NAME, "isSettable", "isSettable(" + object + ", " + epc + ") retry: " + i);
                     

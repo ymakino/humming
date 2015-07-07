@@ -50,11 +50,11 @@ public class PropertyXMLGenerator {
         this.notifyEnabled = notifyEnabled;
     }
     
-    public GenerateMode getGenerateType() {
+    public GenerateMode getGenerateMode() {
         return generateMode;
     }
     
-    public void setGenerateType(GenerateMode generateMode) {
+    public void setGenerateMode(GenerateMode generateMode) {
         this.generateMode = generateMode;
     } 
     
@@ -71,7 +71,7 @@ public class PropertyXMLGenerator {
             LOGGER.logp(Level.INFO, CLASS_NAME, "generate", "isSettable: " + epc);
             data = EchonetObjectHelper.forceGetData(object, epc);
         } else {
-            GeneratorException exception = new GeneratorException("no valid access rule: " + epc);
+            GeneratorException exception = new GeneratorException("no valid access rule exists: " + epc);
             throw exception;
         }
 
