@@ -6,6 +6,7 @@ import echowand.net.SubnetException;
 import echowand.object.EchonetObjectException;
 import echowand.service.Core;
 import echowand.service.Service;
+import humming.NetworkInterfaceSelector;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -34,7 +35,14 @@ public class HummingXMLGenerator {
             }
 
             if (args[0].equals("-i")) {
-                NetworkInterface nif = NetworkInterface.getByName(args[1]);
+                NetworkInterface nif;
+                
+                if (args[1].equals("-")) {
+                    nif = NetworkInterfaceSelector.select();
+                } else {
+                    nif = NetworkInterface.getByName(args[1]);
+                }
+                
                 Inet4Subnet subnet = Inet4Subnet.startSubnet(nif);
                 core = new Core(subnet);
                 startIndex = 2;
