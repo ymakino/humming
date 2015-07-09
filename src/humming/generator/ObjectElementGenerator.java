@@ -10,14 +10,14 @@ import java.util.logging.Logger;
  *
  * @author ymakino
  */
-public class ObjectXMLGenerator {
-    private static final Logger LOGGER = Logger.getLogger(ObjectXMLGenerator.class.getName());
-    private static final String CLASS_NAME = ObjectXMLGenerator.class.getName();
+public class ObjectElementGenerator {
+    private static final Logger LOGGER = Logger.getLogger(ObjectElementGenerator.class.getName());
+    private static final String CLASS_NAME = ObjectElementGenerator.class.getName();
     
     private EchonetObject object;
     private String indent = "  ";
     
-    public ObjectXMLGenerator(EchonetObject object) {
+    public ObjectElementGenerator(EchonetObject object) {
         this.object = object;
     }
     
@@ -55,7 +55,7 @@ public class ObjectXMLGenerator {
             }
             
             if (setMap.isSet(epc) || getMap.isSet(epc) || annoMap.isSet(epc)) {
-                PropertyXMLGenerator propertyGenerator = new PropertyXMLGenerator(object, epc, getMap.isSet(epc), setMap.isSet(epc), annoMap.isSet(epc));
+                PropertyElementGenerator propertyGenerator = new PropertyElementGenerator(object, epc, getMap.isSet(epc), setMap.isSet(epc), annoMap.isSet(epc));
                 propertyBuilder.append(propertyGenerator.generate());
             }
         }

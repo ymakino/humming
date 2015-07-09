@@ -11,9 +11,9 @@ import java.util.logging.Logger;
  *
  * @author ymakino
  */
-public class PropertyXMLGenerator {
-    private static final Logger LOGGER = Logger.getLogger(PropertyXMLGenerator.class.getName());
-    private static final String CLASS_NAME = PropertyXMLGenerator.class.getName();
+public class PropertyElementGenerator {
+    private static final Logger LOGGER = Logger.getLogger(PropertyElementGenerator.class.getName());
+    private static final String CLASS_NAME = PropertyElementGenerator.class.getName();
     
     private EchonetObject object;
     private EPC epc;
@@ -42,7 +42,7 @@ public class PropertyXMLGenerator {
     }
     
 
-    public PropertyXMLGenerator(EchonetObject object, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled) {
+    public PropertyElementGenerator(EchonetObject object, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled) {
         this.object = object;
         this.epc = epc;
         this.getEnabled = getEnabled;

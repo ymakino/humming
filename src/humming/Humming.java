@@ -212,14 +212,28 @@ public class Humming {
         
         if (args.length > 0 && args[0].equals("-i")) {
             NetworkInterface nif;
+            NetworkInterface[] rnifs = null;
             
             if (args[1].equals("-")) {
                 nif = NetworkInterfaceSelector.select();
             } else {
-                nif = NetworkInterface.getByName(args[1]);
+                String[] names = args[1].split(",");
+                nif = NetworkInterface.getByName(names[0]);
+                
+                if (names.length > 1) {
+                    rnifs = new NetworkInterface[names.length - 1];
+                    for (int i=1; i<names.length; i++) {
+                        rnifs[i-1] = NetworkInterface.getByName(names[i]);
+                    }
+                }
             }
             
-            core = new Core(Inet4Subnet.startSubnet(nif));
+            if (rnifs == null) {
+                core = new Core(Inet4Subnet.startSubnet(nif));
+            } else {
+                core = new Core(Inet4Subnet.startSubnet(nif, rnifs));
+            }
+            
             fileIndex = 2;
         } else {
             core = new Core();
@@ -227,6 +241,8 @@ public class Humming {
         }
         
         core.initialize();
+        
+        // ProxyPropertyDelegate doesn't work without this line 
         replaceSetGetRequestDispatcher(core);
         
         Humming humming = new Humming(core);

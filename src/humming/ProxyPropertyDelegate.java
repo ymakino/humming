@@ -90,13 +90,13 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
         ObjectData data = null;
         
         try {
-            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData begin", object + ", EPC: " + epc + " -> " + getRemoteObject() + ", EPC: " + proxyEPC);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData", "begin: " + object + ", EPC: " + epc + " -> " + getRemoteObject() + ", EPC: " + proxyEPC);
             data = getRemoteObject().getData(proxyEPC);
-            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData end", object + ", EPC: " + epc + " -> " + getRemoteObject() + ", EPC: " + proxyEPC + ", data: " + data);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData", "end: " + object + ", EPC: " + epc + " -> " + getRemoteObject() + ", EPC: " + proxyEPC + ", data: " + data);
         } catch (SubnetException ex) {
-            Logger.getLogger(ProxyPropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed", ex);
         } catch (EchonetObjectException ex) {
-            Logger.getLogger(ProxyPropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed", ex);
         }
         
         LOGGER.exiting(CLASS_NAME, "getUserData", data);
@@ -110,13 +110,13 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
         boolean result = false;
         
         try {
-            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData begin", object + ", EPC: " + epc + " -> " + getRemoteObject() + ", EPC: " + proxyEPC + ", data: " + data);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "begin: " + object + ", EPC: " + epc + " -> " + getRemoteObject() + ", EPC: " + proxyEPC + ", data: " + data);
             result = getRemoteObject().setData(proxyEPC, data);
-            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData end", object + ", EPC: " + epc + " -> " + getRemoteObject() + ", EPC: " + proxyEPC + ", data: " + data + ", result: " + result);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "end: " + object + ", EPC: " + epc + " -> " + getRemoteObject() + ", EPC: " + proxyEPC + ", data: " + data + ", result: " + result);
         } catch (SubnetException ex) {
-            Logger.getLogger(ProxyPropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "setUserData", "failed", ex);
         } catch (EchonetObjectException ex) {
-            Logger.getLogger(ProxyPropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "setUserData", "failed", ex);
         }
         
         LOGGER.exiting(CLASS_NAME, "setUserData", result);

@@ -17,16 +17,16 @@ import java.util.logging.Logger;
  *
  * @author ymakino
  */
-public class DeviceXMLGenerator {
-    private static final Logger LOGGER = Logger.getLogger(DeviceXMLGenerator.class.getName());
-    private static final String CLASS_NAME = DeviceXMLGenerator.class.getName();
+public class DeviceElementGenerator {
+    private static final Logger LOGGER = Logger.getLogger(DeviceElementGenerator.class.getName());
+    private static final String CLASS_NAME = DeviceElementGenerator.class.getName();
     
     private Service service;
     private Node node;
     
     private String indent = "";
     
-    public DeviceXMLGenerator(Service service, Node node) {
+    public DeviceElementGenerator(Service service, Node node) {
         this.service = service;
         this.node = node;
     }
@@ -58,7 +58,7 @@ public class DeviceXMLGenerator {
             service.registerRemoteEOJ(node, eoj);
             RemoteObject object = service.getRemoteObject(node, eoj);
 
-            ObjectXMLGenerator generator = new ObjectXMLGenerator(object);
+            ObjectElementGenerator generator = new ObjectElementGenerator(object);
             objectBuilder.append(generator.generate());
         }
         

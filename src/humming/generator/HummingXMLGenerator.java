@@ -17,8 +17,8 @@ import java.util.logging.Logger;
  * @author ymakino
  */
 public class HummingXMLGenerator {
-    private static final Logger LOGGER = Logger.getLogger(DeviceXMLGenerator.class.getName());
-    private static final String CLASS_NAME = DeviceXMLGenerator.class.getName();
+    private static final Logger LOGGER = Logger.getLogger(DeviceElementGenerator.class.getName());
+    private static final String CLASS_NAME = DeviceElementGenerator.class.getName();
     
     public static void showUsage(String name) {
         System.out.println("Usage: " + name + " [ -i interface ] address...");
@@ -54,7 +54,7 @@ public class HummingXMLGenerator {
             Service service = new Service(core);
 
             for (int i = startIndex; i < args.length; i++) {
-                DeviceXMLGenerator generator = new DeviceXMLGenerator(service, service.getRemoteNode(args[i]));
+                DeviceElementGenerator generator = new DeviceElementGenerator(service, service.getRemoteNode(args[i]));
                 System.out.print(generator.generate());
             }
         } catch (Exception ex) {
