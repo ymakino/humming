@@ -11,6 +11,8 @@ import echowand.util.ConstraintAny;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.script.Bindings;
+import javax.script.ScriptException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -27,6 +29,8 @@ public class LocalObjectConfigCreator {
     private DeviceObjectInfo info;
     private LinkedList<PropertyDelegate> delegates;
     private LinkedList<PropertyUpdater> updaters;
+    
+    private HummingScripting hummingScripting;
     
     private void parseClassEOJ(Node ceojNode) {
         ClassEOJ ceoj = new ClassEOJ(ceojNode.getTextContent());
@@ -178,19 +182,34 @@ public class LocalObjectConfigCreator {
     }
     
     private boolean parseUpdater(Node propNode) throws HummingException {
-        String updaterName = propNode.getTextContent().trim();
+        InstanceCreatorParser parser = new InstanceCreatorParser(propNode.getTextContent());
+        Node delayNode = propNode.getAttributes().getNamedItem("delay");
         Node intervalNode = propNode.getAttributes().getNamedItem("interval");
         
         try {
-            Class<?> cls = Class.forName(updaterName);
+            Class<?> cls = Class.forName(parser.getClassName());
             PropertyUpdater propertyUpdater = (PropertyUpdater)cls.newInstance();
+            
+            String msg = "class: " +  parser.getClassName();
+            
+            if (delayNode != null) {
+                int delay = Integer.parseInt(delayNode.getTextContent());
+                propertyUpdater.setDelay(delay);
+                msg += ", delay: " + delay;
+            }
             
             if (intervalNode != null ) {
                 int interval = Integer.parseInt(intervalNode.getTextContent());
                 propertyUpdater.setIntervalPeriod(interval);
-                LOGGER.logp(Level.INFO, CLASS_NAME, "parseUpdater", "class: " +  updaterName + ", interval: " + interval);
-            } else {
-                LOGGER.logp(Level.INFO, CLASS_NAME, "parseUpdater", "class: " +  updaterName);
+                msg += ", interval: " + interval;
+            }
+            
+            LOGGER.logp(Level.INFO, CLASS_NAME, "parseUpdater", msg);
+            
+            if (parser.getScript() != null) {
+                Bindings bindings = hummingScripting.createBindings();
+                bindings.put(parser.getInstanceName(), propertyUpdater);
+                hummingScripting.getScriptEngine().eval(parser.getScript(), bindings);
             }
             
             updaters.add(propertyUpdater);
@@ -202,6 +221,8 @@ public class LocalObjectConfigCreator {
         } catch (IllegalAccessException ex) {
             Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NumberFormatException ex) {
+            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ScriptException ex) {
             Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
         }
         
@@ -237,8 +258,9 @@ public class LocalObjectConfigCreator {
         }
     }
 
-    public LocalObjectConfigCreator(Node objectNode, PropertyDelegateFactory factory) throws HummingException {
+    public LocalObjectConfigCreator(Node objectNode, PropertyDelegateFactory factory, HummingScripting hummingScripting) throws HummingException {
         delegateFactory = factory;
+        this.hummingScripting = hummingScripting;
         
         info = new DeviceObjectInfo();
         delegates = new LinkedList<PropertyDelegate>();
@@ -259,5 +281,13 @@ public class LocalObjectConfigCreator {
     
     public LocalObjectConfig getConfig() {
         return config;
+    }
+    
+    public void setHummingScripting(HummingScripting hummingScripting) {
+        this.hummingScripting = hummingScripting;
+    }
+    
+    public HummingScripting getHummingScripting() {
+        return hummingScripting;
     }
 }

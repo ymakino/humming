@@ -17,13 +17,22 @@ import java.util.logging.Logger;
  * @author ymakino
  */
 public class SamplePropertyDelegate extends PropertyDelegate {
+    private String filename = "/sys/class/thermal/thermal_zone0/temp";
 
     public SamplePropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled) {
         super(epc, getEnabled, setEnabled, notifyEnabled);
     }
     
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+    
+    public String getFilename() {
+        return filename;
+    }
+    
     private double getTemperature() {
-        File file = new File("/sys/class/thermal/thermal_zone0/temp");
+        File file = new File(filename);
         
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));

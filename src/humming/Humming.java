@@ -21,6 +21,8 @@ import java.net.SocketException;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.script.Bindings;
+import javax.script.ScriptEngine;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -41,11 +43,13 @@ public class Humming {
     private PropertyDelegateFactory factory;
     private LinkedList<Node> nodes;
     private LinkedList<LocalObjectConfig> configs;
+    private HummingScripting hummingScripting;
     
     public Humming(Core core) {
         this.core = core;
         nodes = new LinkedList<Node>();
         configs = new LinkedList<LocalObjectConfig>();
+        hummingScripting = new HummingScripting();
         
         factory = new PropertyDelegateFactory();
         factory.add("const", new ConstPropertyDelegateCreator());
@@ -53,7 +57,23 @@ public class Humming {
         factory.add("file", new FilePropertyDelegateCreator());
         factory.add("command", new CommandPropertyDelegateCreator());
         factory.add("proxy", new ProxyPropertyDelegateCreator(core));
-        factory.add("delegate", new DelegatePropertyDelegateCreator());
+        factory.add("delegate", new DelegatePropertyDelegateCreator(hummingScripting));
+    }
+    
+    public void setScriptEngine(ScriptEngine engine) {
+        hummingScripting.setScriptEngine(engine);
+    }
+    
+    public ScriptEngine getScriptEngine() {
+        return hummingScripting.getScriptEngine();
+    }
+    
+    public void setTemplateBindings(Bindings bindings) {
+        hummingScripting.setTemplateBindings(bindings);
+    }
+    
+    public Bindings getTemplateBindings() {
+        return hummingScripting.getTemplateBindings();
     }
     
     public PropertyDelegateFactory getDelegateFactory() {
@@ -88,7 +108,7 @@ public class Humming {
         
         nodes.add(objectNode);
 
-        LocalObjectConfigCreator creator = new LocalObjectConfigCreator(objectNode, factory);
+        LocalObjectConfigCreator creator = new LocalObjectConfigCreator(objectNode, factory, hummingScripting);
         LocalObjectConfig config = creator.getConfig();
         configs.add(config);
 
