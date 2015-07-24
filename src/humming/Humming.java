@@ -92,11 +92,11 @@ public class Humming {
         return core;
     }
     
-    public int countLocalObjectConfigs() {
+    public int countConfigs() {
         return configs.size();
     }
     
-    public LocalObjectConfig getConfigAt(int index) {
+    public LocalObjectConfig getConfig(int index) {
         return configs.get(index);
     }
     
@@ -115,7 +115,7 @@ public class Humming {
         core.addLocalObjectConfig(config);
     }
     
-    public void parseXMLString(String xmlString) throws HummingException {
+    public void parseXML(String xmlString) throws HummingException {
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             parseXMLDocument(builder.parse(new ByteArrayInputStream(xmlString.getBytes())));
@@ -144,11 +144,11 @@ public class Humming {
         }
     }
     
-    public void parseXMLFile(String filename) throws HummingException {
-        parseXMLFile(new File(filename));
+    public void loadXMLFile(String filename) throws HummingException {
+        loadXMLFile(new File(filename));
     }
     
-    public void parseXMLFile(File file) throws HummingException {
+    public void loadXMLFile(File file) throws HummingException {
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = builder.parse(file);
@@ -272,7 +272,7 @@ public class Humming {
         //humming.parseXMLString("<device><object ceoj=\"0011\"><property epc=\"E0\"><data type=\"const\">0123</data></property><property epc=\"E1\" set=\"enabled\"><data type=\"variable\">0123</data></property></object></device>");
         
         for (int i=fileIndex; i<args.length; i++) {
-            humming.parseXMLFile(args[i]);
+            humming.loadXMLFile(args[i]);
         }
         
         core.startService();

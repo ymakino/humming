@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import javax.script.Bindings;
 import javax.script.ScriptException;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
