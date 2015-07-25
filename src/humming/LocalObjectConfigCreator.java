@@ -4,6 +4,7 @@ import echowand.common.ClassEOJ;
 import echowand.common.Data;
 import echowand.common.EPC;
 import echowand.info.DeviceObjectInfo;
+import echowand.object.LocalObjectDelegate;
 import echowand.service.LocalObjectConfig;
 import echowand.service.PropertyDelegate;
 import echowand.service.PropertyUpdater;
@@ -27,8 +28,9 @@ public class LocalObjectConfigCreator {
     private PropertyDelegateFactory delegateFactory;
     private LocalObjectConfig config;
     private DeviceObjectInfo info;
-    private LinkedList<PropertyDelegate> delegates;
-    private LinkedList<PropertyUpdater> updaters;
+    private LinkedList<LocalObjectDelegate> delegates;
+    private LinkedList<PropertyDelegate> propertyDelegates;
+    private LinkedList<PropertyUpdater> propertyUpdaters;
     
     private HummingScripting hummingScripting;
     
@@ -158,10 +160,10 @@ public class LocalObjectConfigCreator {
             if (typeNode != null) {
                 String typeName = typeNode.getTextContent();
 
-                PropertyDelegate delegate = delegateFactory.newPropertyDelegate(typeName, info.getClassEOJ(), epc, getEnabled, setEnabled, notifyEnabled, propInfo);
-                if (delegate != null) {
-                    delegates.add(delegate);
-                    LOGGER.logp(Level.INFO, CLASS_NAME, "parseProperty", "delegate: " + delegate + ", type: " + typeName + ", ClassEOJ: " + info.getClassEOJ() + ", EPC: " + epc + ", GET: " + getEnabled + ", SET: " + setEnabled + ", Notify: " + notifyEnabled + ", info: " + toInfoString(propInfo));
+                PropertyDelegate propertyDelegate = delegateFactory.newPropertyDelegate(typeName, info.getClassEOJ(), epc, getEnabled, setEnabled, notifyEnabled, propInfo);
+                if (propertyDelegate != null) {
+                    propertyDelegates.add(propertyDelegate);
+                    LOGGER.logp(Level.INFO, CLASS_NAME, "parseProperty", "delegate: " + propertyDelegate + ", type: " + typeName + ", ClassEOJ: " + info.getClassEOJ() + ", EPC: " + epc + ", GET: " + getEnabled + ", SET: " + setEnabled + ", Notify: " + notifyEnabled + ", info: " + toInfoString(propInfo));
                 }
             } else {
                 LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "invalid property: " + toInfoString(propInfo));
@@ -212,7 +214,41 @@ public class LocalObjectConfigCreator {
                 hummingScripting.getScriptEngine().eval(parser.getScript(), bindings);
             }
             
-            updaters.add(propertyUpdater);
+            propertyUpdaters.add(propertyUpdater);
+            return true;
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NumberFormatException ex) {
+            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ScriptException ex) {
+            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return false;
+    }
+    
+    private boolean parseDelegate(Node propNode) throws HummingException {
+        InstanceCreatorParser parser = new InstanceCreatorParser(propNode.getTextContent());
+        
+        try {
+            Class<?> cls = Class.forName(parser.getClassName());
+            LocalObjectDelegate delegate = (LocalObjectDelegate)cls.newInstance();
+            
+            String msg = "class: " +  parser.getClassName();
+            
+            LOGGER.logp(Level.INFO, CLASS_NAME, "parseDelegate", msg);
+            
+            if (parser.getScript() != null) {
+                Bindings bindings = hummingScripting.createBindings();
+                bindings.put(parser.getInstanceName(), delegate);
+                hummingScripting.getScriptEngine().eval(parser.getScript(), bindings);
+            }
+            
+            delegates.add(delegate);
             return true;
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
@@ -252,6 +288,8 @@ public class LocalObjectConfigCreator {
                 parseProperty(node);
             } else if (nodeName.equals("updater")) {
                 parseUpdater(node);
+            } else if (nodeName.equals("delegate")) {
+                parseDelegate(node);
             } else {
                 LOGGER.logp(Level.WARNING, CLASS_NAME, "parseObject", "invalid XML node: " + nodeName);
             }
@@ -263,19 +301,24 @@ public class LocalObjectConfigCreator {
         this.hummingScripting = hummingScripting;
         
         info = new DeviceObjectInfo();
-        delegates = new LinkedList<PropertyDelegate>();
-        updaters = new LinkedList<PropertyUpdater>();
+        delegates = new LinkedList<LocalObjectDelegate>();
+        propertyDelegates = new LinkedList<PropertyDelegate>();
+        propertyUpdaters = new LinkedList<PropertyUpdater>();
         
         parseObject(objectNode);
         
         config = new LocalObjectConfig(info);
         
-        for (PropertyDelegate delegate : delegates) {
-            config.addPropertyDelegate(delegate);
+        for (LocalObjectDelegate delegate : delegates) {
+            config.addDelegate(delegate);
         }
         
-        for (PropertyUpdater updater : updaters) {
-            config.addPropertyUpdater(updater);
+        for (PropertyDelegate propertyDelegate : propertyDelegates) {
+            config.addPropertyDelegate(propertyDelegate);
+        }
+        
+        for (PropertyUpdater propertyUpdater : propertyUpdaters) {
+            config.addPropertyUpdater(propertyUpdater);
         }
     }
     
