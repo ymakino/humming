@@ -9,7 +9,7 @@ import echowand.service.LocalObjectServiceDelegate;
  *
  * @author ymakino
  */
-public class SampleObjectDelegate extends LocalObjectServiceDelegate {
+public class SampleObjectDelegate implements LocalObjectServiceDelegate {
     private EPC epc = EPC.xE0;
     private int value;
     
