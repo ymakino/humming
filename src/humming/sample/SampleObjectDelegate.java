@@ -22,7 +22,7 @@ public class SampleObjectDelegate implements LocalObjectServiceDelegate {
     }
     
     @Override
-    public void notifyCreated(LocalObject object){
+    public void notifyCreation(LocalObject object){
         System.out.println("notifyCreated: " + this + ", " + object);
     }
 

@@ -65,7 +65,7 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
     }
     
     @Override
-    public void notifyCreated(LocalObject object) {
+    public void notifyCreation(LocalObject object) {
         proxyService = new Service(proxyCore);
         
         try {
