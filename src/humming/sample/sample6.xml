@@ -7,12 +7,12 @@
         { updater.setEPC(Packages.echowand.common.EPC.xE1); }
     </updater>
     <property epc="E0" set="enabled" notify="enabled">
-      <data type="delegate">humming.sample.SamplePropertyDelegate</data>
+      <data type="delegate">humming.sample.ThermalZonePropertyDelegate</data>
     </property>
     <property epc="E1" set="enabled" notify="enabled">
       <data type="delegate">
-          humming.sample.SamplePropertyDelegate
-          { it.setFilename("/tmp/a"); }
+          humming.sample.ThermalZonePropertyDelegate
+          { it.setIndex(1); }
       </data>
     </property>
     <property epc="E2" set="disabled" notify="enabled" value="0101"/>
