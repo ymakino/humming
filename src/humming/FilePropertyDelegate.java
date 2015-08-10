@@ -4,6 +4,7 @@ import echowand.common.EPC;
 import echowand.object.LocalObject;
 import echowand.object.ObjectData;
 import echowand.service.PropertyDelegate;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -22,10 +23,12 @@ public class FilePropertyDelegate extends PropertyDelegate {
     private static final String CLASS_NAME = FilePropertyDelegate.class.getName();
     
     private String filename;
+    private File lockfile;
     
     public FilePropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, String filename) {
         super(epc, getEnabled, setEnabled, notifyEnabled);
         this.filename = filename;
+        lockfile = null;
         LOGGER.logp(Level.INFO, CLASS_NAME, "FilePropertyDelegate", "epc: " + epc + " -> file: " + filename);
     }
     
@@ -33,9 +36,56 @@ public class FilePropertyDelegate extends PropertyDelegate {
         return filename;
     }
     
+    public void setLockFile(String lockfile) {
+        this.lockfile = new File(lockfile);
+    }
+    
+    public void setLockFile(File lockfile) {
+        this.lockfile = lockfile;
+    }
+    
+    public File getLockFile() {
+        return lockfile;
+    }
+    
+    public boolean isLocked() {
+        return lockfile != null && lockfile.exists();
+    }
+    
+    public boolean waitUnlocked() throws InterruptedException {
+        LOGGER.entering(CLASS_NAME, "waitUnlocked");
+        
+        boolean unlocked = !isLocked();
+        
+        for (int i=0; !unlocked && i<600; i++) {
+            if (i==0) {
+                LOGGER.logp(Level.INFO, CLASS_NAME, "waitUnlocked", "waiting: " + lockfile);
+            }
+            
+            Thread.sleep(100);
+            
+            unlocked = !isLocked();
+        }
+        
+        LOGGER.exiting(CLASS_NAME, "waitUnlocked", unlocked);
+        return unlocked;
+    }
+    
     @Override
-    public ObjectData getUserData(LocalObject object, EPC epc) {
+    public synchronized ObjectData getUserData(LocalObject object, EPC epc) {
+        try {
+            boolean unlocked = waitUnlocked();
+            if (!unlocked) {
+                LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData", "locked: " + lockfile);
+                return null;
+            }
+        } catch (InterruptedException ex) {
+            Logger.getLogger(FilePropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+            
         InputStreamReader reader;
+        
         try {
             LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData begin", object + ", EPC: " + epc + " -> " + filename);
             reader = new InputStreamReader(new FileInputStream(filename));
@@ -81,7 +131,18 @@ public class FilePropertyDelegate extends PropertyDelegate {
     }
 
     @Override
-    public boolean setUserData(LocalObject object, EPC epc, ObjectData data) {
+    public synchronized boolean setUserData(LocalObject object, EPC epc, ObjectData data) {
+        try {
+            boolean unlocked = waitUnlocked();
+            if (!unlocked) {
+                LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "locked: " + lockfile);
+                return false;
+            }
+        } catch (InterruptedException ex) {
+            Logger.getLogger(FilePropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+        
         OutputStreamWriter writer;
         
         try {
