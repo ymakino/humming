@@ -23,12 +23,12 @@ public class FilePropertyDelegate extends PropertyDelegate {
     private static final String CLASS_NAME = FilePropertyDelegate.class.getName();
     
     private String filename;
-    private File lockfile;
+    private BlockerFile blockerFile;
     
     public FilePropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, String filename) {
         super(epc, getEnabled, setEnabled, notifyEnabled);
         this.filename = filename;
-        lockfile = null;
+        blockerFile = null;
         LOGGER.logp(Level.INFO, CLASS_NAME, "FilePropertyDelegate", "epc: " + epc + " -> file: " + filename);
     }
     
@@ -36,61 +36,55 @@ public class FilePropertyDelegate extends PropertyDelegate {
         return filename;
     }
     
-    public void setLockFile(String lockfile) {
-        this.lockfile = new File(lockfile);
+    public void setBlockerFile(BlockerFile blockerFile) {
+        this.blockerFile = blockerFile;
     }
     
-    public void setLockFile(File lockfile) {
-        this.lockfile = lockfile;
+    public BlockerFile getBlockerFile() {
+        return blockerFile;
     }
     
-    public File getLockFile() {
-        return lockfile;
-    }
-    
-    public boolean isLocked() {
-        return lockfile != null && lockfile.exists();
-    }
-    
-    public boolean waitUnlocked() throws InterruptedException {
-        LOGGER.entering(CLASS_NAME, "waitUnlocked");
+    public boolean isBlocking() {
+        boolean result = false;
         
-        boolean unlocked = !isLocked();
-        
-        for (int i=0; !unlocked && i<600; i++) {
-            if (i==0) {
-                LOGGER.logp(Level.INFO, CLASS_NAME, "waitUnlocked", "waiting: " + lockfile);
-            }
-            
-            Thread.sleep(100);
-            
-            unlocked = !isLocked();
+        if (blockerFile != null) {
+            result = blockerFile.existsFile();
         }
         
-        LOGGER.exiting(CLASS_NAME, "waitUnlocked", unlocked);
-        return unlocked;
+        return result;
+    }
+    
+    public boolean waitUnblocked() {
+        boolean result = true;
+        
+        if (blockerFile != null) {
+            try {
+                result = blockerFile.waitFile();
+            } catch (InterruptedException ex) {
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "waitUnblocked", "interrupted", ex);
+                result = false;
+            }
+        }
+        
+        return result;
     }
     
     @Override
     public synchronized ObjectData getUserData(LocalObject object, EPC epc) {
-        try {
-            boolean unlocked = waitUnlocked();
-            if (!unlocked) {
-                LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData", "locked: " + lockfile);
-                return null;
-            }
-        } catch (InterruptedException ex) {
-            Logger.getLogger(FilePropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
+        boolean unblocked = waitUnblocked();
+        
+        if (!unblocked) {
+            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData", "blocked: " + blockerFile);
             return null;
         }
             
         InputStreamReader reader;
         
         try {
-            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData begin", object + ", EPC: " + epc + " -> " + filename);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData", "begin: " + object + ", EPC: " + epc + " -> " + filename);
             reader = new InputStreamReader(new FileInputStream(filename));
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(FilePropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + filename, ex);
             return null;
         }
         
@@ -113,12 +107,14 @@ public class FilePropertyDelegate extends PropertyDelegate {
                 data = new ObjectData();
             }
             
-            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData end", object + ", EPC: " + epc + " -> " + filename + ", data: " + data);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData", "end: " + object + ", EPC: " + epc + " -> " + filename + ", data: " + data);
             return data;
         } catch (IOException ex) {
-            Logger.getLogger(FilePropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + filename, ex);
+            return null;
         } catch (NumberFormatException ex) {
-            Logger.getLogger(FilePropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + filename, ex);
+            return null;
         } finally {
             try {
                 reader.close();
@@ -126,20 +122,14 @@ public class FilePropertyDelegate extends PropertyDelegate {
                 Logger.getLogger(FilePropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
-        return null;
     }
 
     @Override
     public synchronized boolean setUserData(LocalObject object, EPC epc, ObjectData data) {
-        try {
-            boolean unlocked = waitUnlocked();
-            if (!unlocked) {
-                LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "locked: " + lockfile);
-                return false;
-            }
-        } catch (InterruptedException ex) {
-            Logger.getLogger(FilePropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
+        boolean unblocked = waitUnblocked();
+        
+        if (!unblocked) {
+            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "blocked: " + blockerFile);
             return false;
         }
         
@@ -148,19 +138,18 @@ public class FilePropertyDelegate extends PropertyDelegate {
         try {
             writer = new OutputStreamWriter(new FileOutputStream(filename));
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(FilePropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "setUserData", "failed: " + object + ", EPC: " + epc + " -> " + filename, ex);
             return false;
         }
             
         try {
-            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData begin", object + ", EPC: " + epc + " -> " + filename + ", data: " + data);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "begin: " + object + ", EPC: " + epc + " -> " + filename + ", data: " + data);
             writer.write(data.toString());
-            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData end", object + ", EPC: " + epc + " -> " + filename + ", data: " + data);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "end: " + object + ", EPC: " + epc + " -> " + filename + ", data: " + data);
             return true;
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(FilePropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(FilePropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "setUserData", "failed: " + object + ", EPC: " + epc + " -> " + filename, ex);
+            return false;
         } finally {
             try {
                 writer.close();
@@ -168,7 +157,5 @@ public class FilePropertyDelegate extends PropertyDelegate {
                 Logger.getLogger(FilePropertyDelegate.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
-        return false;
     }
 }

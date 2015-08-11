@@ -46,11 +46,11 @@ public class CommandPropertyDelegate extends PropertyDelegate {
         }
         
         try {
-            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData begin", object + ", EPC: " + epc + " -> " + getCommand);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData", "begin: " + object + ", EPC: " + epc + " -> " + getCommand);
             proc = Runtime.getRuntime().exec(getCommand);
             reader = new InputStreamReader(proc.getInputStream());
         } catch (IOException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData failed", object + ", EPC: " + epc + " -> " + getCommand, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + getCommand, ex);
             return null;
         }
         
@@ -73,14 +73,14 @@ public class CommandPropertyDelegate extends PropertyDelegate {
             }
             
             int exitValue = proc.waitFor();
-            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData end", object + ", EPC: " + epc + " -> " + getCommand + ", data: " + data + ", exit: " + exitValue);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData", "end: " + object + ", EPC: " + epc + " -> " + getCommand + ", data: " + data + ", exit: " + exitValue);
             return data;
         } catch (IOException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData failed", object + ", EPC: " + epc + " -> " + getCommand, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + getCommand, ex);
         } catch (NumberFormatException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData failed", object + ", EPC: " + epc + " -> " + getCommand, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + getCommand, ex);
         } catch (InterruptedException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData failed", object + ", EPC: " + epc + " -> " + getCommand, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + getCommand, ex);
         }
         
         return null;
@@ -96,19 +96,19 @@ public class CommandPropertyDelegate extends PropertyDelegate {
         }
         
         try {
-            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData begin", object + ", EPC: " + epc + " -> " + setCommand + ", data: " + data);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "begin: " + object + ", EPC: " + epc + " -> " + setCommand + ", data: " + data);
             proc = Runtime.getRuntime().exec(new String[]{setCommand, data.toString()});
         } catch (IOException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "setUserData failed", object + ", EPC: " + epc + " -> " + setCommand + ", data: " + data, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "setUserData", "failed: " + object + ", EPC: " + epc + " -> " + setCommand + ", data: " + data, ex);
             return false;
         }
         
         try {
             int exitValue = proc.waitFor();
-            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData end", object + ", EPC: " + epc + " -> " + setCommand + ", data: " + data + ", exit: " + exitValue);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "end: " + object + ", EPC: " + epc + " -> " + setCommand + ", data: " + data + ", exit: " + exitValue);
             return (exitValue == 0);
         } catch (InterruptedException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "setUserData failed", object + ", EPC: " + epc + " -> " + setCommand + ", data: " + data, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "setUserData", "failed: " + object + ", EPC: " + epc + " -> " + setCommand + ", data: " + data, ex);
         }
         
         return false;

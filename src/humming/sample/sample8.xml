@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device>
+  <object ceoj="0011">
+    <property epc="80">
+      <data type="file">/tmp/x80</data>
+    </property>
+    <property epc="E0">
+      <data type="file">/tmp/xE0</data>
+    </property>
+  </object>
+</device>
