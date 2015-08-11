@@ -9,7 +9,7 @@
     </property>
   </object>
   <object ceoj="0012">
-    <property epc="80">
+    <property epc="80" set="enabled">
       <data type="file">/tmp/x80</data>
     </property>
     <property epc="E0">
@@ -17,11 +17,11 @@
     </property>
   </object>
   <object ceoj="0011">
-    <property epc="80">
-      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj><epc>0x80</epc></data>
+    <property epc="80" set="enabled">
+      <data type="variable">30</data>
     </property>
     <property epc="E0">
-      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj><epc>0xE0</epc></data>
+      <data type="variable">0127</data>
     </property>
   </object>
 </device>
