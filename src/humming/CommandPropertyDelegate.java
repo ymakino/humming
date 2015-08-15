@@ -35,6 +35,10 @@ public class CommandPropertyDelegate extends PropertyDelegate {
         return setCommand;
     }
     
+    private String epcToString(EPC epc) {
+        return epc.toString().substring(1);
+    }
+    
     @Override
     public ObjectData getUserData(LocalObject object, EPC epc) {
         Process proc;
@@ -47,7 +51,7 @@ public class CommandPropertyDelegate extends PropertyDelegate {
         
         try {
             LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData", "begin: " + object + ", EPC: " + epc + " -> " + getCommand);
-            proc = Runtime.getRuntime().exec(getCommand);
+            proc = Runtime.getRuntime().exec(new String[]{getCommand, object.getEOJ().toString(), epcToString(epc)});
             reader = new InputStreamReader(proc.getInputStream());
         } catch (IOException ex) {
             LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + getCommand, ex);
@@ -97,7 +101,7 @@ public class CommandPropertyDelegate extends PropertyDelegate {
         
         try {
             LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "begin: " + object + ", EPC: " + epc + " -> " + setCommand + ", data: " + data);
-            proc = Runtime.getRuntime().exec(new String[]{setCommand, data.toString()});
+            proc = Runtime.getRuntime().exec(new String[]{setCommand, object.getEOJ().toString(), epcToString(epc), data.toString()});
         } catch (IOException ex) {
             LOGGER.logp(Level.WARNING, CLASS_NAME, "setUserData", "failed: " + object + ", EPC: " + epc + " -> " + setCommand + ", data: " + data, ex);
             return false;

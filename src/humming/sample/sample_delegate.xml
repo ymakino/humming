@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device>
+  <object ceoj="0011">
+    <delegate>
+        delegate: humming.sample.SampleObjectDelegate
+        {
+          delegate.setEPC(Packages.echowand.common.EPC.xE1);
+          delegate.setValue(12.3 * 10);
+        }
+    </delegate>
+    <property epc="E0" set="enabled" notify="enabled">
+      <data type="delegate">
+          humming.sample.ThermalZonePropertyDelegate
+          { it.setIndex(1); }
+      </data>
+    </property>
+    <property epc="E1" set="enabled" notify="enabled" />
+  </object>
+</device>

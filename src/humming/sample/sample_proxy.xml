@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device>
+  <object ceoj="0011">
+    <property epc="80">
+      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj><epc>0x80</epc></data>
+    </property>
+    <property epc="E0">
+      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj><epc>0xE0</epc></data>
+    </property>
+  </object>
+</device>
