@@ -36,7 +36,7 @@ public class CommandPropertyDelegate extends PropertyDelegate {
     }
     
     private String epc2str(EPC epc) {
-        return epc.toString().substring(1);
+        return String.format("%02X", 0x00ff & epc.toByte());
     }
     
     @Override
