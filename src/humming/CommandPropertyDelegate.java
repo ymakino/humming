@@ -35,7 +35,7 @@ public class CommandPropertyDelegate extends PropertyDelegate {
         return setCommand;
     }
     
-    private String epcToString(EPC epc) {
+    private String epc2str(EPC epc) {
         return epc.toString().substring(1);
     }
     
@@ -51,7 +51,7 @@ public class CommandPropertyDelegate extends PropertyDelegate {
         
         try {
             LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData", "begin: " + object + ", EPC: " + epc + " -> " + getCommand);
-            proc = Runtime.getRuntime().exec(new String[]{getCommand, object.getEOJ().toString(), epcToString(epc)});
+            proc = Runtime.getRuntime().exec(new String[]{getCommand, object.getEOJ().toString(), epc2str(epc)});
             reader = new InputStreamReader(proc.getInputStream());
         } catch (IOException ex) {
             LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + getCommand, ex);
@@ -101,7 +101,7 @@ public class CommandPropertyDelegate extends PropertyDelegate {
         
         try {
             LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "begin: " + object + ", EPC: " + epc + " -> " + setCommand + ", data: " + data);
-            proc = Runtime.getRuntime().exec(new String[]{setCommand, object.getEOJ().toString(), epcToString(epc), data.toString()});
+            proc = Runtime.getRuntime().exec(new String[]{setCommand, object.getEOJ().toString(), epc2str(epc), data.toString()});
         } catch (IOException ex) {
             LOGGER.logp(Level.WARNING, CLASS_NAME, "setUserData", "failed: " + object + ", EPC: " + epc + " -> " + setCommand + ", data: " + data, ex);
             return false;
