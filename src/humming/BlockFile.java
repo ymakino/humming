@@ -9,18 +9,18 @@ import java.util.logging.Logger;
  *
  * @author ymakino
  */
-public class BlockerFile {
-    private static final Logger LOGGER = Logger.getLogger(BlockerFile.class.getName());
-    private static final String CLASS_NAME = BlockerFile.class.getName();
+public class BlockFile {
+    private static final Logger LOGGER = Logger.getLogger(BlockFile.class.getName());
+    private static final String CLASS_NAME = BlockFile.class.getName();
     
-    private File blockerFile;
+    private File file;
 
-    public BlockerFile(String blockerFileName) {
-        this.blockerFile = new File(blockerFileName);
+    public BlockFile(String filename) {
+        this.file = new File(filename);
     }
 
     public File getFile() {
-        return blockerFile;
+        return file;
     }
 
     public boolean createFile() {
@@ -29,9 +29,9 @@ public class BlockerFile {
         boolean result = false;
 
         try {
-            result = blockerFile.createNewFile();
+            result = file.createNewFile();
         } catch (IOException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "createFile", "cannot create: " + blockerFile);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "createFile", "cannot create: " + file);
         }
 
         LOGGER.exiting(CLASS_NAME, "createFile", result);
@@ -41,14 +41,14 @@ public class BlockerFile {
     public boolean deleteFile() {
         LOGGER.entering(CLASS_NAME, "deleteFile");
 
-        boolean result = blockerFile.delete();
+        boolean result = file.delete();
 
         LOGGER.exiting(CLASS_NAME, "deleteFile", result);
         return result;
     }
 
     public boolean existsFile() {
-        return blockerFile.exists();
+        return file.exists();
     }
 
     public boolean waitFile() throws InterruptedException {
@@ -58,7 +58,7 @@ public class BlockerFile {
 
         for (int i=0; blocking && i<600; i++) {
             if (i==0) {
-                LOGGER.logp(Level.INFO, CLASS_NAME, "waitFile", "waiting: " + blockerFile);
+                LOGGER.logp(Level.INFO, CLASS_NAME, "waitFile", "waiting: " + file);
             }
 
             Thread.sleep(100);
@@ -72,6 +72,6 @@ public class BlockerFile {
 
     @Override
     public String toString() {
-        return BlockerFile.class.getSimpleName() + "(" + blockerFile + ")";
+        return BlockFile.class.getSimpleName() + "(" + file + ")";
     }
 }

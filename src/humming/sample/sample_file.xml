@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <device>
   <object ceoj="0011">
-    <property epc="80" set="enabled">
-      <data type="file">/tmp/x80</data>
+    <property epc="80" set="enabled" notify="enabled">
+      <data type="file">
+          <file default="30">/tmp/x80</file>
+          <notify>/tmp/x80notify</notify>
+          <block>/tmp/x80block</block>
+      </data>
     </property>
     <property epc="E0">
       <data type="file">/tmp/xE0</data>
