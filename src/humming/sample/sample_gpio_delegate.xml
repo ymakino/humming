@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device>
+  <object ceoj="05FD">
+    <property epc="80" set="enabled" notify="enabled">
+      <data type="delegate">
+            delegate: humming.sample.GPIOPinDelegate
+            {
+                delegate.setPinNumber(20);
+            }
+      </data>
+    </property>
+    <property epc="E0">
+        <!-- PIN22 -->
+        <data type="const">50494e323000000000000000</data>
+    </property>
+  </object>
+  <object ceoj="05FD">
+    <property epc="80" notify="enabled">
+      <data type="delegate">
+            delegate: humming.sample.GPIOPinDelegate
+            {
+                delegate.setPinNumber(21);
+                delegate.setInterval(100);
+            }
+      </data>
+    </property>
+    <property epc="E0">
+        <!-- PIN23 -->
+        <data type="const">50494e323100000000000000</data>
+    </property>
+  </object>
+</device>
