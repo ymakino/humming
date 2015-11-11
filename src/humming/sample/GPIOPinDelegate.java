@@ -167,7 +167,7 @@ public class GPIOPinDelegate extends PropertyDelegate {
         }
         
         if (!result) {
-            System.err.println("GPIOPinDelegate.setUserData:  cannnot write pin: " + pin.getPinNumber());
+            System.err.println("GPIOPinDelegate.setUserData:  Cannot write pin: " + pin.getPinNumber());
         }
         
         lastValue = pin.getValue();
