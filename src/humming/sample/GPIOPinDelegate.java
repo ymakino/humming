@@ -26,6 +26,7 @@ public class GPIOPinDelegate extends PropertyDelegate {
     public GPIOPinDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled) {
         super(epc, getEnabled, setEnabled, notifyEnabled);
         LOGGER.entering(CLASS_NAME, "GPIOPinDelegate", new Object[]{epc, getEnabled, setEnabled, notifyEnabled});
+        
         LOGGER.exiting(CLASS_NAME, "GPIOPinDelegate");
     }
     
@@ -45,10 +46,12 @@ public class GPIOPinDelegate extends PropertyDelegate {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
+                LOGGER.logp(Level.INFO, CLASS_NAME, "setPinNumber", "Set pin \"in\": " + pin.getPinNumber());
                 if (!pin.setInput()) {
                     LOGGER.logp(Level.WARNING, CLASS_NAME, "setPinNumber", "Cannot set pin \"in\": " + pin.getPinNumber());
                 }
                 
+                LOGGER.logp(Level.INFO, CLASS_NAME, "setPinNumber", "Unexport pin: " + pin.getPinNumber());
                 if (!pin.unexport()) {
                     LOGGER.logp(Level.WARNING, CLASS_NAME, "setPinNumber", "Cannot unexport pin: " + pin.getPinNumber());
                 }
@@ -57,11 +60,11 @@ public class GPIOPinDelegate extends PropertyDelegate {
         
         if (isSetEnabled()) {
             if (!pin.setOutput()) {
-                    LOGGER.logp(Level.WARNING, CLASS_NAME, "setPinNumber", "Cannot set pin \"out\": " + pin.getPinNumber());
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "setPinNumber", "Cannot set pin \"out\": " + pin.getPinNumber());
             }
         } else {
             if (!pin.setInput()) {
-                    LOGGER.logp(Level.WARNING, CLASS_NAME, "setPinNumber", "Cannot set pin \"in\": " + pin.getPinNumber());
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "setPinNumber", "Cannot set pin \"in\": " + pin.getPinNumber());
             }
         }
         
@@ -134,8 +137,12 @@ public class GPIOPinDelegate extends PropertyDelegate {
         ObjectData data;
         
         switch (pin.getValue()) {
-            case 0: data = new ObjectData((byte)0x31); break;
-            case 1: data = new ObjectData((byte)0x30); break;
+            case 0:
+                data = new ObjectData((byte)0x31);
+                break;
+            case 1:
+                data = new ObjectData((byte)0x30);
+                break;
             default: 
                 LOGGER.logp(Level.WARNING, CLASS_NAME, "setPinNumber", "Cannot read pin: " + pin.getPinNumber());
                 data = null;
