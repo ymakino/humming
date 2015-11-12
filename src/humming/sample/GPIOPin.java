@@ -25,6 +25,7 @@ public class GPIOPin {
     private String directionFileTemplate = "/sys/class/gpio/gpio%d/direction";
     
     private int pinNumber;
+    private boolean negative = false;
     
     private String getBaseDirectory() {
         LOGGER.entering(CLASS_NAME, "getBaseDirectory");
@@ -75,6 +76,40 @@ public class GPIOPin {
             LOGGER.exiting(CLASS_NAME, "write", false);
             return false;
         }
+    }
+    
+    public void setNegative(boolean negative) {
+        LOGGER.entering(CLASS_NAME, "setNegative", negative);
+        
+        this.negative = negative;
+        
+        LOGGER.exiting(CLASS_NAME, "setNegative");
+    }
+    
+    public boolean isNegative() {
+        LOGGER.entering(CLASS_NAME, "isNegative");
+        LOGGER.exiting(CLASS_NAME, "isNegative", negative);
+        return negative;
+    }
+    
+    private int convertLogic(int value) {
+        LOGGER.entering(CLASS_NAME, "convertLogic", value);
+        
+        int newValue = value;
+        
+        if (negative) {
+            switch (value) {
+                case 0:
+                    newValue = 1;
+                    break;
+                case 1:
+                    newValue = 0;
+                    break;
+            }
+        }
+        
+        LOGGER.exiting(CLASS_NAME, "convertLogic", newValue);
+        return newValue;
     }
     
     public boolean isExported() {
@@ -150,6 +185,8 @@ public class GPIOPin {
     public boolean setValue(int value) {
         LOGGER.entering(CLASS_NAME, "setValue", value);
         
+        value = convertLogic(value);
+        
         boolean result = write(getValueFile(), value);
         
         LOGGER.exiting(CLASS_NAME, "setValue", result);
@@ -159,7 +196,7 @@ public class GPIOPin {
     public int getValue() {
         LOGGER.entering(CLASS_NAME, "getValue");
         
-        int result = -1;
+        int value = -1;
         
         try {
             FileReader reader = new FileReader(getValueFile());
@@ -168,21 +205,21 @@ public class GPIOPin {
             
             if (ch != -1) {
                 switch ((char)ch) {
-                    case '0': result = 0; break;
-                    case '1': result = 1; break;
+                    case '0': value = convertLogic(0); break;
+                    case '1': value = convertLogic(1); break;
                 }
             }
             
         } catch (FileNotFoundException ex) {
             // Logger.getLogger(GPIOPin.class.getName()).log(Level.SEVERE, null, ex);
-            result = -1;
+            value = -1;
         } catch (IOException ex) {
             // Logger.getLogger(GPIOPin.class.getName()).log(Level.SEVERE, null, ex);
-            result = -1;
+            value = -1;
         }
         
-        LOGGER.exiting(CLASS_NAME, "getValue", result);
-        return result;
+        LOGGER.exiting(CLASS_NAME, "getValue", value);
+        return value;
     }
     
     public static void main(String[] args) throws InterruptedException {

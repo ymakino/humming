@@ -87,6 +87,14 @@ public class GPIOPinDelegate extends PropertyDelegate {
         LOGGER.exiting(CLASS_NAME, "setInterval");
     }
     
+    public void setNegative(boolean negative) {
+        LOGGER.entering(CLASS_NAME, "setNegative", negative);
+        
+        pin.setNegative(negative);
+        
+        LOGGER.exiting(CLASS_NAME, "setNegative");
+    }
+    
     private int lastValue;
     
     public synchronized void notifyPinStatus(LocalObject object) {
@@ -128,7 +136,7 @@ public class GPIOPinDelegate extends PropertyDelegate {
                 }
             };
             
-            LOGGER.logp(Level.INFO, CLASS_NAME, "notifyCreation", "start an update task: " + updateTask + ", delay: " + delay + ", interval: " + interval);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "notifyCreation", "start notification task: LocalObject: " + object + ", EPC:" + this.getEPC() + ", GPIO: " + pin.getPinNumber() + ", delay: " + delay + ", interval: " + interval);
         
             timer.schedule(updateTask, delay, interval);
         }
