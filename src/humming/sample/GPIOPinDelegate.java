@@ -98,6 +98,8 @@ public class GPIOPinDelegate extends PropertyDelegate {
                 break;
             }
 
+            LOGGER.logp(Level.INFO, CLASS_NAME, "notifyPinStatus", "notify LocalObject: " + object + ", GPIO: " + pin.getPinNumber() + ", value: " + value);
+            
             EPC epc = GPIOPinDelegate.this.getEPC();
             ObjectData data = object.getData(epc);
             object.notifyDataChanged(epc, data, null);
@@ -113,6 +115,8 @@ public class GPIOPinDelegate extends PropertyDelegate {
     public void notifyCreation(final LocalObject object) {
         LOGGER.entering(CLASS_NAME, "notifyCreation", object);
         
+        LOGGER.logp(Level.INFO, CLASS_NAME, "notifyCreation", "created LocalObject: " + object + ", GPIO: " + pin.getPinNumber());
+        
         if (isNotifyEnabled()) {
             timer = new Timer();
             lastValue = pin.getValue();
@@ -124,6 +128,8 @@ public class GPIOPinDelegate extends PropertyDelegate {
                 }
             };
             
+            LOGGER.logp(Level.INFO, CLASS_NAME, "notifyCreation", "start an update task: " + updateTask + ", delay: " + delay + ", interval: " + interval);
+        
             timer.schedule(updateTask, delay, interval);
         }
         
