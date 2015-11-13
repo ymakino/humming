@@ -121,6 +121,44 @@ public class GPIOPin {
         return result;
     }
     
+    private int chgrpGPIO(String filename) {
+        int result = -1;
+        
+        try {
+            Process proc = Runtime.getRuntime().exec("sudo chgrp gpio " + filename);
+            result = proc.waitFor();
+            
+            if (result != 0) {
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "chgrpGPIO", "Failed: sudo chgrp gpio " + filename + ": " + result);
+            }
+        } catch (IOException ex) {
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "chgrpGPIO", "Failed: sudo chgrp gpio " + filename, ex);
+        } catch (InterruptedException ex) {
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "chgrpGPIO", "Failed: sudo chgrp gpio " + filename, ex);
+        }
+        
+        return result;
+    }
+    
+    private int chmodGRW(String filename) {
+        int result = -1;
+        
+        try {
+            Process proc = Runtime.getRuntime().exec("sudo chmod g+rw " + filename);
+            result = proc.waitFor();
+            
+            if (result != 0) {
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "chmodGRW", "Failed: sudo chmod g+rw " + filename + ": " + result);
+            }
+        } catch (IOException ex) {
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "chmodGRW", "Failed: sudo chmod g+rw " + filename, ex);
+        } catch (InterruptedException ex) {
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "chmodGRW", "Failed: sudo chmod g+rw " + filename, ex);
+        }
+        
+        return -1;
+    }
+    
     public boolean export() {
         LOGGER.entering(CLASS_NAME, "export");
         
@@ -129,6 +167,11 @@ public class GPIOPin {
         if (write(exportFile, pinNumber)) {
             result = isExported();
         }
+        
+        chgrpGPIO(getValueFile());
+        chmodGRW(getValueFile());
+        chgrpGPIO(getDirectionFile());
+        chmodGRW(getDirectionFile());
 
         LOGGER.exiting(CLASS_NAME, "export", result);
         return result;
