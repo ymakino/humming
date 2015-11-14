@@ -27,6 +27,12 @@ public class GPIOPin {
     private int pinNumber;
     private boolean negative = false;
     
+    private String groupName = null;
+    private boolean groupReadable = false;
+    private boolean groupWritable = false;
+    private boolean otherReadable = false;
+    private boolean otherWritable = false;
+    
     private String getBaseDirectory() {
         LOGGER.entering(CLASS_NAME, "getBaseDirectory");
         
@@ -121,42 +127,92 @@ public class GPIOPin {
         return result;
     }
     
-    private int chgrpGPIO(String filename) {
+    private int chgrp(String filename, String groupName) {
         int result = -1;
         
         try {
-            Process proc = Runtime.getRuntime().exec("sudo chgrp gpio " + filename);
+            Process proc = Runtime.getRuntime().exec(new String[]{"sudo", "chgrp", groupName, filename});
             result = proc.waitFor();
             
             if (result != 0) {
-                LOGGER.logp(Level.WARNING, CLASS_NAME, "chgrpGPIO", "Failed: sudo chgrp gpio " + filename + ": " + result);
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "chgrp", "Failed: sudo chgrp " + groupName + " " + filename + ": " + result);
             }
         } catch (IOException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "chgrpGPIO", "Failed: sudo chgrp gpio " + filename, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "chgrp", "Failed: sudo chgrp " + groupName + " " + filename, ex);
         } catch (InterruptedException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "chgrpGPIO", "Failed: sudo chgrp gpio " + filename, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "chgrp", "Failed: sudo chgrp " + groupName + " " + filename, ex);
         }
         
         return result;
     }
     
-    private int chmodGRW(String filename) {
+    private int chmod(String filename, String mode) {
         int result = -1;
         
         try {
-            Process proc = Runtime.getRuntime().exec("sudo chmod g+rw " + filename);
+            Process proc = Runtime.getRuntime().exec(new String[]{"sudo", "chmod", mode, filename});
             result = proc.waitFor();
             
             if (result != 0) {
-                LOGGER.logp(Level.WARNING, CLASS_NAME, "chmodGRW", "Failed: sudo chmod g+rw " + filename + ": " + result);
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "chmod", "Failed: sudo chmod " + mode + " " + filename + ": " + result);
             }
         } catch (IOException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "chmodGRW", "Failed: sudo chmod g+rw " + filename, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "chmod", "Failed: sudo chmod " + mode + " " + filename, ex);
         } catch (InterruptedException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "chmodGRW", "Failed: sudo chmod g+rw " + filename, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "chmod", "Failed: sudo chmod " + mode + " " + filename, ex);
         }
         
         return -1;
+    }
+    
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
+    
+    public String getGroupName() {
+        return groupName;
+    }
+    
+    public void setGroup(boolean readable, boolean writable) {
+        groupReadable = readable;
+        groupWritable = writable;
+    }
+    
+    public void setGroupReadable(boolean readable) {
+        groupReadable = readable;
+    }
+    
+    public void setGroupWritable(boolean writable) {
+        groupWritable = writable;
+    }
+    
+    public boolean isGroupReadable() {
+        return groupReadable;
+    }
+    
+    public boolean isGroupWritable() {
+        return groupWritable;
+    }
+    
+    public void setOther(boolean readable, boolean writable) {
+        otherReadable = readable;
+        otherWritable = writable;
+    }
+    
+    public void setOtherReadable(boolean readable) {
+        otherReadable = readable;
+    }
+    
+    public void setOtherWritable(boolean writable) {
+        otherWritable = writable;
+    }
+    
+    public boolean isOtherReadable() {
+        return otherReadable;
+    }
+    
+    public boolean isOtherWritable() {
+        return otherWritable;
     }
     
     public boolean export() {
@@ -168,11 +224,31 @@ public class GPIOPin {
             result = isExported();
         }
         
-        chgrpGPIO(getValueFile());
-        chmodGRW(getValueFile());
-        chgrpGPIO(getDirectionFile());
-        chmodGRW(getDirectionFile());
-
+        if (groupName != null) {
+            chgrp(getValueFile(), groupName);
+            chgrp(getDirectionFile(), groupName);
+        }
+        
+        if (groupReadable) {
+            chmod(getValueFile(), "g+r");
+            chmod(getDirectionFile(), "g+r");
+        }
+        
+        if (groupWritable) {
+            chmod(getValueFile(), "g+w");
+            chmod(getDirectionFile(), "g+w");
+        }
+        
+        if (otherReadable) {
+            chmod(getValueFile(), "o+r");
+            chmod(getDirectionFile(), "o+r");
+        }
+        
+        if (otherWritable) {
+            chmod(getValueFile(), "o+w");
+            chmod(getDirectionFile(), "o+w");
+        }
+        
         LOGGER.exiting(CLASS_NAME, "export", result);
         return result;
     }
@@ -269,7 +345,11 @@ public class GPIOPin {
         LinkedList<GPIOPin> pins = new LinkedList<GPIOPin>();
         
         for (String arg : args) {
-            pins.add(new GPIOPin(Integer.parseInt(arg)));
+            GPIOPin pin = new GPIOPin(Integer.parseInt(arg));
+            pin.setGroupName("staff");
+            pin.setGroupReadable(true);
+            pin.setOtherReadable(true);
+            pins.add(pin);
         }
         
         System.out.print("EXPORT:");

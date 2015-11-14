@@ -17,7 +17,8 @@ public class GPIOPinDelegate extends PropertyDelegate {
     private static final Logger LOGGER = Logger.getLogger(GPIOPinDelegate.class.getName());
     private static final String CLASS_NAME = GPIOPinDelegate.class.getName();
     
-    private GPIOPin pin;
+    private int pinNumber = -1;
+    private GPIOPin pin = null;
     private Timer timer = null;
     private TimerTask updateTask = null;
     private int delay = 1000;
@@ -35,9 +36,15 @@ public class GPIOPinDelegate extends PropertyDelegate {
         
         pin = new GPIOPin(pinNumber);
         
+        LOGGER.exiting(CLASS_NAME, "setPinNumber");
+    }
+    
+    private void exportPin() {
+        LOGGER.entering(CLASS_NAME, "exportPin");
+        
         if (!pin.isExported()) {
             if (!pin.export()) {
-                LOGGER.logp(Level.WARNING, CLASS_NAME, "setPinNumber", "Cannot export pin: " + pinNumber);
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "exportPin", "Cannot export pin: " + pinNumber);
                 LOGGER.exiting(CLASS_NAME, "setPinNumber");
                 return;
             }
@@ -46,29 +53,29 @@ public class GPIOPinDelegate extends PropertyDelegate {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                LOGGER.logp(Level.INFO, CLASS_NAME, "setPinNumber", "Set pin \"in\": " + pin.getPinNumber());
+                LOGGER.logp(Level.INFO, CLASS_NAME, "exportPin", "Set pin \"in\": " + pin.getPinNumber());
                 if (!pin.setInput()) {
-                    LOGGER.logp(Level.WARNING, CLASS_NAME, "setPinNumber", "Cannot set pin \"in\": " + pin.getPinNumber());
+                    LOGGER.logp(Level.WARNING, CLASS_NAME, "exportPin", "Cannot set pin \"in\": " + pin.getPinNumber());
                 }
                 
-                LOGGER.logp(Level.INFO, CLASS_NAME, "setPinNumber", "Unexport pin: " + pin.getPinNumber());
+                LOGGER.logp(Level.INFO, CLASS_NAME, "exportPin", "Unexport pin: " + pin.getPinNumber());
                 if (!pin.unexport()) {
-                    LOGGER.logp(Level.WARNING, CLASS_NAME, "setPinNumber", "Cannot unexport pin: " + pin.getPinNumber());
+                    LOGGER.logp(Level.WARNING, CLASS_NAME, "exportPin", "Cannot unexport pin: " + pin.getPinNumber());
                 }
             }
         });
         
         if (isSetEnabled()) {
             if (!pin.setOutput()) {
-                LOGGER.logp(Level.WARNING, CLASS_NAME, "setPinNumber", "Cannot set pin \"out\": " + pin.getPinNumber());
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "exportPin", "Cannot set pin \"out\": " + pin.getPinNumber());
             }
         } else {
             if (!pin.setInput()) {
-                LOGGER.logp(Level.WARNING, CLASS_NAME, "setPinNumber", "Cannot set pin \"in\": " + pin.getPinNumber());
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "exportPin", "Cannot set pin \"in\": " + pin.getPinNumber());
             }
         }
         
-        LOGGER.exiting(CLASS_NAME, "setPinNumber");
+        LOGGER.exiting(CLASS_NAME, "exportPin");
     }
     
     public void setDelay(int delay) {
@@ -93,6 +100,38 @@ public class GPIOPinDelegate extends PropertyDelegate {
         pin.setNegative(negative);
         
         LOGGER.exiting(CLASS_NAME, "setNegative");
+    }
+    
+    public void setGroupName(String name) {
+        pin.setGroupName(name);
+    }
+    
+    public void clearGroupName(String name) {
+        pin.setGroupName(null);
+    }
+    
+    public void setGroupReadable(boolean readable) {
+        pin.setGroupReadable(readable);
+    }
+    
+    public void setGroupWritable(boolean writable) {
+        pin.setGroupWritable(writable);
+    }
+    
+    public void setGroup(boolean readable, boolean writable) {
+        pin.setGroup(readable, writable);
+    }
+    
+    public void setOtherReadable(boolean readable) {
+        pin.setOtherReadable(readable);
+    }
+    
+    public void setOtherWritable(boolean writable) {
+        pin.setOtherWritable(writable);
+    }
+    
+    public void setOther(boolean readable, boolean writable) {
+        pin.setOther(readable, writable);
     }
     
     private int lastValue;
@@ -124,6 +163,8 @@ public class GPIOPinDelegate extends PropertyDelegate {
         LOGGER.entering(CLASS_NAME, "notifyCreation", object);
         
         LOGGER.logp(Level.INFO, CLASS_NAME, "notifyCreation", "created LocalObject: " + object + ", GPIO: " + pin.getPinNumber());
+        
+        exportPin();
         
         if (isNotifyEnabled()) {
             timer = new Timer();

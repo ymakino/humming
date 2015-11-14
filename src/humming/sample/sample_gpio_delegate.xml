@@ -6,6 +6,8 @@
             delegate: humming.sample.GPIOPinDelegate
             {
                 delegate.setPinNumber(20);
+                delegate.setGroupName("gpio");
+                delegate.setGroupWritable(true);
             }
       </data>
     </property>
@@ -19,8 +21,10 @@
       <data type="delegate">
             delegate: humming.sample.GPIOPinDelegate
             {
-                delegate.setPinNumber(21);
                 delegate.setInterval(100);
+                delegate.setPinNumber(21);
+                delegate.setGroupName("gpio");
+                delegate.setGroupWritable(true);
             }
       </data>
     </property>
