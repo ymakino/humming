@@ -17,7 +17,6 @@ public class GPIOPinDelegate extends PropertyDelegate {
     private static final Logger LOGGER = Logger.getLogger(GPIOPinDelegate.class.getName());
     private static final String CLASS_NAME = GPIOPinDelegate.class.getName();
     
-    private int pinNumber = -1;
     private GPIOPin pin = null;
     private Timer timer = null;
     private TimerTask updateTask = null;
@@ -44,7 +43,7 @@ public class GPIOPinDelegate extends PropertyDelegate {
         
         if (!pin.isExported()) {
             if (!pin.export()) {
-                LOGGER.logp(Level.WARNING, CLASS_NAME, "exportPin", "Cannot export pin: " + pinNumber);
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "exportPin", "Cannot export pin: " + pin.getPinNumber());
                 LOGGER.exiting(CLASS_NAME, "setPinNumber");
                 return;
             }
