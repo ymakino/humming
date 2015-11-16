@@ -33,6 +33,8 @@ public class GPIOPin {
     private boolean otherReadable = false;
     private boolean otherWritable = false;
     
+    private boolean useSudo = false;
+    
     private String getBaseDirectory() {
         LOGGER.entering(CLASS_NAME, "getBaseDirectory");
         
@@ -42,7 +44,7 @@ public class GPIOPin {
         return result;
     }
     
-    private String getValueFile() {
+    public String getValueFile() {
         LOGGER.entering(CLASS_NAME, "getValueFile");
         
         String result = String.format(valueFileTemplate, pinNumber);
@@ -51,7 +53,7 @@ public class GPIOPin {
         return result;
     }
     
-    private String getDirectionFile() {
+    public String getDirectionFile() {
         LOGGER.entering(CLASS_NAME, "getDirectionFile");
         
         String result = String.format(directionFileTemplate, pinNumber);
@@ -130,17 +132,27 @@ public class GPIOPin {
     private int chgrp(String filename, String groupName) {
         int result = -1;
         
+        String[] com;
+        
+        if (useSudo) {
+            com = new String[]{"sudo", "chgrp", groupName, filename};
+        } else {
+            com = new String[]{"chgrp", groupName, filename};
+        }
+        
+        String comStr = String.join(" ", com);
+            
         try {
-            Process proc = Runtime.getRuntime().exec(new String[]{"sudo", "chgrp", groupName, filename});
+            Process proc = Runtime.getRuntime().exec(com);
             result = proc.waitFor();
             
             if (result != 0) {
-                LOGGER.logp(Level.WARNING, CLASS_NAME, "chgrp", "Failed: sudo chgrp " + groupName + " " + filename + ": " + result);
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "chgrp", "Failed: " + comStr + ": " + result);
             }
         } catch (IOException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "chgrp", "Failed: sudo chgrp " + groupName + " " + filename, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "chgrp", "Failed: " + comStr + ": " + filename, ex);
         } catch (InterruptedException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "chgrp", "Failed: sudo chgrp " + groupName + " " + filename, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "chgrp", "Failed: " + comStr + ": " + filename, ex);
         }
         
         return result;
@@ -149,17 +161,27 @@ public class GPIOPin {
     private int chmod(String filename, String mode) {
         int result = -1;
         
+        String[] com;
+        
+        if (useSudo) {
+            com = new String[]{"sudo", "chmod", mode, filename};
+        } else {
+            com = new String[]{"chmod", mode, filename};
+        }
+        
+        String comStr = String.join(" ", com);
+        
         try {
-            Process proc = Runtime.getRuntime().exec(new String[]{"sudo", "chmod", mode, filename});
+            Process proc = Runtime.getRuntime().exec(com);
             result = proc.waitFor();
             
             if (result != 0) {
-                LOGGER.logp(Level.WARNING, CLASS_NAME, "chmod", "Failed: sudo chmod " + mode + " " + filename + ": " + result);
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "chmod", "Failed: " + comStr + ": " + result);
             }
         } catch (IOException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "chmod", "Failed: sudo chmod " + mode + " " + filename, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "chmod", "Failed: " + comStr, ex);
         } catch (InterruptedException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "chmod", "Failed: sudo chmod " + mode + " " + filename, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "chmod", "Failed: " + comStr, ex);
         }
         
         return -1;
@@ -213,6 +235,14 @@ public class GPIOPin {
     
     public boolean isOtherWritable() {
         return otherWritable;
+    }
+    
+    public void setUseSudo(boolean useSudo) {
+        this.useSudo = useSudo;
+    }
+    
+    public boolean isUseSudo() {
+        return useSudo;
     }
     
     public boolean export() {
@@ -330,10 +360,10 @@ public class GPIOPin {
             }
             
         } catch (FileNotFoundException ex) {
-            // Logger.getLogger(GPIOPin.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "getValue", "File not found: " + getValueFile(), ex);
             value = -1;
         } catch (IOException ex) {
-            // Logger.getLogger(GPIOPin.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "getValue", "Failed: " + getValueFile(), ex);
             value = -1;
         }
         

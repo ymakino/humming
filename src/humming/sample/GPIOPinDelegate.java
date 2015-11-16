@@ -133,6 +133,10 @@ public class GPIOPinDelegate extends PropertyDelegate {
         pin.setOther(readable, writable);
     }
     
+    public void setUseSudo(boolean useSudo) {
+        pin.setUseSudo(useSudo);
+    }
+    
     private int lastValue;
     
     public synchronized void notifyPinStatus(LocalObject object) {
