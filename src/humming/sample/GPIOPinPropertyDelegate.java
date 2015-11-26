@@ -3,6 +3,7 @@ package humming.sample;
 import echowand.common.EPC;
 import echowand.object.LocalObject;
 import echowand.object.ObjectData;
+import echowand.service.Core;
 import echowand.service.PropertyDelegate;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -13,9 +14,9 @@ import java.util.logging.Logger;
  *
  * @author ymakino
  */
-public class GPIOPinDelegate extends PropertyDelegate {
-    private static final Logger LOGGER = Logger.getLogger(GPIOPinDelegate.class.getName());
-    private static final String CLASS_NAME = GPIOPinDelegate.class.getName();
+public class GPIOPinPropertyDelegate extends PropertyDelegate {
+    private static final Logger LOGGER = Logger.getLogger(GPIOPinPropertyDelegate.class.getName());
+    private static final String CLASS_NAME = GPIOPinPropertyDelegate.class.getName();
     
     private GPIOPin pin = null;
     private Timer timer = null;
@@ -23,11 +24,11 @@ public class GPIOPinDelegate extends PropertyDelegate {
     private int delay = 1000;
     private int interval = 1000;
 
-    public GPIOPinDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled) {
+    public GPIOPinPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled) {
         super(epc, getEnabled, setEnabled, notifyEnabled);
-        LOGGER.entering(CLASS_NAME, "GPIOPinDelegate", new Object[]{epc, getEnabled, setEnabled, notifyEnabled});
+        LOGGER.entering(CLASS_NAME, "GPIOPinPropertyDelegate", new Object[]{epc, getEnabled, setEnabled, notifyEnabled});
         
-        LOGGER.exiting(CLASS_NAME, "GPIOPinDelegate");
+        LOGGER.exiting(CLASS_NAME, "GPIOPinPropertyDelegate");
     }
     
     public void setPinNumber(int pinNumber) {
@@ -150,7 +151,7 @@ public class GPIOPinDelegate extends PropertyDelegate {
 
             LOGGER.logp(Level.INFO, CLASS_NAME, "notifyPinStatus", "notify LocalObject: " + object + ", GPIO: " + pin.getPinNumber() + ", value: " + value);
             
-            EPC epc = GPIOPinDelegate.this.getEPC();
+            EPC epc = GPIOPinPropertyDelegate.this.getEPC();
             ObjectData data = object.getData(epc);
             object.notifyDataChanged(epc, data, null);
             lastValue = value;
@@ -162,7 +163,7 @@ public class GPIOPinDelegate extends PropertyDelegate {
     }
     
     @Override
-    public void notifyCreation(final LocalObject object) {
+    public void notifyCreation(final LocalObject object, Core core) {
         LOGGER.entering(CLASS_NAME, "notifyCreation", object);
         
         LOGGER.logp(Level.INFO, CLASS_NAME, "notifyCreation", "created LocalObject: " + object + ", GPIO: " + pin.getPinNumber());
@@ -225,7 +226,7 @@ public class GPIOPinDelegate extends PropertyDelegate {
         }
         
         if (!result) {
-            System.err.println("GPIOPinDelegate.setUserData:  Cannot write pin: " + pin.getPinNumber());
+            System.err.println("GPIOPinPropertyDelegate.setUserData:  Cannot write pin: " + pin.getPinNumber());
         }
         
         lastValue = pin.getValue();

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device>
+  <object ceoj="0011">
+    <delegate>
+      <class>humming.dropper.RandomFrameDropDelegate</class>
+      <config instance="delegate">
+        delegate.setDropRate(0.1);
+        delegate.setDefaultDropRate(0.01);
+      </config>
+    </delegate>
+    <property epc="80">
+      <data type="const">30</data>
+    </property>
+    <property epc="E0">
+      <data type="const">0117</data>
+    </property>
+  </object>
+  <object ceoj="0011">
+    <delegate>
+      <class>humming.dropper.RandomFrameDropDelegate</class>
+      <config instance="delegate">delegate.setDropRate(0.05);</config>
+    </delegate>
+    <property epc="80">
+      <data type="const">30</data>
+    </property>
+    <property epc="E0">
+      <data type="const">0117</data>
+    </property>
+  </object>
+</device>

@@ -3,6 +3,7 @@ package humming;
 import echowand.common.EPC;
 import echowand.object.LocalObject;
 import echowand.object.ObjectData;
+import echowand.service.Core;
 import echowand.service.PropertyDelegate;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -90,7 +91,7 @@ public class FilePropertyDelegate extends PropertyDelegate {
     }
     
     @Override
-    public void notifyCreation(LocalObject object) {
+    public void notifyCreation(LocalObject object, Core core) {
         if (sender != null) {
             sender.addProperty(object, getEPC());
             

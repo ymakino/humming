@@ -1,5 +1,8 @@
 package humming;
 
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 /**
  *
  * @author ymakino
@@ -7,33 +10,32 @@ package humming;
 public class InstanceCreatorParser {
     public static final String DEFAULT_INSTANCE_NAME = "it";
     
-    private String contents;
-    private String header;
     private String instanceName;
     private String className;
-    private String script;
+    private String initScript;
     
-    public InstanceCreatorParser(String contents) {
-        this.contents = contents;
+    public InstanceCreatorParser(Node node) throws HummingException {
+        NodeList nodeList = node.getChildNodes();
         
-        String remain = contents.trim();
-        
-        int headerOffset = remain.indexOf('{');
-        if (headerOffset == -1) {
-            header = remain;
-            script = null;
-        } else {
-            header = remain.substring(0, headerOffset).trim();
-            script = remain.substring(headerOffset).trim();
+        for (int i=0; i<nodeList.getLength(); i++) {
+            Node eachNode = nodeList.item(i);
+            
+            if (eachNode.getNodeName().equals("class")) {
+                className = eachNode.getTextContent().trim();
+            } else if (eachNode.getNodeName().equals("config")) {
+                initScript = eachNode.getTextContent().trim();
+                
+                Node instanceAttr = eachNode.getAttributes().getNamedItem("instance");
+                if (instanceAttr == null) {
+                    instanceName = DEFAULT_INSTANCE_NAME;
+                } else {
+                    instanceName = instanceAttr.getTextContent().trim();
+                }
+            }
         }
         
-        int classNameOffset = header.indexOf(':');
-        if (classNameOffset == -1) {
-            instanceName = DEFAULT_INSTANCE_NAME;
-            className = header;
-        } else {
-            instanceName = header.substring(0, classNameOffset).trim();
-            className = header.substring(classNameOffset+1).trim();
+        if (className == null) {
+            className = node.getTextContent().trim();
         }
     }
     
@@ -46,6 +48,6 @@ public class InstanceCreatorParser {
     }
     
     public String getScript() {
-        return script;
+        return initScript;
     }
 }

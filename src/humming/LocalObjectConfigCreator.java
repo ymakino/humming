@@ -184,7 +184,7 @@ public class LocalObjectConfigCreator {
     }
     
     private boolean parseUpdater(Node propNode) throws HummingException {
-        InstanceCreatorParser parser = new InstanceCreatorParser(propNode.getTextContent());
+        InstanceCreatorParser parser = new InstanceCreatorParser(propNode);
         Node delayNode = propNode.getAttributes().getNamedItem("delay");
         Node intervalNode = propNode.getAttributes().getNamedItem("interval");
         
@@ -232,7 +232,7 @@ public class LocalObjectConfigCreator {
     }
     
     private boolean parseDelegate(Node propNode) throws HummingException {
-        InstanceCreatorParser parser = new InstanceCreatorParser(propNode.getTextContent());
+        InstanceCreatorParser parser = new InstanceCreatorParser(propNode);
         
         try {
             Class<?> cls = Class.forName(parser.getClassName());

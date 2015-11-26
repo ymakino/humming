@@ -7,10 +7,12 @@ import echowand.logic.RequestProcessor;
 import echowand.logic.TooManyObjectsException;
 import echowand.net.Inet4Subnet;
 import echowand.net.InternalSubnet;
+import echowand.net.Subnet;
 import echowand.net.SubnetException;
 import echowand.object.LocalObject;
 import echowand.object.ObjectData;
 import echowand.service.Core;
+import echowand.service.ExtendedSubnet;
 import echowand.service.LocalObjectConfig;
 import echowand.service.PropertyUpdater;
 import java.io.ByteArrayInputStream;
@@ -42,13 +44,13 @@ public class Humming {
     private Core core;
     private PropertyDelegateFactory factory;
     private LinkedList<Node> nodes;
-    private LinkedList<LocalObjectConfig> configs;
+    private LinkedList<LocalObjectConfig> localObjectConfigs;
     private HummingScripting hummingScripting;
     
     public Humming(Core core) {
         this.core = core;
         nodes = new LinkedList<Node>();
-        configs = new LinkedList<LocalObjectConfig>();
+        localObjectConfigs = new LinkedList<LocalObjectConfig>();
         hummingScripting = new HummingScripting();
         
         factory = new PropertyDelegateFactory();
@@ -58,6 +60,16 @@ public class Humming {
         factory.add("command", new CommandPropertyDelegateCreator());
         factory.add("proxy", new ProxyPropertyDelegateCreator(core));
         factory.add("delegate", new DelegatePropertyDelegateCreator(hummingScripting));
+    }
+    
+    public <S extends Subnet> S getSubnet(Class<S> cls) {
+        if (cls.isInstance(core.getSubnet())) {
+            return cls.cast(core.getSubnet());
+        } else if (core.getSubnet() instanceof ExtendedSubnet) {
+            return ((ExtendedSubnet)core.getSubnet()).getSubnet(cls);
+        } else {
+            return null;
+        }
     }
     
     public void setScriptEngine(ScriptEngine engine) {
@@ -92,12 +104,12 @@ public class Humming {
         return core;
     }
     
-    public int countConfigs() {
-        return configs.size();
+    public int countLocalObjectConfigs() {
+        return localObjectConfigs.size();
     }
     
-    public LocalObjectConfig getConfig(int index) {
-        return configs.get(index);
+    public LocalObjectConfig getLocalObjectConfig(int index) {
+        return localObjectConfigs.get(index);
     }
     
     public void addXMLObject(Node objectNode) throws HummingException {
@@ -110,7 +122,7 @@ public class Humming {
 
         LocalObjectConfigCreator creator = new LocalObjectConfigCreator(objectNode, factory, hummingScripting);
         LocalObjectConfig config = creator.getConfig();
-        configs.add(config);
+        localObjectConfigs.add(config);
 
         core.addLocalObjectConfig(config);
     }

@@ -17,8 +17,8 @@ import java.util.logging.Logger;
  * @author ymakino
  */
 public class HummingXMLGenerator {
-    private static final Logger LOGGER = Logger.getLogger(DeviceElementGenerator.class.getName());
-    private static final String CLASS_NAME = DeviceElementGenerator.class.getName();
+    private static final Logger LOGGER = Logger.getLogger(HummingXMLGenerator.class.getName());
+    private static final String CLASS_NAME = HummingXMLGenerator.class.getName();
     
     public static void showUsage(String name) {
         System.out.println("Usage: " + name + " [ -i interface ] address...");

@@ -3,16 +3,16 @@
   <object ceoj="0011">
     <updater interval="1000">humming.sample.SamplePropertyUpdater</updater>
     <updater interval="1000" delay="5000">
-        updater: humming.sample.SamplePropertyUpdater
-        { updater.setEPC(Packages.echowand.common.EPC.xE1); }
+      <class>humming.sample.SamplePropertyUpdater</class>
+      <config instance="updater">updater.setEPC(Packages.echowand.common.EPC.xE1);</config>
     </updater>
     <property epc="E0" set="enabled" notify="enabled">
       <data type="delegate">humming.sample.ThermalZonePropertyDelegate</data>
     </property>
     <property epc="E1" set="enabled" notify="enabled">
       <data type="delegate">
-          humming.sample.ThermalZonePropertyDelegate
-          { it.setIndex(1); }
+        <class>humming.sample.ThermalZonePropertyDelegate</class>
+        <config>it.setIndex(1);</config>
       </data>
     </property>
     <property epc="E2" set="disabled" notify="enabled" value="0101"/>

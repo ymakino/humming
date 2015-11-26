@@ -3,6 +3,7 @@ package humming.sample;
 import echowand.common.EPC;
 import echowand.object.LocalObject;
 import echowand.object.ObjectData;
+import echowand.service.Core;
 import echowand.service.LocalObjectServiceDelegate;
 
 /**
@@ -22,8 +23,8 @@ public class SampleObjectDelegate implements LocalObjectServiceDelegate {
     }
     
     @Override
-    public void notifyCreation(LocalObject object){
-        System.out.println("notifyCreated: " + this + ", " + object);
+    public void notifyCreation(LocalObject object, Core core){
+        System.out.println("notifyCreated: " + this + ", " + object + ", " + core);
     }
 
     @Override

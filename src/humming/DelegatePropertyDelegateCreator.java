@@ -35,7 +35,7 @@ public class DelegatePropertyDelegateCreator implements PropertyDelegateCreator 
     
     @Override
     public PropertyDelegate newPropertyDelegate(ClassEOJ ceoj, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) throws HummingException {
-        InstanceCreatorParser parser = new InstanceCreatorParser(node.getTextContent());
+        InstanceCreatorParser parser = new InstanceCreatorParser(node);
 
         try {
             Class<?> cls = Class.forName(parser.getClassName());

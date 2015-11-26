@@ -2,16 +2,16 @@
 <device>
   <object ceoj="0011">
     <delegate>
-        delegate: humming.sample.SampleObjectDelegate
-        {
-          delegate.setEPC(Packages.echowand.common.EPC.xE1);
-          delegate.setValue(12.3 * 10);
-        }
+      <class>humming.sample.SampleObjectDelegate</class>
+      <config instance="delegate">
+        delegate.setEPC(Packages.echowand.common.EPC.xE1);
+        delegate.setValue(12.3 * 10);
+      </config>
     </delegate>
     <property epc="E0" set="enabled" notify="enabled">
       <data type="delegate">
-          humming.sample.ThermalZonePropertyDelegate
-          { it.setIndex(1); }
+        <class>humming.sample.ThermalZonePropertyDelegate</class>
+        <config>it.setIndex(1);</config>
       </data>
     </property>
     <property epc="E1" set="enabled" notify="enabled" />
