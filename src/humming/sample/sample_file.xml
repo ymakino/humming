@@ -3,10 +3,10 @@
   <object ceoj="0011">
     <property epc="80" set="enabled" notify="enabled">
       <data type="file">
-          <file default="30">/tmp/x80</file>
-          <notify>/tmp/x80notify</notify>
-          <block>/tmp/x80block</block>
-          <lock>/tmp/x80lock</lock>
+        <file default="30">/tmp/x80</file>
+        <notify>/tmp/x80notify</notify>
+        <block>/tmp/x80block</block>
+        <lock>/tmp/x80lock</lock>
       </data>
     </property>
     <property epc="E0">
