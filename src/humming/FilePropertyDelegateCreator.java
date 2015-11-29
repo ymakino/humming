@@ -25,6 +25,7 @@ public class FilePropertyDelegateCreator implements PropertyDelegateCreator {
         
         String filename = null;
         String blockName = null;
+        String lockName = null;
         String notifyName = null;
         int interval = -1;
         int delay = -1;
@@ -52,6 +53,8 @@ public class FilePropertyDelegateCreator implements PropertyDelegateCreator {
                 }
             } else if (infoName.equals("block")) {
                 blockName = fileInfo.getTextContent();
+            } else if (infoName.equals("lock")) {
+                lockName = fileInfo.getTextContent();
             } else if (infoName.equals("notify")) {
                 notifyName = fileInfo.getTextContent();
                 Node intervalNode = fileInfo.getAttributes().getNamedItem("interval");
@@ -98,6 +101,10 @@ public class FilePropertyDelegateCreator implements PropertyDelegateCreator {
         
         if (blockName != null) {
             delegate.setBlockFile(new BlockFile(blockName));
+        }
+        
+        if (lockName != null) {
+            delegate.setLockFile(new LockFile(lockName));
         }
         
         if (notifyName != null) {

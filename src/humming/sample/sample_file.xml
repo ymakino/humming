@@ -6,6 +6,7 @@
           <file default="30">/tmp/x80</file>
           <notify>/tmp/x80notify</notify>
           <block>/tmp/x80block</block>
+          <lock>/tmp/x80lock</lock>
       </data>
     </property>
     <property epc="E0">
