@@ -31,116 +31,210 @@ public class FrameDropSubnet implements ExtendedSubnet {
     private long dropReceiveCount = 0;
     
     public FrameDropSubnet(Subnet subnet, FrameDropper dropper) {
+        LOGGER.entering(CLASS_NAME, "FrameDropSubnet", new Object[]{subnet, dropper});
+        
         this.internalSubnet = subnet;
         defaultDropper = dropper;
         sendDroppers = new LinkedList<Pair<Selector<? super Frame>, FrameDropper>>();
         receiveDroppers = new LinkedList<Pair<Selector<? super Frame>, FrameDropper>>();
+        
+        LOGGER.exiting(CLASS_NAME, "FrameDropSubnet");
     }
     
     public FrameDropSubnet(Subnet subnet) {
+        LOGGER.entering(CLASS_NAME, "FrameDropSubnet", subnet);
+        
         this.internalSubnet = subnet;
         defaultDropper = new RandomFrameDropper(0);
         sendDroppers = new LinkedList<Pair<Selector<? super Frame>, FrameDropper>>();
         receiveDroppers = new LinkedList<Pair<Selector<? super Frame>, FrameDropper>>();
+        
+        LOGGER.exiting(CLASS_NAME, "FrameDropSubnet");
     }
     
     @Override
     public <S extends Subnet> S getSubnet(Class<S> cls) {
+        LOGGER.entering(CLASS_NAME, "getSubnet", cls);
+        
+        S subnet;
+        
         if (cls.isInstance(this)) {
-            return cls.cast(this);
+            subnet = cls.cast(this);
         } else if (cls.isInstance(getInternalSubnet())) {
-            return cls.cast(getInternalSubnet());
+            subnet = cls.cast(getInternalSubnet());
         } else if (getInternalSubnet() instanceof ExtendedSubnet) {
-            return ((ExtendedSubnet)getInternalSubnet()).getSubnet(cls);
+            subnet = ((ExtendedSubnet)getInternalSubnet()).getSubnet(cls);
         } else {
-            return null;
+            subnet = null;
         }
+        
+        LOGGER.exiting(CLASS_NAME, "getSubnet", subnet);
+        return subnet;
     }
     
     @Override
     public Subnet getInternalSubnet() {
-        return internalSubnet;
+        LOGGER.entering(CLASS_NAME, "getInternalSubnet");
+        
+        Subnet result = internalSubnet;
+        
+        LOGGER.exiting(CLASS_NAME, "getInternalSubnet", result);
+        return result;
     }
     
     public synchronized void setDefaultDropper(FrameDropper dropper) {
+        LOGGER.entering(CLASS_NAME, "setDefaultDropper", dropper);
+        
         this.defaultDropper = dropper;
+        
+        LOGGER.exiting(CLASS_NAME, "setDefaultDropper");
     }
     
     public synchronized FrameDropper getDefaultDropper() {
-        return defaultDropper;
+        LOGGER.entering(CLASS_NAME, "getDefaultDropper");
+        
+        FrameDropper result = defaultDropper;
+        
+        LOGGER.exiting(CLASS_NAME, "getDefaultDropper", result);
+        return result;
     }
     
     public synchronized int countSendDroppers() {
-        return sendDroppers.size();
+        LOGGER.entering(CLASS_NAME, "countSendDroppers");
+        
+        int result = sendDroppers.size();
+        
+        LOGGER.exiting(CLASS_NAME, "countSendDroppers", result);
+        return result;
     }
     
     public synchronized int countReceiveDroppers() {
-        return receiveDroppers.size();
+        LOGGER.entering(CLASS_NAME, "countReceiveDroppers");
+        
+        int result = receiveDroppers.size();
+        
+        LOGGER.exiting(CLASS_NAME, "countReceiveDroppers", result);
+        return result;
     }
     
     public synchronized void addSendDropper(Selector<? super Frame> selector, FrameDropper dropper) {
+        LOGGER.entering(CLASS_NAME, "addSendDropper", new Object[]{selector, dropper});
+        
         sendDroppers.add(new Pair<Selector<? super Frame>, FrameDropper>(selector, dropper));
+        
+        LOGGER.exiting(CLASS_NAME, "addSendDropper");
     }
     
     public synchronized void addReceiveDropper(Selector<? super Frame> selector, FrameDropper dropper) {
+        LOGGER.entering(CLASS_NAME, "addReceiveDropper", new Object[]{selector, dropper});
+        
         receiveDroppers.add(new Pair<Selector<? super Frame>, FrameDropper>(selector, dropper));
+        
+        LOGGER.exiting(CLASS_NAME, "addReceiveDropper");
     }
     
     public synchronized Pair<Selector<? super Frame>, FrameDropper> getSendDropper(int index) {
-        return sendDroppers.get(index);
+        LOGGER.entering(CLASS_NAME, "getSendDropper", index);
+        
+        Pair<Selector<? super Frame>, FrameDropper> result = sendDroppers.get(index);
+        
+        LOGGER.exiting(CLASS_NAME, "getSendDropper", result);
+        return result;
     }
     
     public synchronized Pair<Selector<? super Frame>, FrameDropper> getReceiveDropper(int index) {
-        return receiveDroppers.get(index);
+        LOGGER.entering(CLASS_NAME, "getReceiveDropper", index);
+        
+        Pair<Selector<? super Frame>, FrameDropper> result = receiveDroppers.get(index);
+        
+        LOGGER.exiting(CLASS_NAME, "getReceiveDropper", result);
+        
+        return result;
     }
     
     public synchronized FrameDropper getSendDropper(Frame frame) {
+        LOGGER.entering(CLASS_NAME, "getSendDropper", frame);
+        
+        FrameDropper result = defaultDropper;
+        
         for (Pair<Selector<? super Frame>, FrameDropper> p : sendDroppers) {
             if (p.first.match(frame)) {
-                return p.second;
+                result = p.second;
+                break;
             }
         }
         
-        return defaultDropper;
+        LOGGER.exiting(CLASS_NAME, "getSendDropper", result);
+        return result;
     }
     
     public synchronized FrameDropper getReceiveDropper(Frame frame) {
+        LOGGER.entering(CLASS_NAME, "getReceiveDropper", frame);
+        
+        FrameDropper result = defaultDropper;
+        
         for (Pair<Selector<? super Frame>, FrameDropper> p : receiveDroppers) {
             if (p.first.match(frame)) {
-                return p.second;
+                result = p.second;
+                break;
             }
         }
         
-        return defaultDropper;
+        LOGGER.exiting(CLASS_NAME, "getReceiveDropper", result);
+        return result;
     }
     
     public synchronized Pair<Selector<? super Frame>, FrameDropper> removeSendDropper(int index) {
-        return sendDroppers.remove(index);
+        LOGGER.entering(CLASS_NAME, "removeSendDropper", index);
+        
+        Pair<Selector<? super Frame>, FrameDropper> result = sendDroppers.remove(index);
+        
+        LOGGER.exiting(CLASS_NAME, "removeSendDropper", result);
+        return result;
     }
     
     public synchronized Pair<Selector<? super Frame>, FrameDropper> removeReceiveDropper(int index) {
-        return receiveDroppers.remove(index);
+        LOGGER.entering(CLASS_NAME, "removeReceiveDropper", index);
+        
+        Pair<Selector<? super Frame>, FrameDropper> result = receiveDroppers.remove(index);
+        
+        LOGGER.exiting(CLASS_NAME, "removeReceiveDropper", result);
+        return result;
     }
 
     @Override
     public boolean send(Frame frame) throws SubnetException {
-        String msg = String.format("%.5f", dropSendCount / (double)totalSendCount);
-        LOGGER.logp(Level.INFO, CLASS_NAME, "send", "send drop rate: " + msg);
+        LOGGER.entering(CLASS_NAME, "send", frame);
+        
+        if (dropSendCount > 0) {
+            String msg = String.format("%.5f", dropSendCount / (double)totalSendCount);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "send", "send drop rate: " + msg);
+        }
         
         totalSendCount++;
         
+        boolean result;
+        
         if (getSendDropper(frame).shouldDropSend(frame)) {
             dropSendCount++;
-            return true;
+            LOGGER.logp(Level.INFO, CLASS_NAME, "send", "drop frame: " + frame);
+            result = true;
         } else {
-            return internalSubnet.send(frame);
+            result = internalSubnet.send(frame);
         }
+        
+        LOGGER.exiting(CLASS_NAME, "send", result);
+        return result;
     }
 
     @Override
     public Frame receive() throws SubnetException {
-        String msg = String.format("%.5f", dropReceiveCount / (double)totalReceiveCount);
-        LOGGER.logp(Level.INFO, CLASS_NAME, "receive", "receive drop rate: " + msg);
+        LOGGER.entering(CLASS_NAME, "receive");
+        
+        if (dropReceiveCount > 0) {
+            String msg = String.format("%.5f", dropReceiveCount / (double)totalReceiveCount);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "receive", "receive drop rate: " + msg);
+        }
         
         for (;;) {
             Frame frame = internalSubnet.receive();
@@ -148,7 +242,9 @@ public class FrameDropSubnet implements ExtendedSubnet {
             
             if (getReceiveDropper(frame).shouldDropReceive(frame)) {
                 dropReceiveCount++;
+                LOGGER.logp(Level.INFO, CLASS_NAME, "receive", "drop frame: " + frame);
             } else {
+                LOGGER.exiting(CLASS_NAME, "receive", frame);
                 return frame;
             }
         }
@@ -156,22 +252,42 @@ public class FrameDropSubnet implements ExtendedSubnet {
 
     @Override
     public Node getLocalNode() {
-        return internalSubnet.getLocalNode();
+        LOGGER.entering(CLASS_NAME, "getLocalNode");
+        
+        Node result = internalSubnet.getLocalNode();
+        
+        LOGGER.exiting(CLASS_NAME, "getLocalNode", result);
+        return result;
     }
 
     @Override
     public Node getRemoteNode(String name) throws SubnetException {
-        return internalSubnet.getRemoteNode(name);
+        LOGGER.entering(CLASS_NAME, "getRemoteNode", name);
+        
+        Node result = internalSubnet.getRemoteNode(name);
+        
+        LOGGER.exiting(CLASS_NAME, "getRemoteNode", result);
+        return result;
     }
 
     @Override
     public Node getRemoteNode(NodeInfo nodeInfo) throws SubnetException {
-        return internalSubnet.getRemoteNode(nodeInfo);
+        LOGGER.entering(CLASS_NAME, "getRemoteNode", nodeInfo);
+        
+        Node result = internalSubnet.getRemoteNode(nodeInfo);
+        
+        LOGGER.exiting(CLASS_NAME, "getRemoteNode", result);
+        return result;
     }
 
     @Override
     public Node getGroupNode() {
-        return internalSubnet.getGroupNode();
+        LOGGER.entering(CLASS_NAME, "getGroupNode");
+        
+        Node result = internalSubnet.getGroupNode();
+        
+        LOGGER.exiting(CLASS_NAME, "getGroupNode", result);
+        return result;
     }
     
 }
