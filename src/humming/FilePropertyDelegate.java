@@ -155,7 +155,7 @@ public class FilePropertyDelegate extends PropertyDelegate {
         ObjectData data = new ObjectData();
         
         try {
-            char[] chars = new char[256];
+            char[] chars = new char[512];
             int len = reader.read(chars);
             if (len > 0) {
                 String line = String.valueOf(chars).split("[^0-9a-fA-F]")[0];

@@ -61,7 +61,7 @@ public class NetworkInterfaceSelector {
             } catch (NumberFormatException ex) {
             }
             
-            if (!line.trim().equals("")) {
+            if (!line.trim().isEmpty()) {
                 System.out.println("Invalid input: " + line);
             }
         }
