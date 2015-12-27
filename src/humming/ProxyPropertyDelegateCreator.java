@@ -80,6 +80,11 @@ public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
             NodeList nodeList = node.getChildNodes();
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node proxyInfo = nodeList.item(i);
+            
+                if (proxyInfo.getNodeType() != Node.ELEMENT_NODE) {
+                    continue;
+                }
+            
                 String infoName = proxyInfo.getNodeName();
                 if (infoName.equals(SUBNET_TAG)) {
                     proxySubnetInfo = proxyInfo;
@@ -91,6 +96,8 @@ public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
                     proxyInstanceInfo = proxyInfo;
                 } else if (infoName.equals(EPC_TAG)) {
                     proxyEPCInfo = proxyInfo;
+                } else {
+                    LOGGER.logp(Level.WARNING, CLASS_NAME, "newPropertyDelegate", "invalid element: " + infoName);
                 }
             }
             

@@ -123,16 +123,18 @@ public class CommandPropertyDelegateCreator implements PropertyDelegateCreator {
         NodeList nodeList = node.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node commandInfo = nodeList.item(i);
+            
+            if (commandInfo.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            
             String infoName = commandInfo.getNodeName();
             if (infoName.equals(GET_TAG)) {
                 getCommand = splitString(commandInfo.getTextContent());
             } else if (infoName.equals(SET_TAG)) {
                 setCommand = splitString(commandInfo.getTextContent());
             } else {
-                short nodeType = commandInfo.getNodeType();
-                if (nodeType != Node.TEXT_NODE && nodeType != Node.COMMENT_NODE) {
-                    LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "invalid element: " + infoName);
-                }
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "invalid element: " + infoName);
             }
         }
         

@@ -77,6 +77,8 @@ public class FilePropertyDelegateCreator implements PropertyDelegateCreator {
                         LOGGER.logp(Level.WARNING, CLASS_NAME, "newPropertyDelegate", "invalid delay number: " + delayString, ex);
                     }
                 }
+            } else {
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "newPropertyDelegate", "invalid element: " + infoName);
             }
         }
         

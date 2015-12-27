@@ -17,7 +17,7 @@ public class VariablePropertyDelegateCreator implements PropertyDelegateCreator 
     
     @Override
     public PropertyDelegate newPropertyDelegate(ClassEOJ ceoj, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) throws HummingException {
-        String dataStr = node.getTextContent();
+        String dataStr = node.getTextContent().trim();
         byte[] dataBytes = new byte[dataStr.length()/2];
         
         try {
