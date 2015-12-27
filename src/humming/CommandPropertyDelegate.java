@@ -49,12 +49,22 @@ public class CommandPropertyDelegate extends PropertyDelegate {
     
     private String escape(String str) {
         StringBuilder builder = new StringBuilder();
+        
         for (int i=0; i<str.length(); i++) {
             char c = str.charAt(i);
             
             switch (c) {
                 case '"': case '\'': case '\\':
                     builder.append("\\").append(c);
+                    break;
+                case '\t':
+                    builder.append("\\t");
+                    break;
+                case '\n':
+                    builder.append("\\n");
+                    break;
+                case '\r':
+                    builder.append("\\r");
                     break;
                 default:
                     builder.append(c);
