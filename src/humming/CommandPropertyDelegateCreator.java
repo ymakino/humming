@@ -128,8 +128,11 @@ public class CommandPropertyDelegateCreator implements PropertyDelegateCreator {
                 getCommand = splitString(commandInfo.getTextContent());
             } else if (infoName.equals(SET_TAG)) {
                 setCommand = splitString(commandInfo.getTextContent());
-            } else if (commandInfo.getNodeType() != Node.TEXT_NODE) {
-                LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "invalid tag: " + infoName);
+            } else {
+                short nodeType = commandInfo.getNodeType();
+                if (nodeType != Node.TEXT_NODE && nodeType != Node.COMMENT_NODE) {
+                    LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "invalid element: " + infoName);
+                }
             }
         }
         

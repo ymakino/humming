@@ -42,7 +42,12 @@ public class LocalObjectConfigCreator {
     }
     
     private String toNodeString(Node node, boolean enableAttributes) {
-        if (node.getNodeType() == Node.TEXT_NODE) {
+        
+        if (node.getNodeType() == Node.COMMENT_NODE) {
+            return "";
+        }
+        
+        if (node.getNodeType() != Node.ELEMENT_NODE) {
             return node.getTextContent().trim();
         }
         
