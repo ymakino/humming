@@ -3,14 +3,14 @@
   <object ceoj="0011">
     <property epc="80" set="enabled">
       <data type="command">
-          <get>/tmp/command_get.sh</get>
-          <set>/tmp/command_set.sh</set>
+        <get>/tmp/command_get.sh</get>
+        <set>/tmp/command_set.sh</set>
       </data>
     </property>
     <property epc="E0">
       <data type="command">
-          <get>/tmp/command_get.sh</get>
-          <set>/tmp/command_set.sh</set>
+        <get>/tmp/command_get.sh</get>
+        <set>/tmp/command_set.sh</set>
       </data>
     </property>
   </object>

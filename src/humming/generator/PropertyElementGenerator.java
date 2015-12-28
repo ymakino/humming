@@ -24,9 +24,9 @@ public class PropertyElementGenerator {
     
     private boolean useFileDefault = true;
     private String fileTemplate = "[NODE]" + File.separator + "[EOJ]" + File.separator + "0x[EPC]";
+    private String fileNotifyTemplate = "[NODE]" + File.separator + "[EOJ]" + File.separator + "0x[EPC]notify";
     private String fileBlockTemplate = "[NODE]" + File.separator + "[EOJ]" + File.separator + "0x[EPC]block";
     private String fileLockTemplate = null;
-    private String fileNotifyTemplate = "[NODE]" + File.separator + "[EOJ]" + File.separator + "0x[EPC]notify";
     
     private String commandGetTemplate = "[NODE]" + File.separator + "[EOJ]" + File.separator + "0x[EPC]get";
     private String commandSetTemplate = "[NODE]" + File.separator + "[EOJ]" + File.separator + "0x[EPC]set";
@@ -134,9 +134,13 @@ public class PropertyElementGenerator {
             }
             
             String fileElement = String.format(innerIndent + "<file%s>%s</file>\n", defaultAttribute, generatePath(fileTemplate));
+            String fileNotifyElement = "";
             String fileBlockElement = "";
             String fileLockElement = "";
-            String fileNotifyElement = "";
+            
+            if (notifyEnabled && fileNotifyTemplate != null) {
+                fileNotifyElement = String.format(innerIndent + "<notify>%s</notify>\n", generatePath(fileNotifyTemplate));
+            }
             
             if (fileBlockTemplate != null) {
                 fileBlockElement = String.format(innerIndent + "<block>%s</block>\n", generatePath(fileBlockTemplate));
@@ -146,16 +150,12 @@ public class PropertyElementGenerator {
                 fileLockElement = String.format(innerIndent + "<lock>%s</lock>\n", generatePath(fileLockTemplate));
             }
             
-            if (notifyEnabled && fileNotifyTemplate != null) {
-                fileNotifyElement = String.format(innerIndent + "<notify>%s</notify>\n", generatePath(fileNotifyTemplate));
-            }
-            
             StringBuilder builder = new StringBuilder();
             builder.append(dataIndent + "<data type=\"file\">\n");
             builder.append(fileElement);
+            builder.append(fileNotifyElement);
             builder.append(fileBlockElement);
             builder.append(fileLockElement);
-            builder.append(fileNotifyElement);
             builder.append(dataIndent + "</data>\n");
             
             return builder.toString();
