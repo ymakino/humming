@@ -15,7 +15,7 @@ public class ObjectElementGenerator {
     private static final String CLASS_NAME = ObjectElementGenerator.class.getName();
     
     private EchonetObject object;
-    private String indent = "  ";
+    private String objectIndent = "  ";
     
     public ObjectElementGenerator(EchonetObject object) {
         this.object = object;
@@ -61,9 +61,9 @@ public class ObjectElementGenerator {
         }
         
         StringBuilder builder = new StringBuilder();
-        builder.append(String.format(indent + "<object ceoj=\"%s\">\n", object.getEOJ().getClassEOJ()));
+        builder.append(String.format(objectIndent + "<object ceoj=\"%s\">\n", object.getEOJ().getClassEOJ()));
         builder.append(propertyBuilder);
-        builder.append(indent + "</object>\n");
+        builder.append(objectIndent + "</object>\n");
         
         return builder.toString();
     }

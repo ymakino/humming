@@ -59,7 +59,7 @@ public class FilePropertyDelegate extends PropertyDelegate {
         this.lockFile = lockFile;
     }
     
-    public BlockFile getBlockerFile() {
+    public BlockFile getBlockFile() {
         return blockFile;
     }
     

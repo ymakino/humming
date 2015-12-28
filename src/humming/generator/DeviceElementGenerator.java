@@ -24,7 +24,7 @@ public class DeviceElementGenerator {
     private Service service;
     private Node node;
     
-    private String indent = "";
+    private String deviceIndent = "";
     
     public DeviceElementGenerator(Service service, Node node) {
         this.service = service;
@@ -63,9 +63,9 @@ public class DeviceElementGenerator {
         }
         
         StringBuilder builder = new StringBuilder();
-        builder.append(indent + "<device>\n");
+        builder.append(deviceIndent + "<device>\n");
         builder.append(objectBuilder);
-        builder.append(indent + "</device>\n");
+        builder.append(deviceIndent + "</device>\n");
         
         return builder.toString();
     }
