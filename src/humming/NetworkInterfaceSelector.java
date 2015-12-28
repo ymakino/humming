@@ -59,6 +59,7 @@ public class NetworkInterfaceSelector {
                     }
                 }
             } catch (NumberFormatException ex) {
+                // The exception can be ignored safely.
             }
             
             if (!line.trim().isEmpty()) {
