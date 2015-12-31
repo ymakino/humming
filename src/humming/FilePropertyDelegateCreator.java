@@ -26,6 +26,7 @@ public class FilePropertyDelegateCreator implements PropertyDelegateCreator {
         String filename = null;
         String blockName = null;
         String lockName = null;
+        String inProcessName = null;
         String notifyName = null;
         int interval = -1;
         int delay = -1;
@@ -55,6 +56,8 @@ public class FilePropertyDelegateCreator implements PropertyDelegateCreator {
                 blockName = fileInfo.getTextContent();
             } else if (infoName.equals("lock")) {
                 lockName = fileInfo.getTextContent();
+            } else if (infoName.equals("inprocess") || infoName.equals("in-process")) {
+                inProcessName = fileInfo.getTextContent();
             } else if (infoName.equals("notify")) {
                 notifyName = fileInfo.getTextContent();
                 Node intervalNode = fileInfo.getAttributes().getNamedItem("interval");
@@ -107,6 +110,11 @@ public class FilePropertyDelegateCreator implements PropertyDelegateCreator {
         
         if (lockName != null) {
             delegate.setLockFile(new LockFile(lockName));
+        }
+        
+        inProcessName = "/tmp/inProcess";
+        if (inProcessName != null) {
+            delegate.setInProcessFile(new InProcessFile(inProcessName));
         }
         
         if (notifyName != null) {

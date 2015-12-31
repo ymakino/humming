@@ -5,9 +5,11 @@ import echowand.object.LocalObject;
 import echowand.object.ObjectData;
 import echowand.service.Core;
 import echowand.service.PropertyDelegate;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -28,7 +30,8 @@ public class FilePropertyDelegate extends PropertyDelegate {
     private BlockFile blockFile;
     private LockFile lockFile;
     private FilePropertyDelegateNotifySender sender;
-    private String defaultValue;
+    private String defaultValue = null;
+    private InProcessFile inProcessFile;
     
     public FilePropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, String filename) {
         super(epc, getEnabled, setEnabled, notifyEnabled);
@@ -36,6 +39,8 @@ public class FilePropertyDelegate extends PropertyDelegate {
         blockFile = null;
         lockFile = null;
         sender = null;
+        defaultValue = null;
+        inProcessFile = null;
         LOGGER.logp(Level.INFO, CLASS_NAME, "FilePropertyDelegate", "epc: " + epc + " -> file: " + filename);
     }
     
@@ -53,10 +58,6 @@ public class FilePropertyDelegate extends PropertyDelegate {
     
     public void setBlockFile(BlockFile blockFile) {
         this.blockFile = blockFile;
-    }
-    
-    public void setLockFile(LockFile lockFile) {
-        this.lockFile = lockFile;
     }
     
     public BlockFile getBlockFile() {
@@ -86,6 +87,14 @@ public class FilePropertyDelegate extends PropertyDelegate {
         }
         
         return result;
+    }
+    
+    public void setLockFile(LockFile lockFile) {
+        this.lockFile = lockFile;
+    }
+    
+    public LockFile getLockFile() {
+        return lockFile;
     }
     
     public boolean lockFile() {
@@ -118,12 +127,32 @@ public class FilePropertyDelegate extends PropertyDelegate {
         return result;
     }
     
+    public void setInProcessFile(InProcessFile inProcessFile) {
+        this.inProcessFile = inProcessFile;
+    }
+    
+    public InProcessFile getInProcessFile() {
+        return inProcessFile;
+    }
+    
     public void setFilePropertyNotifySender(FilePropertyDelegateNotifySender sender) {
         this.sender = sender;
     }
     
     public FilePropertyDelegateNotifySender getFilePropertyNotifySender() {
         return sender;
+    }
+    
+    private synchronized void enterProcess() {
+        if (inProcessFile != null) {
+            inProcessFile.enterProcess();
+        }
+    }
+    
+    private synchronized void exitProcess() {
+        if (inProcessFile != null) {
+            inProcessFile.exitProcess();
+        }
     }
     
     @Override
@@ -186,8 +215,7 @@ public class FilePropertyDelegate extends PropertyDelegate {
         }
     }
     
-    @Override
-    public synchronized ObjectData getUserData(LocalObject object, EPC epc) {
+    private ObjectData getUserDataWithLock(LocalObject object, EPC epc) {
         boolean locked = lockFile();
         
         try {
@@ -203,6 +231,17 @@ public class FilePropertyDelegate extends PropertyDelegate {
             if (locked) {
                 releaseFile();
             }
+        }
+    }
+    
+    @Override
+    public synchronized ObjectData getUserData(LocalObject object, EPC epc) {
+        enterProcess();
+        
+        try {
+            return getUserDataWithLock(object, epc);
+        } finally {
+            exitProcess();
         }
     }
     
@@ -233,9 +272,8 @@ public class FilePropertyDelegate extends PropertyDelegate {
             }
         }
     }
-
-    @Override
-    public synchronized boolean setUserData(LocalObject object, EPC epc, ObjectData data) {
+    
+    private boolean setUserDataWithLock(LocalObject object, EPC epc, ObjectData data) {
         boolean locked = lockFile();
         
         try {
@@ -251,6 +289,17 @@ public class FilePropertyDelegate extends PropertyDelegate {
             if (locked) {
                 releaseFile();
             }
+        }
+    }
+
+    @Override
+    public synchronized boolean setUserData(LocalObject object, EPC epc, ObjectData data) {
+        enterProcess();
+        
+        try {
+            return setUserDataWithLock(object, epc, data);
+        } finally {
+            exitProcess();
         }
     }
 }

@@ -7,6 +7,7 @@
         <notify>/tmp/x80notify</notify>
         <block>/tmp/x80block</block>
         <lock>/tmp/x80lock</lock>
+        <in-process>/tmp/x80inprocess</in-process>
       </data>
     </property>
     <property epc="E0">
