@@ -16,6 +16,13 @@ public class FilePropertyDelegateCreator implements PropertyDelegateCreator {
     private static final Logger LOGGER = Logger.getLogger(FilePropertyDelegateCreator.class.getName());
     private static final String CLASS_NAME = FilePropertyDelegateCreator.class.getName();
     
+    public static final String FILE_TAG = "file";
+    public static final String BLOCK_TAG = "block";
+    public static final String LOCK_TAG = "lock";
+    public static final String INPROCESS_TAG = "inprocess";
+    public static final String IN_PROCESS_TAG = "in-process";
+    public static final String NOTIFY_TAG = "notify";
+    
     private boolean isValidFilename(String filename) throws HummingException {
         return true;
     }
@@ -45,20 +52,20 @@ public class FilePropertyDelegateCreator implements PropertyDelegateCreator {
             
             useText = false;
             
-            if (infoName.equals("file")) {
+            if (infoName.equals(FILE_TAG)) {
                 filename = fileInfo.getTextContent();
                 
                 Node defaultNode = fileInfo.getAttributes().getNamedItem("default");
                 if (defaultNode != null) {
                     defaultValue = defaultNode.getNodeValue();
                 }
-            } else if (infoName.equals("block")) {
+            } else if (infoName.equals(BLOCK_TAG)) {
                 blockName = fileInfo.getTextContent();
-            } else if (infoName.equals("lock")) {
+            } else if (infoName.equals(LOCK_TAG)) {
                 lockName = fileInfo.getTextContent();
-            } else if (infoName.equals("inprocess") || infoName.equals("in-process")) {
+            } else if (infoName.equals(INPROCESS_TAG) || infoName.equals(IN_PROCESS_TAG)) {
                 inProcessName = fileInfo.getTextContent();
-            } else if (infoName.equals("notify")) {
+            } else if (infoName.equals(NOTIFY_TAG)) {
                 notifyName = fileInfo.getTextContent();
                 Node intervalNode = fileInfo.getAttributes().getNamedItem("interval");
                 Node delayNode = fileInfo.getAttributes().getNamedItem("delay");
@@ -112,7 +119,6 @@ public class FilePropertyDelegateCreator implements PropertyDelegateCreator {
             delegate.setLockFile(new LockFile(lockName));
         }
         
-        inProcessName = "/tmp/inProcess";
         if (inProcessName != null) {
             delegate.setInProcessFile(new InProcessFile(inProcessName));
         }
