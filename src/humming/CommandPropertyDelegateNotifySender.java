@@ -22,23 +22,25 @@ public class CommandPropertyDelegateNotifySender extends Thread {
     private static final Logger LOGGER = Logger.getLogger(CommandPropertyDelegateNotifySender.class.getName());
     private static final String CLASS_NAME = CommandPropertyDelegateNotifySender.class.getName();
     
-    private static int DEFAULT_INTERVAL = 0;
-    private static int DEFAULT_DELAY = 0;
+    private static final int DEFAULT_INTERVAL = 0;
+    private static final int DEFAULT_DELAY = 0;
     
     private String[] notifyCommand;
-    LocalObject object = null;
-    EPC epc = null;
     private LinkedList<Pair<LocalObject, EPC>> objects;
+    LocalObject object;
+    EPC epc;
     private int interval;
     private int delay;
     private boolean done;
     
     public CommandPropertyDelegateNotifySender(String[] notifyCommand) {
-        objects = new LinkedList<Pair<LocalObject, EPC>>();
         this.notifyCommand = Arrays.copyOf(notifyCommand, notifyCommand.length);
-        this.done = false;
-        this.interval = DEFAULT_INTERVAL;
-        this.delay = DEFAULT_DELAY;
+        objects = new LinkedList<Pair<LocalObject, EPC>>();
+        object = null;
+        epc = null;
+        done = false;
+        interval = DEFAULT_INTERVAL;
+        delay = DEFAULT_DELAY;
     }
     
     public int getInterval() {
@@ -104,14 +106,16 @@ public class CommandPropertyDelegateNotifySender extends Thread {
             char[] chars = new char[512];
             
             int len = reader.read(chars);
-            String str = String.valueOf(chars).toUpperCase().trim();
-            LOGGER.logp(Level.INFO, CLASS_NAME, "getNotifyData", "read: " + object + ", EPC: " + epc + " -> " + joinString(notifyCommand) + ", str: " + str);
+            String str = String.valueOf(chars).trim();
             String[] lines = str.split("[^0-9a-fA-F]");
             
-            if (len > 0) {
+            LOGGER.logp(Level.INFO, CLASS_NAME, "getNotifyData", "read: " + object + ", EPC: " + epc + " -> " + joinString(notifyCommand) + ", str: " + str);
+            
+            if (!str.isEmpty()) {
                     
-                if (str.equals("UPDATE")) {
+                if (str.toLowerCase().equals("internal")) {
                     data = object.getData(epc);
+                    LOGGER.logp(Level.INFO, CLASS_NAME, "getNotifyData", "getData: " + data);
                 } else if (lines.length > 0) {
                     String line = lines[0];
                     len = line.length();
@@ -122,6 +126,10 @@ public class CommandPropertyDelegateNotifySender extends Thread {
                     }
 
                     data = new ObjectData(bytes);
+                }
+                
+                if (data.isEmpty()) {
+                    LOGGER.logp(Level.WARNING, CLASS_NAME, "getNotifyData", "invalid value: \"" + str + "\"");
                 }
             }
             

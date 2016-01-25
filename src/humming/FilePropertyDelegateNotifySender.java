@@ -22,8 +22,8 @@ public class FilePropertyDelegateNotifySender extends Thread {
     private static final Logger LOGGER = Logger.getLogger(FilePropertyDelegateNotifySender.class.getName());
     private static final String CLASS_NAME = FilePropertyDelegateNotifySender.class.getName();
     
-    private static int DEFAULT_INTERVAL = 1000;
-    private static int DEFAULT_DELAY = 1000;
+    private static final int DEFAULT_INTERVAL = 1000;
+    private static final int DEFAULT_DELAY = 1000;
     
     private FilePropertyDelegate delegate;
     private LinkedList<Pair<LocalObject, EPC>> objects;
