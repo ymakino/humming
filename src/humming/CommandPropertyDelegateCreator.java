@@ -19,6 +19,7 @@ public class CommandPropertyDelegateCreator implements PropertyDelegateCreator {
     
     public static final String GET_TAG = "get";
     public static final String SET_TAG = "set";
+    public static final String NOTIFY_TAG = "notify";
     
     private String[] splitString(String str) {
         LinkedList<String> list = new LinkedList<String>();
@@ -119,6 +120,9 @@ public class CommandPropertyDelegateCreator implements PropertyDelegateCreator {
     public PropertyDelegate newPropertyDelegate(ClassEOJ ceoj, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {
         String[] getCommand = null;
         String[] setCommand = null;
+        String[] notifyCommand = null;
+        int interval = -1;
+        int delay = -1;
         
         NodeList nodeList = node.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
@@ -133,13 +137,51 @@ public class CommandPropertyDelegateCreator implements PropertyDelegateCreator {
                 getCommand = splitString(commandInfo.getTextContent());
             } else if (infoName.equals(SET_TAG)) {
                 setCommand = splitString(commandInfo.getTextContent());
+            } else if (infoName.equals(NOTIFY_TAG)) {
+                notifyCommand = splitString(commandInfo.getTextContent());
+                Node intervalNode = commandInfo.getAttributes().getNamedItem("interval");
+                Node delayNode = commandInfo.getAttributes().getNamedItem("delay");
+                
+                if (intervalNode != null) {
+                    String intervalString = intervalNode.getNodeValue();
+                    try {
+                        interval = Integer.parseInt(intervalString);
+                    } catch (NumberFormatException ex) {
+                        LOGGER.logp(Level.WARNING, CLASS_NAME, "newPropertyDelegate", "invalid interval value: " + intervalString, ex);
+                    }
+                }
+                
+                if (delayNode != null) {
+                    String delayString = delayNode.getNodeValue();
+                    try {
+                        delay = Integer.parseInt(delayString);
+                    } catch (NumberFormatException ex) {
+                        LOGGER.logp(Level.WARNING, CLASS_NAME, "newPropertyDelegate", "invalid delay number: " + delayString, ex);
+                    }
+                }
             } else {
                 LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "invalid element: " + infoName);
             }
         }
         
-        if (getCommand != null || setCommand != null) {
-            return new CommandPropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, getCommand, setCommand);
+        if (getCommand != null || setCommand != null || notifyCommand != null) {
+            CommandPropertyDelegate delegate = new CommandPropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, getCommand, setCommand);
+            
+            if (notifyCommand != null) {
+                CommandPropertyDelegateNotifySender notifySender = new CommandPropertyDelegateNotifySender(notifyCommand);
+            
+                if (interval >= 0) {
+                    notifySender.setInterval(interval);
+                }
+
+                if (delay >= 0) {
+                    notifySender.setDelay(delay);
+                }
+                
+                delegate.setCommandPropertyDelegateNotifySender(notifySender);
+            }
+            
+            return delegate;
         } else {
             LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "there are no commands");
         }

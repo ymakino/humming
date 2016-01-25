@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <device>
   <object ceoj="0011">
-    <property epc="80" set="enabled">
+    <property epc="80" set="enabled" notify="enabled">
       <data type="command">
         <get>/tmp/command_get.sh</get>
         <set>/tmp/command_set.sh</set>
+        <notify interval="1000">/tmp/command_notify.sh</notify>
       </data>
     </property>
     <property epc="E0">

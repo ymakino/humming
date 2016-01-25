@@ -3,7 +3,11 @@ package humming;
 import echowand.common.EPC;
 import echowand.object.LocalObject;
 import echowand.object.ObjectData;
+import echowand.service.Core;
 import echowand.service.PropertyDelegate;
+import static humming.CommandPropertyDelegateUtil.concatString;
+import static humming.CommandPropertyDelegateUtil.epc2str;
+import static humming.CommandPropertyDelegateUtil.joinString;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
@@ -20,12 +24,24 @@ public class CommandPropertyDelegate extends PropertyDelegate {
     
     private String[] getCommand;
     private String[] setCommand;
+    private CommandPropertyDelegateNotifySender sender;
     
     public CommandPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, String[] getCommand, String[] setCommand) {
         super(epc, getEnabled, setEnabled, notifyEnabled);
-        this.getCommand = getCommand;
-        this.setCommand = setCommand;
-        LOGGER.logp(Level.INFO, CLASS_NAME, "CommandPropertyDelegate", "epc: " + epc + " -> get: " + join(getCommand) + ", set: " + join(setCommand));
+        
+        if (getCommand == null) {
+            this.getCommand = null;
+        } else {
+            this.getCommand = Arrays.copyOf(getCommand, getCommand.length);
+        }
+        
+        if (setCommand == null) {
+            this.setCommand = null;
+        } else {
+            this.setCommand = Arrays.copyOf(setCommand, setCommand.length);
+        }
+        
+        LOGGER.logp(Level.INFO, CLASS_NAME, "CommandPropertyDelegate", "epc: " + epc + " -> get: " + joinString(getCommand) + ", set: " + joinString(setCommand));
     }
     
     public String[] getGetCommand() {
@@ -36,60 +52,23 @@ public class CommandPropertyDelegate extends PropertyDelegate {
         return Arrays.copyOf(setCommand, setCommand.length);
     }
     
-    private String epc2str(EPC epc) {
-        return String.format("%02X", 0x00ff & epc.toByte());
+    public void setCommandPropertyDelegateNotifySender(CommandPropertyDelegateNotifySender sender) {
+        this.sender = sender;
     }
     
-    private String[] append(String[] array, String... strings) {
-        String[] ret = new String[array.length + strings.length];
-        System.arraycopy(array, 0, ret, 0, array.length);
-        System.arraycopy(strings, 0, ret, array.length, strings.length);
-        return ret;
+    public CommandPropertyDelegateNotifySender getCommandPropertyDelegateNotifySender() {
+        return sender;
     }
     
-    private String escape(String str) {
-        StringBuilder builder = new StringBuilder();
-        
-        for (int i=0; i<str.length(); i++) {
-            char c = str.charAt(i);
+    @Override
+    public void notifyCreation(LocalObject object, Core core) {
+        if (sender != null) {
+            sender.addProperty(object, getEPC());
             
-            switch (c) {
-                case '"': case '\'': case '\\':
-                    builder.append("\\").append(c);
-                    break;
-                case '\t':
-                    builder.append("\\t");
-                    break;
-                case '\n':
-                    builder.append("\\n");
-                    break;
-                case '\r':
-                    builder.append("\\r");
-                    break;
-                default:
-                    builder.append(c);
-                    break;
+            if (!sender.isAlive()) {
+                sender.start();
             }
         }
-        
-        return builder.toString();
-    }
-    
-    private String join(String[] array) {
-        if (array == null) {
-            return null;
-        }
-        
-        StringBuilder builder = new StringBuilder();
-        
-        for (int i=0; i<array.length; i++) {
-            if (i != 0) {
-                builder.append(" ");
-            }
-            builder.append('"').append(escape(array[i])).append('"');
-        }
-        
-        return builder.toString();
     }
     
     @Override
@@ -103,11 +82,11 @@ public class CommandPropertyDelegate extends PropertyDelegate {
         }
         
         try {
-            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData", "begin: " + object + ", EPC: " + epc + " -> " + join(getCommand));
-            proc = Runtime.getRuntime().exec(append(getCommand, object.getEOJ().toString(), epc2str(epc)));
+            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData", "begin: " + object + ", EPC: " + epc + " -> " + joinString(getCommand));
+            proc = Runtime.getRuntime().exec(concatString(getCommand, object.getEOJ().toString(), epc2str(epc)));
             reader = new InputStreamReader(proc.getInputStream());
         } catch (IOException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + join(getCommand), ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + joinString(getCommand), ex);
             return null;
         }
         
@@ -118,26 +97,30 @@ public class CommandPropertyDelegate extends PropertyDelegate {
             int len = reader.read(chars);
             
             if (len > 0) {
-                String line = String.valueOf(chars).split("[^0-9a-fA-F]")[0];
-                len = line.length();
+                String[] lines = String.valueOf(chars).split("[^0-9a-fA-F]");
                 
-                byte[] bytes = new byte[len/2];
-                for (int i=0; i<len-1; i+=2) {
-                    bytes[i/2] = (byte)Integer.parseInt(line.substring(i, i+2), 16);
+                if (lines.length > 0) {
+                    String line = lines[0];
+                    len = line.length();
+
+                    byte[] bytes = new byte[len/2];
+                    for (int i=0; i<len-1; i+=2) {
+                        bytes[i/2] = (byte)Integer.parseInt(line.substring(i, i+2), 16);
+                    }
+
+                    data = new ObjectData(bytes);
                 }
-                
-                data = new ObjectData(bytes);
             }
             
             int exitValue = proc.waitFor();
-            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData", "end: " + object + ", EPC: " + epc + " -> " + join(getCommand) + ", data: " + data + ", exit: " + exitValue);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData", "end: " + object + ", EPC: " + epc + " -> " + joinString(getCommand) + ", data: " + data + ", exit: " + exitValue);
             return data;
         } catch (IOException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + join(getCommand), ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + joinString(getCommand), ex);
         } catch (NumberFormatException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + join(getCommand), ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + joinString(getCommand), ex);
         } catch (InterruptedException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + join(getCommand), ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + joinString(getCommand), ex);
         }
         
         return null;
@@ -153,22 +136,21 @@ public class CommandPropertyDelegate extends PropertyDelegate {
         }
         
         try {
-            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "begin: " + object + ", EPC: " + epc + " -> " + join(setCommand) + ", data: " + data);
-            proc = Runtime.getRuntime().exec(append(setCommand, object.getEOJ().toString(), epc2str(epc), data.toString()));
+            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "begin: " + object + ", EPC: " + epc + " -> " + joinString(setCommand) + ", data: " + data);
+            proc = Runtime.getRuntime().exec(concatString(setCommand, object.getEOJ().toString(), epc2str(epc), data.toString()));
         } catch (IOException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "setUserData", "failed: " + object + ", EPC: " + epc + " -> " + join(setCommand) + ", data: " + data, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "setUserData", "failed: " + object + ", EPC: " + epc + " -> " + joinString(setCommand) + ", data: " + data, ex);
             return false;
         }
         
         try {
             int exitValue = proc.waitFor();
-            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "end: " + object + ", EPC: " + epc + " -> " + join(setCommand) + ", data: " + data + ", exit: " + exitValue);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "end: " + object + ", EPC: " + epc + " -> " + joinString(setCommand) + ", data: " + data + ", exit: " + exitValue);
             return (exitValue == 0);
         } catch (InterruptedException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "setUserData", "failed: " + object + ", EPC: " + epc + " -> " + join(setCommand) + ", data: " + data, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "setUserData", "failed: " + object + ", EPC: " + epc + " -> " + joinString(setCommand) + ", data: " + data, ex);
         }
         
         return false;
     }
 }
-
