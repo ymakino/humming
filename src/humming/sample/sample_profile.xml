@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device>
+  <profile>
+    <property epc="83">
+      <data type="const">FE00000000000000000000000012345678</data>
+    </property>
+  </profile>
+</device>

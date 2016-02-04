@@ -1,6 +1,7 @@
 package humming;
 
 import echowand.common.EPC;
+import echowand.info.DeviceObjectInfo;
 import echowand.info.TemperatureSensorInfo;
 import echowand.logic.RequestDispatcher;
 import echowand.logic.RequestProcessor;
@@ -14,6 +15,7 @@ import echowand.object.ObjectData;
 import echowand.service.Core;
 import echowand.service.ExtendedSubnet;
 import echowand.service.LocalObjectConfig;
+import echowand.service.NodeProfileObjectConfig;
 import echowand.service.PropertyUpdater;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -112,25 +114,32 @@ public class Humming {
         return localObjectConfigs.get(index);
     }
     
-    public void addXMLObject(Node objectNode) throws HummingException {
-        if (!objectNode.getNodeName().equals("object")) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "addXMLObject", "invalid object: " + objectNode.getNodeName());
+    public void parseObject(Node objectNode) throws HummingException {
+        ObjectParser objectParser = new ObjectParser(factory, hummingScripting);
+        objectParser.parse(objectNode);
+        
+        if (objectNode.getNodeName().equals("object")) {
+            LocalObjectConfig config = new LocalObjectConfig(new DeviceObjectInfo());
+            objectParser.apply(config);
+            
+            localObjectConfigs.add(config);
+            core.addLocalObjectConfig(config);
+            
+            nodes.add(objectNode);
+        } else if (objectNode.getNodeName().equals("profile")) {
+            NodeProfileObjectConfig config = core.getNodeProfileObjectConfig();
+            objectParser.apply(config);
+            
+            nodes.add(objectNode);
+        } else {
             throw new HummingException("invalid object: " + objectNode.getNodeName());
         }
-        
-        nodes.add(objectNode);
-
-        LocalObjectConfigCreator creator = new LocalObjectConfigCreator(objectNode, factory, hummingScripting);
-        LocalObjectConfig config = creator.getConfig();
-        localObjectConfigs.add(config);
-
-        core.addLocalObjectConfig(config);
     }
     
     public void parseXML(String xmlString) throws HummingException {
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            parseXMLDocument(builder.parse(new ByteArrayInputStream(xmlString.getBytes())));
+            parseDocument(builder.parse(new ByteArrayInputStream(xmlString.getBytes())));
         } catch (ParserConfigurationException ex) {
             throw new HummingException("failed", ex);
         } catch (SAXException ex) {
@@ -140,7 +149,7 @@ public class Humming {
         }
     }
     
-    public void parseXMLDocument(Document document) throws HummingException {
+    public void parseDocument(Document document) throws HummingException {
         NodeList nodeList = document.getElementsByTagName("device");
         
         if (nodeList.getLength() != 1) {
@@ -151,7 +160,7 @@ public class Humming {
         for (int i=0; i<objectList.getLength(); i++) {
             Node objectNode = objectList.item(i);
             if (objectNode.getNodeType() == Node.ELEMENT_NODE) {
-                addXMLObject(objectList.item(i));
+                parseObject(objectList.item(i));
             }
         }
     }
@@ -164,7 +173,7 @@ public class Humming {
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = builder.parse(file);
-            parseXMLDocument(doc);
+            parseDocument(doc);
         } catch (ParserConfigurationException ex) {
             throw new HummingException("failed", ex);
         } catch (SAXException ex) {
@@ -272,11 +281,6 @@ public class Humming {
             fileIndex = 0;
         }
         
-        core.initialize();
-        
-        // ProxyPropertyDelegate doesn't work without this line 
-        replaceSetGetRequestDispatcher(core);
-        
         Humming humming = new Humming(core);
         
         Core internalCore = createTestInternalCore(humming);
@@ -286,6 +290,11 @@ public class Humming {
         for (int i=fileIndex; i<args.length; i++) {
             humming.loadXMLFile(args[i]);
         }
+        
+        core.initialize();
+        
+        // ProxyPropertyDelegate doesn't work without this line 
+        replaceSetGetRequestDispatcher(core);
         
         core.startService();
     }

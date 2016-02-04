@@ -3,7 +3,8 @@ package humming;
 import echowand.common.ClassEOJ;
 import echowand.common.Data;
 import echowand.common.EPC;
-import echowand.info.DeviceObjectInfo;
+import echowand.info.BasicObjectInfo;
+import echowand.info.PropertyInfo;
 import echowand.object.LocalObjectDelegate;
 import echowand.service.LocalObjectConfig;
 import echowand.service.PropertyDelegate;
@@ -21,24 +22,23 @@ import org.w3c.dom.NodeList;
  *
  * @author ymakino
  */
-public class LocalObjectConfigCreator {
-    private static final Logger LOGGER = Logger.getLogger(LocalObjectConfigCreator.class.getName());
-    private static final String CLASS_NAME = LocalObjectConfigCreator.class.getName();
+public class ObjectParser {
+    private static final Logger LOGGER = Logger.getLogger(ObjectParser.class.getName());
+    private static final String CLASS_NAME = ObjectParser.class.getName();
     
     private PropertyDelegateFactory delegateFactory;
-    private LocalObjectConfig config;
-    private DeviceObjectInfo info;
+    
+    private ClassEOJ classEOJ;
+    private LinkedList<PropertyInfo> propertyInfos;
     private LinkedList<LocalObjectDelegate> delegates;
     private LinkedList<PropertyDelegate> propertyDelegates;
     private LinkedList<PropertyUpdater> propertyUpdaters;
     
     private HummingScripting hummingScripting;
     
-    private void parseClassEOJ(Node ceojNode) {
-        ClassEOJ ceoj = new ClassEOJ(ceojNode.getTextContent());
-        info.setClassEOJ(ceoj);
-        
-        LOGGER.logp(Level.INFO, CLASS_NAME, "parseClassEOJ", "ClassEOJ: " + ceoj);
+    private void parseClassEOJ(Node ceojNode) throws HummingException {
+        classEOJ = new ClassEOJ(ceojNode.getTextContent());
+        LOGGER.logp(Level.INFO, CLASS_NAME, "parseClassEOJ", "ClassEOJ: " + classEOJ);
     }
     
     private String toNodeString(Node node, boolean enableAttributes) {
@@ -95,9 +95,8 @@ public class LocalObjectConfigCreator {
         return builder.toString();
     }
     
-    private boolean parseProperty(Node propNode) throws HummingException {
+    private void parseProperty(Node propNode) throws HummingException {
         NodeList propInfoList = propNode.getChildNodes();
-        EPC epc = null;
         
         Node epcNode = propNode.getAttributes().getNamedItem("epc");
         String epcStr = epcNode.getTextContent().toLowerCase();
@@ -105,7 +104,11 @@ public class LocalObjectConfigCreator {
             epcStr = epcStr.substring(2);
         }
         byte b = (byte)Integer.parseInt(epcStr, 16);
-        epc = EPC.fromByte(b);
+        EPC epc = EPC.fromByte(b);
+        
+        if (epc.isInvalid()) {
+            throw new HummingException("invalid EPC: " + epcStr);
+        }
         
         boolean getEnabled = true;
         boolean setEnabled = false;
@@ -133,7 +136,7 @@ public class LocalObjectConfigCreator {
             String valueStr = valueNode.getTextContent();
             
             if (valueStr.length() == 0 || (valueStr.length() % 2) != 0) {
-                LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "invalid value: " + valueStr);
+                throw new HummingException("invalid value: " + valueStr);
             }
             
             dataBytes = new byte[valueStr.length() / 2];
@@ -146,7 +149,7 @@ public class LocalObjectConfigCreator {
             }
         }
         
-        LOGGER.logp(Level.INFO, CLASS_NAME, "parseProperty", "property: ClassEOJ: " + info.getClassEOJ() + ", EPC: " + epc + ", GET: " + getEnabled + ", SET: " + setEnabled + ", Notify: " + notifyEnabled + ", data: " + new Data(dataBytes));
+        LOGGER.logp(Level.INFO, CLASS_NAME, "parseProperty", "property: ClassEOJ: " + classEOJ + ", EPC: " + epc + ", GET: " + getEnabled + ", SET: " + setEnabled + ", Notify: " + notifyEnabled + ", data: " + new Data(dataBytes));
         
         for (int i=0; i < propInfoList.getLength(); i++) {
             Node propInfo = propInfoList.item(i);
@@ -165,30 +168,26 @@ public class LocalObjectConfigCreator {
             if (typeNode != null) {
                 String typeName = typeNode.getTextContent();
 
-                PropertyDelegate propertyDelegate = delegateFactory.newPropertyDelegate(typeName, info.getClassEOJ(), epc, getEnabled, setEnabled, notifyEnabled, propInfo);
+                PropertyDelegate propertyDelegate = delegateFactory.newPropertyDelegate(typeName, classEOJ, epc, getEnabled, setEnabled, notifyEnabled, propInfo);
                 if (propertyDelegate != null) {
                     propertyDelegates.add(propertyDelegate);
-                    LOGGER.logp(Level.INFO, CLASS_NAME, "parseProperty", "delegate: " + propertyDelegate + ", type: " + typeName + ", ClassEOJ: " + info.getClassEOJ() + ", EPC: " + epc + ", GET: " + getEnabled + ", SET: " + setEnabled + ", Notify: " + notifyEnabled + ", info: " + toInfoString(propInfo));
+                    LOGGER.logp(Level.INFO, CLASS_NAME, "parseProperty", "delegate: " + propertyDelegate + ", type: " + typeName + ", ClassEOJ: " + classEOJ + ", EPC: " + epc + ", GET: " + getEnabled + ", SET: " + setEnabled + ", Notify: " + notifyEnabled + ", info: " + toInfoString(propInfo));
+                } else {
+                    LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "unknown type: " + typeName);
                 }
             } else {
                 LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "invalid property: " + toInfoString(propInfo));
             }
         }
         
-        if (epc == null) {
-            return false;
-        }
-        
         if (dataSizeFixed) {
-            info.add(epc, getEnabled, setEnabled, notifyEnabled, dataBytes);
+            propertyInfos.add(new PropertyInfo(epc, getEnabled, setEnabled, notifyEnabled, dataBytes));
         } else {
-            info.add(epc, getEnabled, setEnabled, notifyEnabled, dataBytes, new ConstraintAny());
+            propertyInfos.add(new PropertyInfo(epc, getEnabled, setEnabled, notifyEnabled, dataBytes, new ConstraintAny()));
         }
-        
-        return true;
     }
     
-    private boolean parseUpdater(Node propNode) throws HummingException {
+    private void parseUpdater(Node propNode) throws HummingException {
         InstanceCreatorParser parser = new InstanceCreatorParser(propNode);
         Node delayNode = propNode.getAttributes().getNamedItem("delay");
         Node intervalNode = propNode.getAttributes().getNamedItem("interval");
@@ -220,23 +219,20 @@ public class LocalObjectConfigCreator {
             }
             
             propertyUpdaters.add(propertyUpdater);
-            return true;
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+            throw new HummingException("cannot create PropertyUpdater", ex);
         } catch (InstantiationException ex) {
-            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+            throw new HummingException("cannot create PropertyUpdater", ex);
         } catch (IllegalAccessException ex) {
-            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+            throw new HummingException("cannot create PropertyUpdater", ex);
         } catch (NumberFormatException ex) {
-            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+            throw new HummingException("cannot create PropertyUpdater", ex);
         } catch (ScriptException ex) {
-            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+            throw new HummingException("cannot create PropertyUpdater", ex);
         }
-        
-        return false;
     }
     
-    private boolean parseDelegate(Node propNode) throws HummingException {
+    private void parseDelegate(Node propNode) throws HummingException {
         InstanceCreatorParser parser = new InstanceCreatorParser(propNode);
         
         try {
@@ -254,31 +250,25 @@ public class LocalObjectConfigCreator {
             }
             
             delegates.add(delegate);
-            return true;
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+            throw new HummingException("cannot create LocalObjectDelegate", ex);
         } catch (InstantiationException ex) {
-            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+            throw new HummingException("cannot create LocalObjectDelegate", ex);
         } catch (IllegalAccessException ex) {
-            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+            throw new HummingException("cannot create LocalObjectDelegate", ex);
         } catch (NumberFormatException ex) {
-            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+            throw new HummingException("cannot create LocalObjectDelegate", ex);
         } catch (ScriptException ex) {
-            Logger.getLogger(LocalObjectConfigCreator.class.getName()).log(Level.SEVERE, null, ex);
+            throw new HummingException("cannot create LocalObjectDelegate", ex);
         }
-        
-        return false;
     }
     
     private void parseObject(Node objectNode) throws HummingException {
         Node ceojNode = objectNode.getAttributes().getNamedItem("ceoj");
         
-        if (ceojNode == null) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "parseObject", "invalid ClassEOJ: " + ceojNode);
-            throw new HummingException("invalid ClassEOJ: " + ceojNode);
+        if (ceojNode != null) {
+            parseClassEOJ(ceojNode);
         }
-        
-        parseClassEOJ(ceojNode);
         
         NodeList nodes = objectNode.getChildNodes();
         for (int i=0; i<nodes.getLength(); i++) {
@@ -301,18 +291,34 @@ public class LocalObjectConfigCreator {
         }
     }
 
-    public LocalObjectConfigCreator(Node objectNode, PropertyDelegateFactory factory, HummingScripting hummingScripting) throws HummingException {
+    public ObjectParser(PropertyDelegateFactory factory, HummingScripting hummingScripting) throws HummingException {
         delegateFactory = factory;
         this.hummingScripting = hummingScripting;
         
-        info = new DeviceObjectInfo();
         delegates = new LinkedList<LocalObjectDelegate>();
+        propertyInfos = new LinkedList<PropertyInfo>();
         propertyDelegates = new LinkedList<PropertyDelegate>();
         propertyUpdaters = new LinkedList<PropertyUpdater>();
-        
+    }
+    
+    public void parse(Node objectNode) throws HummingException {
         parseObject(objectNode);
+    }
+     
+    public void apply(LocalObjectConfig config) throws HummingException {
+        BasicObjectInfo info = BasicObjectInfo.class.cast(config.getObjectInfo());
         
-        config = new LocalObjectConfig(info);
+        if (info == null && (classEOJ != null || propertyInfos.size() > 0)) {
+            throw new HummingException("cannot update ObjectInfo: " + config.getObjectInfo());
+        }
+        
+        if (classEOJ != null) {
+            info.setClassEOJ(classEOJ);
+        }
+        
+        for (PropertyInfo propertyInfo : propertyInfos) {
+            info.add(propertyInfo);
+        }
         
         for (LocalObjectDelegate delegate : delegates) {
             config.addDelegate(delegate);
@@ -325,17 +331,5 @@ public class LocalObjectConfigCreator {
         for (PropertyUpdater propertyUpdater : propertyUpdaters) {
             config.addPropertyUpdater(propertyUpdater);
         }
-    }
-    
-    public LocalObjectConfig getConfig() {
-        return config;
-    }
-    
-    public void setHummingScripting(HummingScripting hummingScripting) {
-        this.hummingScripting = hummingScripting;
-    }
-    
-    public HummingScripting getHummingScripting() {
-        return hummingScripting;
     }
 }
