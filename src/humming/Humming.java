@@ -225,17 +225,21 @@ public class Humming {
         }
     }
     
-    public static void replaceSetGetRequestDispatcher(Core core) {
+    public static RequestProcessor replaceSetGetRequestProcessor(Core core, RequestProcessor newProcessor) {
         RequestProcessor lastProcessor = core.getSetGetRequestProcessor();
-        RequestProcessor newProcessor = new ThreadedSetGetRequestProcessor(core.getLocalObjectManager());
         
+        // The setGetRequestProcessor object in Core cannot be replaced.
+        // The one in RequestDispatcher is going to be replaced instead.
+        // This works fine now, but it can cause a problem in the future.
         RequestDispatcher dispatcher = core.getRequestDispatcher();
         dispatcher.removeRequestProcessor(lastProcessor);
         dispatcher.addRequestProcessor(newProcessor);
+        
+        return lastProcessor;
     }
     
     public static void showUsage(String name) {
-        System.out.println("Usage: " + name + " [ -i interface ] [ xmlfile... ]");
+        System.out.println("Usage: " + name + " [ -c ] [ -i interface ] [ xmlfile... ]");
     }
 
     /**
@@ -244,42 +248,51 @@ public class Humming {
     public static void main(String[] args) throws HummingException, SocketException, SubnetException, ParserConfigurationException, SAXException, TooManyObjectsException, IOException {
         
         Core core;
-        int fileIndex;
         
-        if (args.length > 0 && args[0].equals("-h")) {
-            showUsage("Humming");
-            return;
-        }
+        boolean replaceDispatcher = false;
+        int indexOffset=0;
+        NetworkInterface nif  = null;
+        NetworkInterface[] rnifs = null;
         
-        if (args.length > 0 && args[0].equals("-i")) {
-            NetworkInterface nif;
-            NetworkInterface[] rnifs = null;
-            
-            if (args[1].equals("-")) {
-                nif = NetworkInterfaceSelector.select();
-            } else {
-                String[] names = args[1].split(",");
-                nif = NetworkInterface.getByName(names[0]);
-                
-                if (names.length > 1) {
-                    rnifs = new NetworkInterface[names.length - 1];
-                    for (int i=1; i<names.length; i++) {
-                        rnifs[i-1] = NetworkInterface.getByName(names[i]);
+        while (args.length > indexOffset) {
+            if (args[indexOffset].equals("-h")) {
+                showUsage("Humming");
+                return;
+            } else if (args[indexOffset].equals("-i")) {
+                if (args[indexOffset+1].equals("-")) {
+                    nif = NetworkInterfaceSelector.select();
+                } else {
+                    String[] names = args[indexOffset+1].split(",");
+                    nif = NetworkInterface.getByName(names[0]);
+
+                    if (names.length > 1) {
+                        rnifs = new NetworkInterface[names.length - 1];
+                        for (int i=1; i<names.length; i++) {
+                            rnifs[i-1] = NetworkInterface.getByName(names[i]);
+                        }
                     }
                 }
+
+                indexOffset += 2;
+            } else if (args[indexOffset].equals("-c")) {
+                replaceDispatcher = true;
+                indexOffset += 1;
+            } else {
+                break;
             }
-            
+        }
+        
+        if (nif == null) {
+            core = new Core();
+        } else {
             if (rnifs == null) {
                 core = new Core(Inet4Subnet.startSubnet(nif));
             } else {
                 core = new Core(Inet4Subnet.startSubnet(nif, rnifs));
             }
-            
-            fileIndex = 2;
-        } else {
-            core = new Core();
-            fileIndex = 0;
         }
+        
+        int fileIndex = indexOffset;
         
         Humming humming = new Humming(core);
         
@@ -293,8 +306,12 @@ public class Humming {
         
         core.initialize();
         
-        // ProxyPropertyDelegate doesn't work without this line 
-        replaceSetGetRequestDispatcher(core);
+        if (replaceDispatcher) {
+            // ProxyPropertyDelegate doesn't work without this line 
+            LOGGER.logp(Level.INFO, CLASS_NAME, "main", "replace processor with ConcurrentSetGetRequestProcessor.");
+            RequestProcessor processor = new ConcurrentSetGetRequestProcessor(core.getLocalObjectManager());
+            replaceSetGetRequestProcessor(core, processor);
+        }
         
         core.startService();
     }
