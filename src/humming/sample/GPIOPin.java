@@ -183,7 +183,7 @@ public class GPIOPin {
             com = new String[]{"chmod", mode, filename};
         }
         
-        String comStr = String.join(" ", com);
+        String comStr = joinStrings(" ", com);
         
         try {
             Process proc = Runtime.getRuntime().exec(com);
