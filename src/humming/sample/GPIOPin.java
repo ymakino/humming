@@ -129,6 +129,20 @@ public class GPIOPin {
         return result;
     }
     
+    private String joinStrings(String delimiter, String... strings) {
+        if (strings.length == 0) {
+            return "";
+        }
+        
+        StringBuilder builder = new StringBuilder(strings[0]);
+        
+        for (int i=1; i<strings.length; i++) {
+            builder.append(delimiter).append(strings[i]);
+        }
+        
+        return builder.toString();
+    }
+    
     private int chgrp(String filename, String groupName) {
         int result = -1;
         
@@ -140,7 +154,7 @@ public class GPIOPin {
             com = new String[]{"chgrp", groupName, filename};
         }
         
-        String comStr = String.join(" ", com);
+        String comStr = joinStrings(" ", com);
             
         try {
             Process proc = Runtime.getRuntime().exec(com);
