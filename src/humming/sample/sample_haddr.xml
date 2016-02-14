@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device>
+  <profile>
+    <property epc="FE">
+      <data type="delegate">
+        <class>humming.sample.HardwareAddressPropertyDelegate</class>
+        <config>it.setNetworkInterface("en0")</config>
+      </data>
+    </property>
+    <property epc="FF">
+      <data type="delegate">
+        <class>humming.sample.HardwareAddressPropertyDelegate</class>
+        <config>
+          it.setNetworkInterface("en0")
+          it.setStringMode(true);
+        </config>
+      </data>
+    </property>
+  </profile>
+</device>
