@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <device>
   <profile>
+    <property epc="83">
+      <data type="delegate">
+        <class>humming.sample.HardwareAddressPropertyDelegate</class>
+        <config>
+          it.setNetworkInterface("en0")
+          it.setIdentificationMode(true);
+        </config>
+      </data>
+    </property>
     <property epc="FE">
       <data type="delegate">
         <class>humming.sample.HardwareAddressPropertyDelegate</class>
