@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device>
+  <object ceoj="027d">
+    <property epc="80" set="enabled">
+      <data type="variable">30</data>
+    </property>
+    <property epc="CF" set="enabled">
+      <data type="variable">42</data>
+    </property>
+    <property epc="DA" set="enabled">
+      <data type="variable">46</data>
+    </property>
+    <property epc="DB" set="enabled">
+      <data type="variable">00</data>
+    </property>
+    <property epc="DC" set="enabled">
+      <data type="variable">0000000100000002</data>
+    </property>
+    <property epc="DD" set="enabled">
+      <data type="variable">0000000300000004</data>
+    </property>
+    <property epc="DE" set="enabled">
+      <data type="variable">00050006</data>
+    </property>
+    <property epc="DF" set="enabled">
+      <data type="variable">00070008</data>
+    </property>
+    <property epc="E2" set="enabled">
+      <data type="variable">00001234</data>
+    </property>
+    <property epc="E3" set="enabled">
+      <data type="variable">00001234</data>
+    </property>
+    <property epc="E4" set="enabled">
+      <data type="variable">32</data>
+    </property>
+    <property epc="E6" set="enabled">
+      <data type="variable">04</data>
+    </property>
+  </object>
+</device>
