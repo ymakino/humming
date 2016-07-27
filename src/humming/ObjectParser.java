@@ -2,10 +2,14 @@ package humming;
 
 import echowand.common.ClassEOJ;
 import echowand.common.Data;
+import echowand.common.EOJ;
 import echowand.common.EPC;
 import echowand.info.BasicObjectInfo;
 import echowand.info.PropertyInfo;
+import echowand.net.NodeInfo;
+import echowand.net.SubnetException;
 import echowand.object.LocalObjectDelegate;
+import echowand.service.Core;
 import echowand.service.LocalObjectConfig;
 import echowand.service.PropertyDelegate;
 import echowand.service.PropertyUpdater;
@@ -26,6 +30,7 @@ public class ObjectParser {
     private static final Logger LOGGER = Logger.getLogger(ObjectParser.class.getName());
     private static final String CLASS_NAME = ObjectParser.class.getName();
     
+    private Humming humming;
     private PropertyDelegateFactory delegateFactory;
     
     private ClassEOJ classEOJ;
@@ -263,6 +268,100 @@ public class ObjectParser {
         }
     }
     
+    private NodeInfo parseNodeInfo(Core core, Node node) throws SubnetException {
+        return core.getSubnet().getRemoteNode(node.getTextContent()).getNodeInfo();
+    }
+    
+    private EOJ parseEOJInfo(Node node) throws SubnetException {
+        return new EOJ(node.getTextContent());
+    }
+    
+    private EOJ parseInstanceInfo(Node node, ClassEOJ ceoj) throws SubnetException {
+        String instanceStr = node.getTextContent();
+        byte instanceCode = (byte)Integer.parseInt(instanceStr);
+        return ceoj.getEOJWithInstanceCode(instanceCode);
+    }
+    
+    private void parseProxy(Node propNode) throws HummingException {
+        Core proxyCore;
+        NodeInfo proxyNode = null;
+        EOJ proxyEOJ = null;
+        
+        try {
+            Node proxySubnetInfo = null;
+            Node proxyNodeInfo = null;
+            Node proxyEOJInfo = null;
+            Node proxyInstanceInfo = null;
+        
+            NodeList nodeList = propNode.getChildNodes();
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Node proxyInfo = nodeList.item(i);
+            
+                if (proxyInfo.getNodeType() != Node.ELEMENT_NODE) {
+                    continue;
+                }
+            
+                String infoName = proxyInfo.getNodeName();
+                if (infoName.equals("subnet")) {
+                    proxySubnetInfo = proxyInfo;
+                } else if (infoName.equals("node")) {
+                    proxyNodeInfo = proxyInfo;
+                } else if (infoName.equals("eoj")) {
+                    proxyEOJInfo = proxyInfo;
+                } else if (infoName.equals("instance")) {
+                    proxyInstanceInfo = proxyInfo;
+                } else {
+                    LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProxy", "invalid element: " + infoName);
+                }
+            }
+            
+            proxyCore = humming.getCore();
+            if (proxySubnetInfo != null) {
+                String subnetName = proxySubnetInfo.getTextContent();
+                proxyCore = humming.getCore(subnetName);
+         
+                if (proxyCore == null) {
+                    LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProxy", "invalid subnet: " + subnetName);
+                    throw new HummingException("invalid subnet: " + subnetName);
+                }
+            }
+            
+            if (proxyNodeInfo != null) {
+                proxyNode = parseNodeInfo(proxyCore, proxyNodeInfo);
+            }
+            
+            if (proxyInstanceInfo != null) {
+                proxyEOJ = parseInstanceInfo(proxyInstanceInfo, classEOJ);
+            }
+            
+            if (proxyEOJInfo != null) {
+                proxyEOJ = parseEOJInfo(proxyEOJInfo);
+            }
+            
+        } catch (SubnetException ex) {
+            Logger.getLogger(ProxyPropertyDelegateCreator.class.getName()).log(Level.SEVERE, null, ex);
+            throw new HummingException("failed", ex);
+        }
+        
+        if (proxyNode == null) {
+            String errorMessage = "invalid proxy information: Node: " + proxyNode;
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProxy", errorMessage);
+            throw new HummingException(errorMessage);
+        }
+        
+        for (EPC epc : EPC.values()) {
+            propertyInfos.add(new PropertyInfo(epc, true, true, true, new byte[1]));
+        }
+            
+        LOGGER.logp(Level.INFO, CLASS_NAME, "parseProxy", "ClassEOJ: " + classEOJ + " -> proxyNode: " + proxyNode + ", proxyEOJ: " + proxyEOJ);
+        
+        ProxyDelegate delegate = new ProxyDelegate(proxyCore, proxyNode, proxyEOJ);
+        
+        LOGGER.logp(Level.INFO, CLASS_NAME, "parseProxy", "delegate: " + delegate + ", ClassEOJ: " + classEOJ + ", proxyNode: " + proxyNode + ", proxyEOJ: " + proxyEOJ);
+        
+        delegates.add(delegate);
+    }
+    
     private void parseObject(Node objectNode) throws HummingException {
         Node ceojNode = objectNode.getAttributes().getNamedItem("ceoj");
         
@@ -281,6 +380,8 @@ public class ObjectParser {
             
             if (nodeName.equals("property")) {
                 parseProperty(node);
+            } else if (nodeName.equals("proxy")) {
+                parseProxy(node);
             } else if (nodeName.equals("updater")) {
                 parseUpdater(node);
             } else if (nodeName.equals("delegate")) {
@@ -291,7 +392,8 @@ public class ObjectParser {
         }
     }
 
-    public ObjectParser(PropertyDelegateFactory factory, HummingScripting hummingScripting) throws HummingException {
+    public ObjectParser(Humming humming, PropertyDelegateFactory factory, HummingScripting hummingScripting) throws HummingException {
+        this.humming = humming;
         delegateFactory = factory;
         this.hummingScripting = hummingScripting;
         

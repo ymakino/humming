@@ -8,4 +8,7 @@
       <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj><epc>0xE0</epc></data>
     </property>
   </object>
+  <object ceoj="0011">
+    <proxy><node>150.65.231.35</node><eoj>001101</eoj></proxy>
+  </object>
 </device>

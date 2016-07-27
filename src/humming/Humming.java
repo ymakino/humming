@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,19 +49,21 @@ public class Humming {
     private LinkedList<Node> nodes;
     private LinkedList<LocalObjectConfig> localObjectConfigs;
     private HummingScripting hummingScripting;
+    private HashMap<String, Core> coreMap;
     
     public Humming(Core core) {
         this.core = core;
         nodes = new LinkedList<Node>();
         localObjectConfigs = new LinkedList<LocalObjectConfig>();
         hummingScripting = new HummingScripting();
+        coreMap = new HashMap<String, Core>();
         
         factory = new PropertyDelegateFactory();
         factory.add("const", new ConstPropertyDelegateCreator());
         factory.add("variable", new VariablePropertyDelegateCreator());
         factory.add("file", new FilePropertyDelegateCreator());
         factory.add("command", new CommandPropertyDelegateCreator());
-        factory.add("proxy", new ProxyPropertyDelegateCreator(core));
+        factory.add("proxy", new ProxyPropertyDelegateCreator(this));
         factory.add("delegate", new DelegatePropertyDelegateCreator(hummingScripting));
     }
     
@@ -106,6 +109,14 @@ public class Humming {
         return core;
     }
     
+    public Core getCore(String name) {
+        return coreMap.get(name);
+    }
+    
+    public Core addCore(String name, Core core) {
+        return coreMap.put(name, core);
+    }
+    
     public int countLocalObjectConfigs() {
         return localObjectConfigs.size();
     }
@@ -115,7 +126,7 @@ public class Humming {
     }
     
     public void parseObject(Node objectNode) throws HummingException {
-        ObjectParser objectParser = new ObjectParser(factory, hummingScripting);
+        ObjectParser objectParser = new ObjectParser(this, factory, hummingScripting);
         objectParser.parse(objectNode);
         
         if (objectNode.getNodeName().equals("object")) {
@@ -214,9 +225,9 @@ public class Humming {
             
             Core internalCore = new Core(new InternalSubnet());
             internalCore.startService();
+            humming.addCore("internal", internalCore);
             
             ProxyPropertyDelegateCreator creator = (ProxyPropertyDelegateCreator)humming.getPropertyDelegateCreator("proxy");
-            creator.addCore("internal", internalCore);
             
             return internalCore;
         } catch (TooManyObjectsException ex) {

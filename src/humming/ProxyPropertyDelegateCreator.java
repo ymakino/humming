@@ -7,7 +7,6 @@ import echowand.net.NodeInfo;
 import echowand.net.SubnetException;
 import echowand.service.Core;
 import echowand.service.PropertyDelegate;
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.w3c.dom.Node;
@@ -27,16 +26,10 @@ public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
     public static final String EPC_TAG = "epc";
     public static final String INSTANCE_TAG = "instance";
     
-    private Core defaultCore;
-    private HashMap<String, Core> coreMap;
+    private Humming humming;
     
-    public ProxyPropertyDelegateCreator(Core core) {
-        defaultCore = core;
-        coreMap = new HashMap<String, Core>();
-    }
-    
-    public Core addCore(String name, Core core) {
-        return coreMap.put(name, core);
+    public ProxyPropertyDelegateCreator(Humming humming) {
+        this.humming = humming;
     }
     
     private NodeInfo parseNodeInfo(Core core, Node node) throws SubnetException {
@@ -101,10 +94,10 @@ public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
                 }
             }
             
-            proxyCore = defaultCore;
+            proxyCore = humming.getCore();
             if (proxySubnetInfo != null) {
                 String subnetName = proxySubnetInfo.getTextContent();
-                proxyCore = coreMap.get(subnetName);
+                proxyCore = humming.getCore(subnetName);
          
                 if (proxyCore == null) {
                     LOGGER.logp(Level.WARNING, CLASS_NAME, "newPropertyDelegate", "invalid subnet: " + subnetName);

@@ -29,7 +29,7 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
     private EOJ proxyEOJ;
     private EPC proxyEPC;
     
-    private class ProxyRemoteObjectObserver implements RemoteObjectObserver {
+    private class ProxyPropertyRemoteObjectObserver implements RemoteObjectObserver {
         @Override
         public void notifyData(RemoteObject object, EPC epc, ObjectData data) {
             if (proxyEPC != epc || !isNotifyEnabled()) {
@@ -39,7 +39,7 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
             LocalObject localObject = getLocalObject();
             
             if (localObject != null) {
-                LOGGER.logp(Level.INFO, CLASS_NAME, "ProxyRemoteObjectObserver.notifyData", object + ", EPC: " + proxyEPC + ", data: " + data + " -> " + localObject + ", EPC: " + getEPC());
+                LOGGER.logp(Level.INFO, CLASS_NAME, "ProxyPropertyRemoteObjectObserver.notifyData", object + ", EPC: " + proxyEPC + ", data: " + data + " -> " + localObject + ", EPC: " + getEPC());
                 localObject.notifyDataChanged(getEPC(), data, null);
             }
         }
@@ -77,7 +77,7 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
                 return;
             }
 
-            remoteObject.addObserver(new ProxyRemoteObjectObserver());
+            remoteObject.addObserver(new ProxyPropertyRemoteObjectObserver());
         } catch (SubnetException ex) {
             LOGGER.logp(Level.WARNING, CLASS_NAME, "ProxyPropertyDelegateCoreListener.initialized", "cannot register: " + proxyNode + " " + proxyEOJ, ex);
         }
