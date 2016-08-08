@@ -1,5 +1,6 @@
 package humming;
 
+import echowand.common.Data;
 import echowand.common.EOJ;
 import echowand.common.EPC;
 import echowand.net.NodeInfo;
@@ -13,6 +14,8 @@ import echowand.service.Core;
 import echowand.service.LocalObjectServiceDelegate;
 import echowand.service.ObjectNotFoundException;
 import echowand.service.Service;
+import echowand.util.Pair;
+import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,7 +27,9 @@ public class ProxyDelegate implements LocalObjectServiceDelegate {
     private static final Logger LOGGER = Logger.getLogger(ProxyDelegate.class.getName());
     private static final String CLASS_NAME = ProxyDelegate.class.getName();
     
+    private Service service;
     private LocalObject localObject;
+    
     private Service proxyService;
     private Core proxyCore;
     private NodeInfo proxyNode;
@@ -33,8 +38,22 @@ public class ProxyDelegate implements LocalObjectServiceDelegate {
     private class ProxyDelegateRemoteObjectObserver implements RemoteObjectObserver {
         @Override
         public void notifyData(RemoteObject object, EPC epc, ObjectData data) {
-            LOGGER.logp(Level.INFO, CLASS_NAME, "ProxyDelegateRemoteObjectObserver.notifyData", object + ", EPC: " + epc + ", data: " + data + " -> " + localObject);
-            localObject.notifyDataChanged(epc, data, null);
+            try {
+                LOGGER.logp(Level.INFO, CLASS_NAME, "ProxyDelegateRemoteObjectObserver.notifyData", "begin: " + object + ", EPC: " + epc + ", data: " + data + " -> " + localObject);
+            
+                LinkedList<Pair<EPC, Data>> properties = new LinkedList<Pair<EPC, Data>>();
+                properties.add(new Pair<EPC, Data>(epc, data.getData()));
+                
+                for (int i=0; i<data.getExtraSize(); i++) {
+                    properties.add(new Pair<EPC, Data>(epc, data.getExtraDataAt(i)));
+                }
+                
+                service.doNotify(localObject.getEOJ(), properties);
+                
+            LOGGER.logp(Level.INFO, CLASS_NAME, "ProxyDelegateRemoteObjectObserver.notifyData", "end: " + object + ", EPC: " + epc + ", data: " + data + " -> " + localObject);
+            } catch (SubnetException ex) {
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "ProxyDelegateRemoteObjectObserver.notifyData", "failed: " + object + ", EPC: " + epc + ", data: " + data + " -> " + localObject, ex);
+            }
         }
     }
     
@@ -47,7 +66,6 @@ public class ProxyDelegate implements LocalObjectServiceDelegate {
     }
     
     public ProxyDelegate(Core proxyCore, NodeInfo proxyNode, EOJ proxyEOJ) {
-        
         this.proxyCore = proxyCore;
         this.proxyNode = proxyNode;
         this.proxyEOJ = proxyEOJ;
@@ -55,7 +73,10 @@ public class ProxyDelegate implements LocalObjectServiceDelegate {
 
     @Override
     public void notifyCreation(LocalObject object, Core core) {
+        LOGGER.entering(CLASS_NAME, "notifyCreation", new Object[]{object, core});
+        
         localObject = object;
+        service = new Service(core);
         proxyService = new Service(proxyCore);
         
         try {
@@ -64,6 +85,7 @@ public class ProxyDelegate implements LocalObjectServiceDelegate {
 
             if (remoteObject == null) {
                 LOGGER.logp(Level.WARNING, CLASS_NAME, "ProxyPropertyDelegateCoreListener.initialized", "cannot register: " + proxyNode + " " + proxyEOJ);
+                LOGGER.exiting(CLASS_NAME, "notifyCreation");
                 return;
             }
 
@@ -71,6 +93,9 @@ public class ProxyDelegate implements LocalObjectServiceDelegate {
         } catch (SubnetException ex) {
             LOGGER.logp(Level.WARNING, CLASS_NAME, "ProxyPropertyDelegateCoreListener.initialized", "cannot register: " + proxyNode + " " + proxyEOJ, ex);
         }
+        
+        LOGGER.exiting(CLASS_NAME, "notifyCreation");
+        return;
     }
 
     @Override
@@ -99,7 +124,7 @@ public class ProxyDelegate implements LocalObjectServiceDelegate {
         
         try {
             LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "begin: " + object + ", EPC: " + epc + " -> " + proxyNode + ", EPC: " + epc + ", data: " + newData);
-            boolean success = proxyService.setRemoteData(proxyNode, proxyEOJ, epc, curData);
+            boolean success = proxyService.setRemoteData(proxyNode, proxyEOJ, epc, newData);
             LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "end: " + object + ", EPC: " + epc + " -> " + proxyNode + ", EPC: " + epc + ", data: " + newData + ", result: " + success);
             if (success) {
                 result.setDone();
@@ -120,8 +145,6 @@ public class ProxyDelegate implements LocalObjectServiceDelegate {
     @Override
     public void notifyDataChanged(NotifyState result, LocalObject object, EPC epc, ObjectData curData, ObjectData oldData) {
         LOGGER.entering(CLASS_NAME, "notifyDataChanged", new Object[]{result, object, epc, curData, oldData});
-        
-        result.setDone();
         
         LOGGER.exiting(CLASS_NAME, "notifyDataChanged");
     }

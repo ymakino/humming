@@ -350,7 +350,7 @@ public class ObjectParser {
         }
         
         for (EPC epc : EPC.values()) {
-            propertyInfos.add(new PropertyInfo(epc, true, true, true, new byte[1]));
+            propertyInfos.add(new PropertyInfo(epc, true, true, true, new byte[1], new ConstraintAny()));
         }
             
         LOGGER.logp(Level.INFO, CLASS_NAME, "parseProxy", "ClassEOJ: " + classEOJ + " -> proxyNode: " + proxyNode + ", proxyEOJ: " + proxyEOJ);
