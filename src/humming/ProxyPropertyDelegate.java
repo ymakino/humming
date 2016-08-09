@@ -26,13 +26,24 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
     private static final Logger LOGGER = Logger.getLogger(ProxyPropertyDelegate.class.getName());
     private static final String CLASS_NAME = ProxyPropertyDelegate.class.getName();
     
+    private Service service = null;
+    
     private Service remoteService;
     private Core remoteCore;
     private NodeInfo remoteNode;
     private EOJ remoteEOJ;
     private EPC remoteEPC;
+        
+    public Service getService() {
+        if (service == null) {
+            service = new Service(getCore());
+        }
+
+        return service;
+    }
     
     private class ProxyPropertyRemoteObjectObserver implements RemoteObjectObserver {
+        
         @Override
         public void notifyData(RemoteObject object, EPC epc, ObjectData data) {
             if (remoteEPC != epc || !isNotifyEnabled()) {
@@ -42,8 +53,6 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
             LocalObject proxyObject = getLocalObject();
             
             if (proxyObject != null) {
-                Service service = new Service(getCore());
-                
                 LinkedList<Pair<EPC, Data>> properties = new LinkedList<Pair<EPC, Data>>();
                 properties.add(new Pair<EPC, Data>(getEPC(), data.getData()));
                 
@@ -53,7 +62,7 @@ public class ProxyPropertyDelegate extends PropertyDelegate {
                 
                 try {
                     LOGGER.logp(Level.INFO, CLASS_NAME, "ProxyPropertyRemoteObjectObserver.notifyData", object + ", EPC: " + remoteEPC + ", data: " + data + " -> " + proxyObject + ", EPC: " + getEPC());
-                    service.doNotify(proxyObject.getEOJ(), properties);
+                    getService().doNotify(proxyObject.getEOJ(), properties);
                 } catch (SubnetException ex) {
                     LOGGER.logp(Level.INFO, CLASS_NAME, "ProxyPropertyRemoteObjectObserver.notifyData", "failed: " + object + ", EPC: " + remoteEPC + ", data: " + data + " -> " + proxyObject + ", EPC: " + getEPC(), ex);
                 }
