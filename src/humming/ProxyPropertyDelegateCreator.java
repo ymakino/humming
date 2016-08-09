@@ -58,87 +58,87 @@ public class ProxyPropertyDelegateCreator implements PropertyDelegateCreator {
     
     @Override
     public PropertyDelegate newPropertyDelegate(ClassEOJ ceoj, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) throws HummingException {
-        Core proxyCore;
-        NodeInfo proxyNode = null;
-        EOJ proxyEOJ = null;
-        EPC proxyEPC = null;
+        Core remoteCore;
+        NodeInfo remoteNode = null;
+        EOJ remoteEOJ = null;
+        EPC remoteEPC = null;
         
         try {
-            Node proxySubnetInfo = null;
-            Node proxyNodeInfo = null;
-            Node proxyEOJInfo = null;
-            Node proxyInstanceInfo = null;
-            Node proxyEPCInfo = null;
+            Node remoteSubnetInfo = null;
+            Node remoteNodeInfo = null;
+            Node remoteEOJInfo = null;
+            Node remoteInstanceInfo = null;
+            Node remoteEPCInfo = null;
         
             NodeList nodeList = node.getChildNodes();
             for (int i = 0; i < nodeList.getLength(); i++) {
-                Node proxyInfo = nodeList.item(i);
+                Node remoteInfo = nodeList.item(i);
             
-                if (proxyInfo.getNodeType() != Node.ELEMENT_NODE) {
+                if (remoteInfo.getNodeType() != Node.ELEMENT_NODE) {
                     continue;
                 }
             
-                String infoName = proxyInfo.getNodeName();
+                String infoName = remoteInfo.getNodeName();
                 if (infoName.equals(SUBNET_TAG)) {
-                    proxySubnetInfo = proxyInfo;
+                    remoteSubnetInfo = remoteInfo;
                 } else if (infoName.equals(NODE_TAG)) {
-                    proxyNodeInfo = proxyInfo;
+                    remoteNodeInfo = remoteInfo;
                 } else if (infoName.equals(EOJ_TAG)) {
-                    proxyEOJInfo = proxyInfo;
+                    remoteEOJInfo = remoteInfo;
                 } else if (infoName.equals(INSTANCE_TAG)) {
-                    proxyInstanceInfo = proxyInfo;
+                    remoteInstanceInfo = remoteInfo;
                 } else if (infoName.equals(EPC_TAG)) {
-                    proxyEPCInfo = proxyInfo;
+                    remoteEPCInfo = remoteInfo;
                 } else {
                     LOGGER.logp(Level.WARNING, CLASS_NAME, "newPropertyDelegate", "invalid element: " + infoName);
                 }
             }
             
-            proxyCore = humming.getCore();
-            if (proxySubnetInfo != null) {
-                String subnetName = proxySubnetInfo.getTextContent();
-                proxyCore = humming.getCore(subnetName);
+            remoteCore = humming.getCore();
+            if (remoteSubnetInfo != null) {
+                String subnetName = remoteSubnetInfo.getTextContent();
+                remoteCore = humming.getCore(subnetName);
          
-                if (proxyCore == null) {
+                if (remoteCore == null) {
                     LOGGER.logp(Level.WARNING, CLASS_NAME, "newPropertyDelegate", "invalid subnet: " + subnetName);
                     throw new HummingException("invalid subnet: " + subnetName);
                 }
             }
             
-            if (proxyNodeInfo != null) {
-                proxyNode = parseNodeInfo(proxyCore, proxyNodeInfo);
+            if (remoteNodeInfo != null) {
+                remoteNode = parseNodeInfo(remoteCore, remoteNodeInfo);
             }
             
-            if (proxyInstanceInfo != null) {
-                proxyEOJ = parseInstanceInfo(proxyInstanceInfo, ceoj);
+            if (remoteInstanceInfo != null) {
+                remoteEOJ = parseInstanceInfo(remoteInstanceInfo, ceoj);
             }
             
-            if (proxyEOJInfo != null) {
-                proxyEOJ = parseEOJInfo(proxyEOJInfo);
+            if (remoteEOJInfo != null) {
+                remoteEOJ = parseEOJInfo(remoteEOJInfo);
             }
             
-            if (proxyEPCInfo != null) {
-                proxyEPC = parseEPCInfo(proxyEPCInfo);
+            if (remoteEPCInfo != null) {
+                remoteEPC = parseEPCInfo(remoteEPCInfo);
             }
             
-            if (proxyEPC == null) {
-                proxyEPC = epc;
+            if (remoteEPC == null) {
+                remoteEPC = epc;
             }
         } catch (SubnetException ex) {
             Logger.getLogger(ProxyPropertyDelegateCreator.class.getName()).log(Level.SEVERE, null, ex);
             throw new HummingException("failed", ex);
         }
         
-        if (proxyEPC == null) {
-            proxyEPC = epc;
+        if (remoteEPC == null) {
+            remoteEPC = epc;
         }
         
-        if (proxyNode == null || proxyEOJ == null || proxyEPC == null) {
-            String errorMessage = "invalid proxy information: Node: " + proxyNode + " EOJ: " + proxyEOJ + " EPC: " + proxyEPC;
+        if (remoteNode == null || remoteEOJ == null || remoteEPC == null) {
+            String errorMessage = "invalid remote information: Node: " + remoteNode + " EOJ: " + remoteEOJ + " EPC: " + remoteEPC;
             LOGGER.logp(Level.WARNING, CLASS_NAME, "newPropertyDelegate", errorMessage);
             throw new HummingException(errorMessage);
         }
         
-        return new ProxyPropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, proxyCore, proxyNode, proxyEOJ, proxyEPC);
+        return new ProxyPropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, remoteCore, remoteNode, remoteEOJ, remoteEPC);
     }
 }

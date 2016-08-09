@@ -28,18 +28,18 @@ public class ProxyDelegate implements LocalObjectServiceDelegate {
     private static final String CLASS_NAME = ProxyDelegate.class.getName();
     
     private Service service;
-    private LocalObject localObject;
+    private LocalObject proxyObject;
     
-    private Service proxyService;
-    private Core proxyCore;
-    private NodeInfo proxyNode;
-    private EOJ proxyEOJ;
+    private Service remoteService;
+    private Core remoteCore;
+    private NodeInfo remoteNode;
+    private EOJ remoteEOJ;
     
     private class ProxyDelegateRemoteObjectObserver implements RemoteObjectObserver {
         @Override
         public void notifyData(RemoteObject object, EPC epc, ObjectData data) {
             try {
-                LOGGER.logp(Level.INFO, CLASS_NAME, "ProxyDelegateRemoteObjectObserver.notifyData", "begin: " + object + ", EPC: " + epc + ", data: " + data + " -> " + localObject);
+                LOGGER.logp(Level.INFO, CLASS_NAME, "ProxyDelegateRemoteObjectObserver.notifyData", "begin: " + object + ", EPC: " + epc + ", data: " + data + " -> " + proxyObject);
             
                 LinkedList<Pair<EPC, Data>> properties = new LinkedList<Pair<EPC, Data>>();
                 properties.add(new Pair<EPC, Data>(epc, data.getData()));
@@ -48,50 +48,50 @@ public class ProxyDelegate implements LocalObjectServiceDelegate {
                     properties.add(new Pair<EPC, Data>(epc, data.getExtraDataAt(i)));
                 }
                 
-                service.doNotify(localObject.getEOJ(), properties);
+                service.doNotify(proxyObject.getEOJ(), properties);
                 
-            LOGGER.logp(Level.INFO, CLASS_NAME, "ProxyDelegateRemoteObjectObserver.notifyData", "end: " + object + ", EPC: " + epc + ", data: " + data + " -> " + localObject);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "ProxyDelegateRemoteObjectObserver.notifyData", "end: " + object + ", EPC: " + epc + ", data: " + data + " -> " + proxyObject);
             } catch (SubnetException ex) {
-                LOGGER.logp(Level.WARNING, CLASS_NAME, "ProxyDelegateRemoteObjectObserver.notifyData", "failed: " + object + ", EPC: " + epc + ", data: " + data + " -> " + localObject, ex);
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "ProxyDelegateRemoteObjectObserver.notifyData", "failed: " + object + ", EPC: " + epc + ", data: " + data + " -> " + proxyObject, ex);
             }
         }
     }
     
     public RemoteObject getRemoteObject() throws SubnetException {
-        if (!proxyService.getCore().isInitialized()) {
+        if (!remoteService.getCore().isInitialized()) {
             return null;
         }
         
-        return proxyService.getRemoteObject(proxyNode, proxyEOJ);
+        return remoteService.getRemoteObject(remoteNode, remoteEOJ);
     }
     
     public ProxyDelegate(Core proxyCore, NodeInfo proxyNode, EOJ proxyEOJ) {
-        this.proxyCore = proxyCore;
-        this.proxyNode = proxyNode;
-        this.proxyEOJ = proxyEOJ;
+        this.remoteCore = proxyCore;
+        this.remoteNode = proxyNode;
+        this.remoteEOJ = proxyEOJ;
     }
 
     @Override
     public void notifyCreation(LocalObject object, Core core) {
         LOGGER.entering(CLASS_NAME, "notifyCreation", new Object[]{object, core});
         
-        localObject = object;
+        proxyObject = object;
         service = new Service(core);
-        proxyService = new Service(proxyCore);
+        remoteService = new Service(remoteCore);
         
         try {
-            proxyService.registerRemoteEOJ(proxyNode, proxyEOJ);
-            RemoteObject remoteObject = proxyService.getRemoteObject(proxyNode, proxyEOJ);
+            remoteService.registerRemoteEOJ(remoteNode, remoteEOJ);
+            RemoteObject remoteObject = remoteService.getRemoteObject(remoteNode, remoteEOJ);
 
             if (remoteObject == null) {
-                LOGGER.logp(Level.WARNING, CLASS_NAME, "ProxyPropertyDelegateCoreListener.initialized", "cannot register: " + proxyNode + " " + proxyEOJ);
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "ProxyPropertyDelegateCoreListener.initialized", "cannot register: " + remoteNode + " " + remoteEOJ);
                 LOGGER.exiting(CLASS_NAME, "notifyCreation");
                 return;
             }
 
             remoteObject.addObserver(new ProxyDelegateRemoteObjectObserver());
         } catch (SubnetException ex) {
-            LOGGER.logp(Level.WARNING, CLASS_NAME, "ProxyPropertyDelegateCoreListener.initialized", "cannot register: " + proxyNode + " " + proxyEOJ, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "ProxyPropertyDelegateCoreListener.initialized", "cannot register: " + remoteNode + " " + remoteEOJ, ex);
         }
         
         LOGGER.exiting(CLASS_NAME, "notifyCreation");
@@ -104,7 +104,7 @@ public class ProxyDelegate implements LocalObjectServiceDelegate {
         
         try {
             LOGGER.logp(Level.INFO, CLASS_NAME, "getData", "begin: " + object + ", EPC: " + epc + " -> " + getRemoteObject() + ", EPC: " + epc);
-            ObjectData data = proxyService.getRemoteData(proxyNode, proxyEOJ, epc);
+            ObjectData data = remoteService.getRemoteData(remoteNode, remoteEOJ, epc);
             result.setGetData(data);
             LOGGER.logp(Level.INFO, CLASS_NAME, "getData", "end: " + object + ", EPC: " + epc + " -> " + getRemoteObject() + ", EPC: " + epc + ", data: " + data);
         } catch (ObjectNotFoundException ex) {
@@ -123,9 +123,9 @@ public class ProxyDelegate implements LocalObjectServiceDelegate {
         LOGGER.entering(CLASS_NAME, "setData", new Object[]{result, object, epc, newData, curData});
         
         try {
-            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "begin: " + object + ", EPC: " + epc + " -> " + proxyNode + ", EPC: " + epc + ", data: " + newData);
-            boolean success = proxyService.setRemoteData(proxyNode, proxyEOJ, epc, newData);
-            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "end: " + object + ", EPC: " + epc + " -> " + proxyNode + ", EPC: " + epc + ", data: " + newData + ", result: " + success);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "begin: " + object + ", EPC: " + epc + " -> " + remoteNode + ", EPC: " + epc + ", data: " + newData);
+            boolean success = remoteService.setRemoteData(remoteNode, remoteEOJ, epc, newData);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "end: " + object + ", EPC: " + epc + " -> " + remoteNode + ", EPC: " + epc + ", data: " + newData + ", result: " + success);
             if (success) {
                 result.setDone();
             } else {
