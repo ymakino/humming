@@ -286,6 +286,20 @@ public class ObjectParser {
         Core proxyCore;
         NodeInfo proxyNode = null;
         EOJ proxyEOJ = null;
+        boolean objectMode = true;
+        
+        Node modeNode = propNode.getAttributes().getNamedItem("mode");
+        
+        if (modeNode != null) {
+            String mode = modeNode.getTextContent().toLowerCase();
+            if (mode.equals("object")) {
+                objectMode = true;
+            } else if (mode.equals("frame")) {
+                objectMode = false;
+            } else {
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProxy", "unknown mode: " + modeNode.getTextContent());
+            }
+        }
         
         try {
             Node proxySubnetInfo = null;
@@ -355,11 +369,15 @@ public class ObjectParser {
             
         LOGGER.logp(Level.INFO, CLASS_NAME, "parseProxy", "ClassEOJ: " + classEOJ + " -> proxyNode: " + proxyNode + ", proxyEOJ: " + proxyEOJ);
         
-        ProxyDelegate delegate = new ProxyDelegate(proxyCore, proxyNode, proxyEOJ);
-        
-        LOGGER.logp(Level.INFO, CLASS_NAME, "parseProxy", "delegate: " + delegate + ", ClassEOJ: " + classEOJ + ", proxyNode: " + proxyNode + ", proxyEOJ: " + proxyEOJ);
-        
-        delegates.add(delegate);
+        if (objectMode) {
+            ProxyObjectDelegate objectDelegate = new ProxyObjectDelegate(proxyCore, proxyNode, proxyEOJ);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "parseProxy", "delegate: " + objectDelegate + ", ClassEOJ: " + classEOJ + ", proxyNode: " + proxyNode + ", proxyEOJ: " + proxyEOJ);
+            delegates.add(objectDelegate);
+        } else {
+            ProxyRequestProcessorDelegate processorDelegate = new ProxyRequestProcessorDelegate(proxyCore, proxyNode, proxyEOJ);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "parseProxy", "delegate: " + processorDelegate + ", ClassEOJ: " + classEOJ + ", proxyNode: " + proxyNode + ", proxyEOJ: " + proxyEOJ);
+            delegates.add(processorDelegate);
+        }
     }
     
     private void parseObject(Node objectNode) throws HummingException {

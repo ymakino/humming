@@ -23,9 +23,9 @@ import java.util.logging.Logger;
  *
  * @author ymakino
  */
-public class ProxyDelegate implements LocalObjectServiceDelegate {
-    private static final Logger LOGGER = Logger.getLogger(ProxyDelegate.class.getName());
-    private static final String CLASS_NAME = ProxyDelegate.class.getName();
+public class ProxyObjectDelegate implements LocalObjectServiceDelegate {
+    private static final Logger LOGGER = Logger.getLogger(ProxyObjectDelegate.class.getName());
+    private static final String CLASS_NAME = ProxyObjectDelegate.class.getName();
     
     private Service service;
     private LocalObject proxyObject;
@@ -65,10 +65,10 @@ public class ProxyDelegate implements LocalObjectServiceDelegate {
         return remoteService.getRemoteObject(remoteNode, remoteEOJ);
     }
     
-    public ProxyDelegate(Core proxyCore, NodeInfo proxyNode, EOJ proxyEOJ) {
-        this.remoteCore = proxyCore;
-        this.remoteNode = proxyNode;
-        this.remoteEOJ = proxyEOJ;
+    public ProxyObjectDelegate(Core remoteCore, NodeInfo remoteNode, EOJ remoteEOJ) {
+        this.remoteCore = remoteCore;
+        this.remoteNode = remoteNode;
+        this.remoteEOJ = remoteEOJ;
     }
 
     @Override

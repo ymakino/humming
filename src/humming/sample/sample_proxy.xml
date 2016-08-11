@@ -11,4 +11,10 @@
   <object ceoj="0011">
     <proxy><node>150.65.231.35</node><eoj>001101</eoj></proxy>
   </object>
+  <object ceoj="0011">
+    <proxy mode="object"><node>150.65.231.35</node><eoj>001101</eoj></proxy>
+  </object>
+  <object ceoj="0011">
+    <proxy mode="frame"><node>150.65.231.35</node><eoj>001101</eoj></proxy>
+  </object>
 </device>
