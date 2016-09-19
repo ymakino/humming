@@ -203,7 +203,7 @@ public class FrameDropSubnet implements ExtendedSubnet {
     }
 
     @Override
-    public boolean send(Frame frame) throws SubnetException {
+    public void send(Frame frame) throws SubnetException {
         LOGGER.entering(CLASS_NAME, "send", frame);
         
         if (dropSendCount > 0) {
@@ -213,18 +213,14 @@ public class FrameDropSubnet implements ExtendedSubnet {
         
         totalSendCount++;
         
-        boolean result;
-        
         if (getSendDropper(frame).shouldDropSend(frame)) {
             dropSendCount++;
             LOGGER.logp(Level.INFO, CLASS_NAME, "send", "drop frame: " + frame);
-            result = true;
         } else {
-            result = internalSubnet.send(frame);
+            internalSubnet.send(frame);
         }
         
-        LOGGER.exiting(CLASS_NAME, "send", result);
-        return result;
+        LOGGER.exiting(CLASS_NAME, "send");
     }
 
     @Override

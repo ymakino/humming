@@ -199,11 +199,7 @@ public class ProxyRequestProcessor implements RequestProcessor {
             Frame newFrame = new Frame(proxySubnet.getLocalNode(), requestFrame.getSender(), commonFrame, requestFrame.getConnection());
             
             try {
-                boolean result = proxyCore.getSubnet().send(newFrame);
-                
-                if (result == false) {
-                    LOGGER.logp(Level.WARNING, CLASS_NAME, "ProxyTransactionListener.receive", "cannot send frame: " + newFrame);
-                }
+                proxyCore.getSubnet().send(newFrame);
             } catch (SubnetException ex) {
                 LOGGER.logp(Level.WARNING, CLASS_NAME, "ProxyTransactionListener.receive", "cannot send frame: " + newFrame, ex);
             }
