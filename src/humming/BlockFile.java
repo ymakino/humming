@@ -1,9 +1,8 @@
 package humming;
 
+import echowand.util.TimeoutTask;
 import java.io.File;
 import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,33 +53,6 @@ public class BlockFile {
     public boolean existsFile() {
         return file.exists();
     }
-    
-    private static class TimeoutTask extends TimerTask {
-        public long delay;
-        public boolean timeouted;
-        
-        
-        public TimeoutTask(long delay) {
-            this.delay = delay;
-            timeouted = false;
-        }
-        
-        @Override
-        public void run() {
-            timeouted = true;
-        }
-        
-        public void start() {
-            Timer timer = new Timer(true);
-            timer.schedule(this, delay);
-        }
-        
-        public static TimeoutTask start(long timeout) {
-            TimeoutTask timeoutTask = new TimeoutTask(timeout);
-            timeoutTask.start();
-            return timeoutTask;
-        }
-    }
 
     public boolean waitFile() throws InterruptedException {
         LOGGER.entering(CLASS_NAME, "waitFile");
@@ -90,12 +62,13 @@ public class BlockFile {
         if (blocking) {
             LOGGER.logp(Level.INFO, CLASS_NAME, "waitFile", "waiting: " + file);
                     
-            TimeoutTask timeoutTask = TimeoutTask.start(timeout);
+            TimeoutTask timeoutTask = new TimeoutTask(timeout);
+            timeoutTask.start();
             
             Thread.sleep(interval);
             blocking = existsFile();
 
-            while (blocking && !timeoutTask.timeouted) {
+            while (blocking && !timeoutTask.isDone()) {
                 Thread.sleep(interval);
                 blocking = existsFile();
             }
