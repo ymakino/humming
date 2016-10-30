@@ -40,8 +40,8 @@
     <property epc="EB">
       <data type="variable">07e0010101010100000001</data>
     </property>
-    <property epc="ED">
-      <data type="variable">0001010101</data>
+    <property epc="ED" set="enabled">
+      <data type="variable">07e00101010101</data>
     </property>
   </object>
 </device>
