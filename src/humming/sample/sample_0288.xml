@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device>
+  <object ceoj="0288">
+    <property epc="80">
+      <data type="const">30</data>
+    </property>
+    <property epc="D3">
+      <data type="variable">00000001</data>
+    </property>
+    <property epc="D7">
+      <data type="variable">08</data>
+    </property>
+    <property epc="E0">
+      <data type="variable">00000001</data>
+    </property>
+    <property epc="E1">
+      <data type="variable">00</data>
+    </property>
+    <property epc="E2">
+      <data type="variable">0000000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001</data>
+    </property>
+    <property epc="E3">
+      <data type="variable">00000001</data>
+    </property>
+    <property epc="E4">
+      <data type="variable">0000000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001</data>
+    </property>
+    <property epc="E5" set="enabled">
+      <data type="variable">00</data>
+    </property>
+    <property epc="E7">
+      <data type="variable">00000001</data>
+    </property>
+    <property epc="E8">
+      <data type="variable">00010001</data>
+    </property>
+    <property epc="EA">
+      <data type="variable">07e0010101010100000001</data>
+    </property>
+    <property epc="EB">
+      <data type="variable">07e0010101010100000001</data>
+    </property>
+    <property epc="ED">
+      <data type="variable">0001010101</data>
+    </property>
+  </object>
+</device>
