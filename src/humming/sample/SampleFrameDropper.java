@@ -62,14 +62,14 @@ public class SampleFrameDropper {
             }
             
             if (rnifs == null) {
-                subnet = new FrameDropSubnet(Inet4Subnet.startSubnet(nif));
+                subnet = new FrameDropSubnet(new Inet4Subnet(nif));
             } else {
-                subnet = new FrameDropSubnet(Inet4Subnet.startSubnet(nif, rnifs));
+                subnet = new FrameDropSubnet(new Inet4Subnet(nif, rnifs));
             }
             
             fileIndex = 2;
         } else {
-            subnet = new FrameDropSubnet(Inet4Subnet.startSubnet());
+            subnet = new FrameDropSubnet(new Inet4Subnet());
             fileIndex = 0;
         }
         

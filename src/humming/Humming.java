@@ -300,9 +300,9 @@ public class Humming {
             core = new Core();
         } else {
             if (rnifs == null) {
-                core = new Core(Inet4Subnet.startSubnet(nif));
+                core = new Core(new Inet4Subnet(nif));
             } else {
-                core = new Core(Inet4Subnet.startSubnet(nif, rnifs));
+                core = new Core(new Inet4Subnet(nif, rnifs));
             }
         }
         

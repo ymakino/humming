@@ -43,7 +43,7 @@ public class HummingXMLGenerator {
                     nif = NetworkInterface.getByName(args[1]);
                 }
                 
-                Inet4Subnet subnet = Inet4Subnet.startSubnet(nif);
+                Inet4Subnet subnet = new Inet4Subnet(nif);
                 core = new Core(subnet);
                 startIndex = 2;
             } else {
