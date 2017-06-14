@@ -68,7 +68,7 @@ public class BlockFile {
             Thread.sleep(interval);
             blocking = existsFile();
 
-            while (blocking && !timeoutTask.isDone()) {
+            while (blocking && !timeoutTask.isTimedOut()) {
                 Thread.sleep(interval);
                 blocking = existsFile();
             }

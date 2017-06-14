@@ -233,6 +233,9 @@ public class Humming {
         } catch (TooManyObjectsException ex) {
             Logger.getLogger(Humming.class.getName()).log(Level.SEVERE, null, ex);
             return null;
+        } catch (SubnetException ex) {
+            Logger.getLogger(Humming.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
     }
     
