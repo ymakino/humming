@@ -2,10 +2,10 @@
 <device>
   <object ceoj="0011">
     <property epc="80" set="enabled">
-      <data type="variable">30</data>
+      <variable>30</variable>
     </property>
     <property epc="E0">
-      <data type="variable">0127</data>
+      <variable>0127</variable>
     </property>
   </object>
 </device>

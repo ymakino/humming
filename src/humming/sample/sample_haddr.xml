@@ -2,28 +2,28 @@
 <device>
   <profile>
     <property epc="83">
-      <data type="delegate">
+      <delegate>
         <class>humming.sample.HardwareAddressPropertyDelegate</class>
         <config>
           it.setNetworkInterface("en0")
           it.setIdentificationMode(true);
         </config>
-      </data>
+      </delegate>
     </property>
     <property epc="FE">
-      <data type="delegate">
+      <delegate>
         <class>humming.sample.HardwareAddressPropertyDelegate</class>
         <config>it.setNetworkInterface("en0")</config>
-      </data>
+      </delegate>
     </property>
     <property epc="FF">
-      <data type="delegate">
+      <delegate>
         <class>humming.sample.HardwareAddressPropertyDelegate</class>
         <config>
           it.setNetworkInterface("en0")
           it.setStringMode(true);
         </config>
-      </data>
+      </delegate>
     </property>
   </profile>
 </device>

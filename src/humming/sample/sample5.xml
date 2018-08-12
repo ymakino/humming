@@ -3,20 +3,20 @@
   <object ceoj="0011">
     <property epc="80" set="enabled" notify="enabled">
 <!--
-      <data type="proxy"><subnet>internal</subnet><node>LOCAL(0)</node><eoj>001101</eoj></data>
+      <proxy><subnet>internal</subnet><node>LOCAL(0)</node><eoj>001101</eoj></proxy>
 -->
-      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj></data>
+      <proxy><node>150.65.230.55</node><eoj>001101</eoj></proxy>
     </property>
     <property epc="81" set="enabled" notify="enabled">
-      <data type="proxy"><subnet>internal</subnet><node>LOCAL(0)</node><eoj>001101</eoj></data>
+      <proxy><subnet>internal</subnet><node>LOCAL(0)</node><eoj>001101</eoj></proxy>
 <!--
-      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj></data>
+      <proxy><node>150.65.230.55</node><eoj>001101</eoj></proxy>
 -->
     </property>
     <property epc="E0" set="enabled" notify="enabled">
-      <data type="proxy"><subnet>internal</subnet><node>LOCAL(0)</node><eoj>001101</eoj></data>
+      <proxy><subnet>internal</subnet><node>LOCAL(0)</node><eoj>001101</eoj></proxy>
 <!--
-      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj></data>
+      <proxy><node>150.65.230.55</node><eoj>001101</eoj></proxy>
 -->
     </property>
   </object>

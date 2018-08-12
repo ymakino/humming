@@ -7,6 +7,7 @@ import echowand.object.EchonetObjectException;
 import echowand.service.Core;
 import echowand.service.Service;
 import humming.NetworkInterfaceSelector;
+import humming.generator.PropertyElementGenerator.GenerationType;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -27,29 +28,34 @@ public class HummingXMLGenerator {
     public static void main(String[] args) throws SubnetException, TooManyObjectsException, GeneratorException, EchonetObjectException, UnknownHostException, SocketException {
         try {
             int startIndex = 0;
+            NetworkInterface nif = null;
+            
+            for (int i=0; i<args.length; i++) {
+                if (args[i].equals("-h")) {
+                    showUsage("HummingXMLGenerator");
+                    System.exit(0);
+                } else if (args[i].equals("-i")) {
+                    if (args[++i].equals("-")) {
+                        nif = NetworkInterfaceSelector.select();
+                    } else {
+                        nif = NetworkInterface.getByName(args[i]);
+                    }
+
+                    startIndex += 2;
+                } else {
+                    break;
+                }
+            }
+            
             Core core;
             
-            if (args[0].equals("-h")) {
-                showUsage("HummingXMLGenerator");
-                System.exit(0);
-            }
-
-            if (args[0].equals("-i")) {
-                NetworkInterface nif;
-                
-                if (args[1].equals("-")) {
-                    nif = NetworkInterfaceSelector.select();
-                } else {
-                    nif = NetworkInterface.getByName(args[1]);
-                }
-                
+            if (nif != null) {
                 Inet4Subnet subnet = new Inet4Subnet(nif);
                 core = new Core(subnet);
-                startIndex = 2;
             } else {
                 core = new Core();
             }
-
+            
             core.startService();
             Service service = new Service(core);
 

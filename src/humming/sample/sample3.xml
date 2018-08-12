@@ -2,10 +2,10 @@
 <device>
   <object ceoj="0011">
     <property epc="80">
-      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj><epc>0x80</epc></data>
+      <proxy><node>150.65.231.35</node><eoj>001101</eoj><epc>80</epc></proxy>
     </property>
     <property epc="E0">
-      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj><epc>0xE0</epc></data>
+      <proxy><node>150.65.231.35</node><eoj>001101</eoj><epc>E0</epc></proxy>
     </property>
   </object>
 </device>

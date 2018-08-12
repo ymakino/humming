@@ -2,16 +2,16 @@
 <device>
   <object ceoj="0011">
     <property epc="80" set="enabled" notify="enabled">
-      <data type="file">
-        <file default="30">/tmp/x80</file>
+      <file>
+        <value default="30">/tmp/x80</value>
         <notify>/tmp/x80notify</notify>
         <block>/tmp/x80block</block>
         <lock>/tmp/x80lock</lock>
         <in-process>/tmp/x80inprocess</in-process>
-      </data>
+      </file>
     </property>
     <property epc="E0">
-      <data type="file">/tmp/xE0</data>
+      <file><value>/tmp/xE0</value></file>
     </property>
   </object>
 </device>

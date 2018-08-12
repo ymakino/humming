@@ -93,14 +93,14 @@ public class PropertyElementGenerator {
             throw exception;
         }
         
-        return String.format(dataIndent + "<data type=\"variable\">%s</data>\n", data);
+        return String.format(dataIndent + "<variable>%s</variable>\n", data);
     }
     
     public String generateProxyDataElement() throws GeneratorException {
         if (object instanceof RemoteObject) {
             String nodeElement = String.format("<node>%s</node>", ((RemoteObject)object).getNode());
             String eojElement = String.format("<eoj>%s</eoj>", object.getEOJ());
-            return String.format(dataIndent + "<data type=\"proxy\">%s%s</data>\n", nodeElement, eojElement);
+            return String.format(dataIndent + "<proxy>%s%s</proxy>\n", nodeElement, eojElement);
         } else {
             throw new GeneratorException("unsupported object: " + object);
         }
@@ -133,7 +133,7 @@ public class PropertyElementGenerator {
                 }
             }
             
-            String fileElement = String.format(innerIndent + "<file%s>%s</file>\n", defaultAttribute, generatePath(fileTemplate));
+            String fileElement = String.format(innerIndent + "<value%s>%s</value>\n", defaultAttribute, generatePath(fileTemplate));
             String fileNotifyElement = "";
             String fileBlockElement = "";
             String fileLockElement = "";
@@ -151,12 +151,12 @@ public class PropertyElementGenerator {
             }
             
             StringBuilder builder = new StringBuilder();
-            builder.append(dataIndent + "<data type=\"file\">\n");
+            builder.append(dataIndent + "<file>\n");
             builder.append(fileElement);
             builder.append(fileNotifyElement);
             builder.append(fileBlockElement);
             builder.append(fileLockElement);
-            builder.append(dataIndent + "</data>\n");
+            builder.append(dataIndent + "</file>\n");
             
             return builder.toString();
         }else {
@@ -178,10 +178,10 @@ public class PropertyElementGenerator {
             }
             
             StringBuilder builder = new StringBuilder();
-            builder.append(dataIndent + "<data type=\"command\">\n");
+            builder.append(dataIndent + "<command>\n");
             builder.append(getElement);
             builder.append(setElement);
-            builder.append(dataIndent + "</data>\n");
+            builder.append(dataIndent + "</command>\n");
                 
             return builder.toString();
         }else {

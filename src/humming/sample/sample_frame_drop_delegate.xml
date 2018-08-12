@@ -9,10 +9,10 @@
       </config>
     </delegate>
     <property epc="80">
-      <data type="const">30</data>
+      <const>30</const>
     </property>
     <property epc="E0">
-      <data type="const">0117</data>
+      <const>0117</const>
     </property>
   </object>
   <object ceoj="0011">
@@ -21,10 +21,10 @@
       <config instance="delegate">delegate.setDropRate(0.05);</config>
     </delegate>
     <property epc="80">
-      <data type="const">30</data>
+      <const>30</const>
     </property>
     <property epc="E0">
-      <data type="const">0117</data>
+      <const>0117</const>
     </property>
   </object>
 </device>

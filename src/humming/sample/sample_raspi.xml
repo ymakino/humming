@@ -2,15 +2,15 @@
 <device>
   <object ceoj="0011">
     <property epc="E0">
-      <data type="delegate">
+      <delegate>
         <class>humming.sample.ThermalZonePropertyDelegate</class>
         <config instance="delegate">delegate.setIndex(1);</config>
-      </data>
+      </delegate>
     </property>
   </object>
   <object ceoj="05FD">
     <property epc="80" set="enabled" notify="enabled">
-      <data type="delegate">
+      <delegate>
         <class>humming.sample.GPIOPinPropertyDelegate</class>
         <config instance="delegate">
           delegate.setPinNumber(21);
@@ -18,11 +18,11 @@
           delegate.setGroupWritable(true);
           delegate.setUseSudo(true);
         </config>
-      </data>
+      </delegate>
     </property>
     <property epc="E0">
         <!-- PIN21 -->
-        <data type="const">50494e323100000000000000</data>
+        <const>50494e323100000000000000</const>
     </property>
   </object>
 </device>

@@ -2,7 +2,7 @@
 <device>
   <profile>
     <property epc="83">
-      <data type="const">FE00000000000000000000000012345678</data>
+      <const>FE00000000000000000000000012345678</const>
     </property>
   </profile>
 </device>

@@ -16,7 +16,7 @@ public class FilePropertyDelegateCreator implements PropertyDelegateCreator {
     private static final Logger LOGGER = Logger.getLogger(FilePropertyDelegateCreator.class.getName());
     private static final String CLASS_NAME = FilePropertyDelegateCreator.class.getName();
     
-    public static final String FILE_TAG = "file";
+    public static final String VALUE_TAG = "value";
     public static final String BLOCK_TAG = "block";
     public static final String LOCK_TAG = "lock";
     public static final String INPROCESS_TAG = "inprocess";
@@ -30,7 +30,7 @@ public class FilePropertyDelegateCreator implements PropertyDelegateCreator {
     @Override
     public PropertyDelegate newPropertyDelegate(ClassEOJ ceoj, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) throws HummingException {
         
-        String filename = null;
+        String valueName = null;
         String blockName = null;
         String lockName = null;
         String inProcessName = null;
@@ -39,7 +39,6 @@ public class FilePropertyDelegateCreator implements PropertyDelegateCreator {
         int delay = -1;
         String defaultValue = null;
         
-        boolean useText = true;
         NodeList nodeList = node.getChildNodes();
         
         for (int i=0; i<nodeList.getLength(); i++) {
@@ -50,10 +49,8 @@ public class FilePropertyDelegateCreator implements PropertyDelegateCreator {
                 continue;
             }
             
-            useText = false;
-            
-            if (infoName.equals(FILE_TAG)) {
-                filename = fileInfo.getTextContent();
+            if (infoName.equals(VALUE_TAG)) {
+                valueName = fileInfo.getTextContent();
                 
                 Node defaultNode = fileInfo.getAttributes().getNamedItem("default");
                 if (defaultNode != null) {
@@ -92,20 +89,16 @@ public class FilePropertyDelegateCreator implements PropertyDelegateCreator {
             }
         }
         
-        if (useText) {
-            filename = node.getTextContent();
-        }
-        
-        if (filename == null) {
-            throw new HummingException("no filename: " + node);
+        if (valueName == null) {
+            throw new HummingException("no value element: " + node);
         }
         
         
-        if (!isValidFilename(filename)) {
-            throw new HummingException("invalid filename: " + filename);
+        if (!isValidFilename(valueName)) {
+            throw new HummingException("invalid filename: " + valueName);
         }
         
-        FilePropertyDelegate delegate = new FilePropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, filename);
+        FilePropertyDelegate delegate = new FilePropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, valueName);
         
         if (defaultValue != null) {
             delegate.setDefaultValue(defaultValue);

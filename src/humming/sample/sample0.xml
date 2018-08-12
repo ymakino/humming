@@ -2,26 +2,26 @@
 <device>
   <object ceoj="0011">
     <property epc="80">
-      <data type="const">30</data>
+      <const>30</const>
     </property>
     <property epc="E0">
-      <data type="const">0117</data>
+      <const>0117</const>
     </property>
   </object>
   <object ceoj="0012">
     <property epc="80" set="enabled">
-      <data type="file">/tmp/x80</data>
+      <file><value>/tmp/x80</value></file>
     </property>
     <property epc="E0">
-      <data type="file">/tmp/xE0</data>
+      <file><value>/tmp/xE0</value></file>
     </property>
   </object>
   <object ceoj="0011">
     <property epc="80" set="enabled">
-      <data type="variable">30</data>
+      <variable>30</variable>
     </property>
     <property epc="E0">
-      <data type="variable">0127</data>
+      <variable>0127</variable>
     </property>
   </object>
 </device>

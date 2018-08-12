@@ -163,25 +163,13 @@ public class ObjectParser {
             if (propInfo.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
             }
-            
-            if (!infoName.equals("data")) {
-                LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "invalid property: " + toNodeString(propInfo, true));
-                continue;
-            }
-            
-            Node typeNode = propInfo.getAttributes().getNamedItem("type");
-            if (typeNode != null) {
-                String typeName = typeNode.getTextContent();
 
-                PropertyDelegate propertyDelegate = delegateFactory.newPropertyDelegate(typeName, classEOJ, epc, getEnabled, setEnabled, notifyEnabled, propInfo);
-                if (propertyDelegate != null) {
-                    propertyDelegates.add(propertyDelegate);
-                    LOGGER.logp(Level.INFO, CLASS_NAME, "parseProperty", "delegate: " + propertyDelegate + ", type: " + typeName + ", ClassEOJ: " + classEOJ + ", EPC: " + epc + ", GET: " + getEnabled + ", SET: " + setEnabled + ", Notify: " + notifyEnabled + ", info: " + toInfoString(propInfo));
-                } else {
-                    LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "unknown type: " + typeName);
-                }
+            PropertyDelegate propertyDelegate = delegateFactory.newPropertyDelegate(infoName, classEOJ, epc, getEnabled, setEnabled, notifyEnabled, propInfo);
+            if (propertyDelegate != null) {
+                propertyDelegates.add(propertyDelegate);
+                LOGGER.logp(Level.INFO, CLASS_NAME, "parseProperty", "delegate: " + propertyDelegate + ", type: " + infoName + ", ClassEOJ: " + classEOJ + ", EPC: " + epc + ", GET: " + getEnabled + ", SET: " + setEnabled + ", Notify: " + notifyEnabled + ", info: " + toInfoString(propInfo));
             } else {
-                LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "invalid property: " + toInfoString(propInfo));
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "unknown type: " + infoName);
             }
         }
         

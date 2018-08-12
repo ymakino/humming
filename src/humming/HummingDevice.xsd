@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      This schema defines the declaration of a humming device.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="device" type="DeviceType"/>
+  
+  <xs:complexType name="DeviceType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element ref="profile" minOccurs="0" maxOccurs="1" />
+      <xs:element ref="object"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:element name="profile" type="ObjectType"/>
+  <xs:element name="object" type="ObjectType"/>
+  
+  <xs:complexType name="ObjectType">
+    <xs:choice maxOccurs="unbounded">
+      <xs:element ref="delegate"/>
+      <xs:element ref="proxy"/>
+      <xs:element ref="updater"/>
+      <xs:element ref="property"/>
+    </xs:choice>
+    <xs:attribute name="ceoj" type="CEOJ"/>
+  </xs:complexType>
+
+  <xs:element name="property" type="PropertyType"/>
+  
+  <xs:complexType name="PropertyType">
+    <xs:choice minOccurs="0">
+      <xs:element ref="const"/>
+      <xs:element ref="variable"/>
+      <xs:element ref="file"/>
+      <xs:element ref="command"/>
+      <xs:element ref="delegate"/>
+      <xs:element ref="proxy"/>
+    </xs:choice>
+    <xs:attribute name="epc" type="EPC" use="required"/>
+    <xs:attribute name="set" type="ENABLE" default="enabled"/>
+    <xs:attribute name="get" type="ENABLE" default="disabled"/>
+    <xs:attribute name="notify" type="ENABLE" default="disabled"/>
+    <xs:attribute name="value" type="VALUE"/>
+  </xs:complexType>
+
+  <xs:element name="variable" type="VALUE"/>
+  <xs:element name="const" type="VALUE"/>
+  <xs:element name="file" type="FileType"/>
+  <xs:element name="command" type="CommandType"/>
+  <xs:element name="delegate" type="DelegateType"/>
+  <xs:element name="proxy" type="ProxyType"/>
+  <xs:element name="updater" type="UpdaterType"/>
+  
+  <xs:complexType name="FileType">
+    <xs:choice maxOccurs="unbounded">
+      <xs:element name="value" minOccurs="1" maxOccurs="1">
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:extension base="xs:string">
+              <xs:attribute name="default" type="xs:integer" />
+            </xs:extension>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="notify" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="block" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="lock" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="in-process" minOccurs="0" maxOccurs="1"/>
+    </xs:choice>
+  </xs:complexType>
+  
+  <xs:complexType name="CommandType">
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="get" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="set" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="notify" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:extension base="xs:string">
+              <xs:attribute name="interval" type="xs:integer" />
+            </xs:extension>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
+    </xs:choice>
+  </xs:complexType>
+  
+  <xs:complexType name="DelegateType">
+    <xs:sequence maxOccurs="unbounded">
+      <xs:element name="class" type="CLASSNAME" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="config" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:extension base="xs:string">
+              <xs:attribute name="instance" type="xs:string" />
+            </xs:extension>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="ProxyType">
+    <xs:sequence maxOccurs="unbounded">
+      <xs:element name="subnet" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="node" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:choice minOccurs="0" maxOccurs="1">
+        <xs:element name="eoj" type="EOJ" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="instance" type="INSTANCECODE" minOccurs="0" maxOccurs="1"/>
+      </xs:choice>
+      <xs:element name="epc" type="EPC" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+    <xs:attribute name="mode" type="PROXYMODE"/>
+  </xs:complexType>
+  
+  <xs:complexType name="UpdaterType">
+    <xs:sequence maxOccurs="unbounded">
+      <xs:element name="class" type="CLASSNAME" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="config" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:extension base="xs:string">
+              <xs:attribute name="instance" type="xs:string" />
+            </xs:extension>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="interval" type="xs:integer"/>
+    <xs:attribute name="delay" type="xs:integer"/>
+  </xs:complexType>
+  
+  <xs:simpleType name="CEOJ">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-fA-F]{4}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="EOJ">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-fA-F]{6}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="INSTANCECODE">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="1"/>
+      <xs:maxInclusive value="255"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="EPC">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(0[xX])?[89a-fA-F][0-9a-fA-F]"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="ENABLE">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="enabled" />
+      <xs:enumeration value="disabled" />
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="VALUE">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(0[xX])?([0-9a-fA-F][0-9a-fA-F])+"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="PROXYMODE">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="object" />
+      <xs:enumeration value="frame" />
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="CLASSNAME">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)*"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+</xs:schema>

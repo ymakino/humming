@@ -35,7 +35,7 @@ public class InstanceCreatorParser {
         }
         
         if (className == null) {
-            className = node.getTextContent().trim();
+            throw new HummingException("no class element: " + node);
         }
     }
     

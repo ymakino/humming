@@ -2,40 +2,40 @@
 <device>
   <object ceoj="027d">
     <property epc="80" set="enabled">
-      <data type="variable">30</data>
+      <variable>30</variable>
     </property>
     <property epc="CF" set="enabled">
-      <data type="variable">42</data>
+      <variable>42</variable>
     </property>
     <property epc="DA" set="enabled">
-      <data type="variable">46</data>
+      <variable>46</variable>
     </property>
     <property epc="DB" set="enabled">
-      <data type="variable">00</data>
+      <variable>00</variable>
     </property>
     <property epc="DC" set="enabled">
-      <data type="variable">0000000100000002</data>
+      <variable>0000000100000002</variable>
     </property>
     <property epc="DD" set="enabled">
-      <data type="variable">0000000300000004</data>
+      <variable>0000000300000004</variable>
     </property>
     <property epc="DE" set="enabled">
-      <data type="variable">00050006</data>
+      <variable>00050006</variable>
     </property>
     <property epc="DF" set="enabled">
-      <data type="variable">00070008</data>
+      <variable>00070008</variable>
     </property>
     <property epc="E2" set="enabled">
-      <data type="variable">00001234</data>
+      <variable>00001234</variable>
     </property>
     <property epc="E3" set="enabled">
-      <data type="variable">00001234</data>
+      <variable>00001234</variable>
     </property>
     <property epc="E4" set="enabled">
-      <data type="variable">32</data>
+      <variable>32</variable>
     </property>
     <property epc="E6" set="enabled">
-      <data type="variable">04</data>
+      <variable>04</variable>
     </property>
   </object>
 </device>

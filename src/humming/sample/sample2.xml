@@ -2,44 +2,41 @@
 <device>
   <object ceoj="0011">
     <property epc="80">
-      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj><epc>0x80</epc></data>
+      <proxy><node>150.65.231.35</node><eoj>001101</eoj><epc>80</epc></proxy>
     </property>
     <property epc="81" set="enabled" notify="enabled">
-      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj><epc>0x81</epc></data>
+      <proxy><node>150.65.231.35</node><eoj>001101</eoj><epc>81</epc></proxy>
     </property>
     <property epc="E0">
-      <data type="proxy"><node>150.65.231.35</node><eoj>001101</eoj><epc>0xE0</epc></data>
+      <proxy><node>150.65.231.35</node><eoj>001101</eoj><epc>E0</epc></proxy>
     </property>
     <property epc="E1" set="enabled">
-      <data type="file">/tmp/hoge</data>
+      <file><value>/tmp/hoge</value></file>
     </property>
     <property epc="E2" set="enabled" notify="enabled">
-      <data type="variable">1234</data>
+      <variable>1234</variable>
     </property>
     <property epc="E3" set="enabled" notify="enabled">
-      <data type="command">
-          <get>/tmp/get.sh</get>
-          <set>/tmp/set.sh</set>
-      </data>
+      <command><get>/tmp/get.sh</get><set>/tmp/set.sh</set></command>
     </property>
     <property epc="E4" set="enabled">
-      <data type="proxy"><node>150.65.231.31</node><eoj>001101</eoj><epc>0xE0</epc></data>
+      <proxy><node>150.65.231.31</node><eoj>001101</eoj><epc>E0</epc></proxy>
     </property>
   </object>
   <object ceoj="002d">
     <property epc="80">
-      <data type="proxy"><node>150.65.231.35</node><eoj>002d01</eoj><epc>0x80</epc></data>
+      <proxy><node>150.65.231.35</node><eoj>002d01</eoj><epc>80</epc></proxy>
     </property>
     <property epc="E0">
-      <data type="proxy"><node>150.65.231.35</node><eoj>002d01</eoj><epc>0xE0</epc></data>
+      <proxy><node>150.65.231.35</node><eoj>002d01</eoj><epc>E0</epc></proxy>
     </property>
   </object>
   <object ceoj="0011">
     <property epc="80">
-      <data type="proxy"><node>150.65.231.31</node><eoj>001101</eoj><epc>0x80</epc></data>
+      <proxy><node>150.65.231.31</node><eoj>001101</eoj><epc>80</epc></proxy>
     </property>
     <property epc="E0">
-      <data type="proxy"><node>150.65.231.31</node><eoj>001101</eoj><epc>0xE0</epc></data>
+      <proxy><node>150.65.231.31</node><eoj>001101</eoj><epc>E0</epc></proxy>
     </property>
   </object>
 </device>

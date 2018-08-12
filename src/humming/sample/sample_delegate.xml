@@ -9,10 +9,10 @@
       </config>
     </delegate>
     <property epc="E0" set="enabled" notify="enabled">
-      <data type="delegate">
+      <delegate>
         <class>humming.sample.ThermalZonePropertyDelegate</class>
         <config>it.setIndex(1);</config>
-      </data>
+      </delegate>
     </property>
     <property epc="E1" set="enabled" notify="enabled" />
   </object>
