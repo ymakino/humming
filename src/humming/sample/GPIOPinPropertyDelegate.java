@@ -23,6 +23,8 @@ public class GPIOPinPropertyDelegate extends PropertyDelegate {
     private TimerTask updateTask = null;
     private int delay = 1000;
     private int interval = 1000;
+    private ObjectData onData = new ObjectData((byte)0x30);
+    private ObjectData offData = new ObjectData((byte)0x31);
 
     public GPIOPinPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled) {
         super(epc, getEnabled, setEnabled, notifyEnabled);
@@ -37,6 +39,52 @@ public class GPIOPinPropertyDelegate extends PropertyDelegate {
         pin = new GPIOPin(pinNumber);
         
         LOGGER.exiting(CLASS_NAME, "setPinNumber");
+    }
+    
+    public void setOnData(byte... data) {
+        LOGGER.entering(CLASS_NAME, "setOnData", data);
+        
+        onData = new ObjectData(data);
+        
+        LOGGER.exiting(CLASS_NAME, "setOnData");
+    }
+    
+    public void setOnData(ObjectData data) {
+        LOGGER.entering(CLASS_NAME, "setOnData", data);
+        
+        onData = data;
+        
+        LOGGER.exiting(CLASS_NAME, "setOnData");
+    }
+    
+    public ObjectData getOnData() {
+        LOGGER.entering(CLASS_NAME, "getOnData");
+        
+        LOGGER.exiting(CLASS_NAME, "getOnData", onData);
+        return onData;
+    }
+    
+    public void setOffData(byte... data) {
+        LOGGER.entering(CLASS_NAME, "setOffData", data);
+        
+        offData = new ObjectData(data);
+        
+        LOGGER.exiting(CLASS_NAME, "setOffData");
+    }
+    
+    public void setOffData(ObjectData data) {
+        LOGGER.entering(CLASS_NAME, "setOffData", data);
+        
+        offData = data;
+        
+        LOGGER.exiting(CLASS_NAME, "setOffData");
+    }
+    
+    public ObjectData getOffData() {
+        LOGGER.entering(CLASS_NAME, "getOffData");
+        
+        LOGGER.exiting(CLASS_NAME, "getOffData", offData);
+        return offData;
     }
     
     private void exportPin() {
@@ -197,10 +245,10 @@ public class GPIOPinPropertyDelegate extends PropertyDelegate {
         
         switch (pin.getValue()) {
             case 0:
-                data = new ObjectData((byte)0x31);
+                data = offData;
                 break;
             case 1:
-                data = new ObjectData((byte)0x30);
+                data = onData;
                 break;
             default: 
                 LOGGER.logp(Level.WARNING, CLASS_NAME, "setPinNumber", "Cannot read pin: " + pin.getPinNumber());
@@ -217,9 +265,9 @@ public class GPIOPinPropertyDelegate extends PropertyDelegate {
         
         boolean result;
         
-        if (data.equals(new ObjectData((byte)0x30))) {
+        if (data.equals(onData)) {
             result = pin.setValue(1);
-        } else if (data.equals(new ObjectData((byte)0x31))) {
+        } else if (data.equals(offData)) {
             result = pin.setValue(0);
         } else {
             result = false;
