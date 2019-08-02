@@ -3,6 +3,7 @@ package humming.generator;
 import echowand.common.EPC;
 import echowand.common.PropertyMap;
 import echowand.object.EchonetObject;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,8 +18,11 @@ public class ObjectElementGenerator {
     private EchonetObject object;
     private String objectIndent = "  ";
     
-    public ObjectElementGenerator(EchonetObject object) {
+    private HashMap<String, String> config;
+    
+    public ObjectElementGenerator(EchonetObject object, HashMap<String, String> config) {
         this.object = object;
+        this.config = config;
     }
     
     private PropertyMap getGetPropertyMap() throws GeneratorException {
@@ -55,7 +59,7 @@ public class ObjectElementGenerator {
             }
             
             if (setMap.isSet(epc) || getMap.isSet(epc) || annoMap.isSet(epc)) {
-                PropertyElementGenerator propertyGenerator = new PropertyElementGenerator(object, epc, getMap.isSet(epc), setMap.isSet(epc), annoMap.isSet(epc));
+                PropertyElementGenerator propertyGenerator = new PropertyElementGenerator(object, epc, getMap.isSet(epc), setMap.isSet(epc), annoMap.isSet(epc), config);
                 propertyBuilder.append(propertyGenerator.generate());
             }
         }

@@ -8,6 +8,7 @@ import echowand.object.RemoteObject;
 import echowand.service.Service;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -23,12 +24,14 @@ public class DeviceElementGenerator {
     
     private Service service;
     private Node node;
+    private HashMap<String, String> config;
     
     private String deviceIndent = "";
     
-    public DeviceElementGenerator(Service service, Node node) {
+    public DeviceElementGenerator(Service service, Node node, HashMap<String, String> config) {
         this.service = service;
         this.node = node;
+        this.config = config;
     }
     
     public String generate() throws GeneratorException {
@@ -58,7 +61,7 @@ public class DeviceElementGenerator {
             service.registerRemoteEOJ(node, eoj);
             RemoteObject object = service.getRemoteObject(node, eoj);
 
-            ObjectElementGenerator generator = new ObjectElementGenerator(object);
+            ObjectElementGenerator generator = new ObjectElementGenerator(object, config);
             objectBuilder.append(generator.generate());
         }
         

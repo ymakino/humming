@@ -11,6 +11,7 @@ import humming.generator.PropertyElementGenerator.GenerationType;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 /**
@@ -22,12 +23,13 @@ public class HummingXMLGenerator {
     private static final String CLASS_NAME = HummingXMLGenerator.class.getName();
     
     public static void showUsage(String name) {
-        System.out.println("Usage: " + name + " [ -i interface ] address...");
+        System.out.println("Usage: " + name + " [ -i interface ] [ -t generationType ] [ -p pathPrefix ] address...");
     }
 
     public static void main(String[] args) throws SubnetException, TooManyObjectsException, GeneratorException, EchonetObjectException, UnknownHostException, SocketException {
         try {
             int startIndex = 0;
+            HashMap<String,String> config = new HashMap<String,String>();
             NetworkInterface nif = null;
             
             for (int i=0; i<args.length; i++) {
@@ -41,6 +43,12 @@ public class HummingXMLGenerator {
                         nif = NetworkInterface.getByName(args[i]);
                     }
 
+                    startIndex += 2;
+                } else if (args[i].equals("-t")) {
+                    config.put("GenerationType", args[++i]);
+                    startIndex += 2;
+                } else if (args[i].equals("-p")) {
+                    config.put("PathPrefix", args[++i]);
                     startIndex += 2;
                 } else {
                     break;
@@ -60,7 +68,7 @@ public class HummingXMLGenerator {
             Service service = new Service(core);
 
             for (int i = startIndex; i < args.length; i++) {
-                DeviceElementGenerator generator = new DeviceElementGenerator(service, service.getRemoteNode(args[i]));
+                DeviceElementGenerator generator = new DeviceElementGenerator(service, service.getRemoteNode(args[i]), config);
                 System.out.print(generator.generate());
             }
         } catch (Exception ex) {

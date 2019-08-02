@@ -5,6 +5,7 @@ import echowand.object.EchonetObject;
 import echowand.object.ObjectData;
 import echowand.object.RemoteObject;
 import java.io.File;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,14 +23,19 @@ public class PropertyElementGenerator {
     private boolean setEnabled;
     private boolean notifyEnabled;
     
-    private boolean useFileDefault = true;
-    private String fileTemplate = "[NODE]" + File.separator + "[EOJ]" + File.separator + "0x[EPC]";
-    private String fileNotifyTemplate = "[NODE]" + File.separator + "[EOJ]" + File.separator + "0x[EPC]notify";
-    private String fileBlockTemplate = "[NODE]" + File.separator + "[EOJ]" + File.separator + "0x[EPC]block";
-    private String fileLockTemplate = null;
+    private HashMap<String, String> config;
     
-    private String commandGetTemplate = "[NODE]" + File.separator + "[EOJ]" + File.separator + "0x[EPC]get";
-    private String commandSetTemplate = "[NODE]" + File.separator + "[EOJ]" + File.separator + "0x[EPC]set";
+    private String pathPrefix = "";
+    
+    private boolean useFileDefault = true;
+    private String fileTemplate = "[PREFIX]" + "[NODE]" + File.separator + "[EOJ]" + File.separator + "0x[EPC]";
+    private String fileNotifyTemplate = "[PREFIX]" + "[NODE]" + File.separator + "[EOJ]" + File.separator + "0x[EPC]notify";
+    private String fileBlockTemplate = "[PREFIX]" + "[NODE]" + File.separator + "[EOJ]" + File.separator + "0x[EPC]block";
+    private String fileLockTemplate = null;
+    private String fileInProcessTemplate = null;
+    
+    private String commandGetTemplate = "[PREFIX]" + "[NODE]" + File.separator + "[EOJ]" + File.separator + "0x[EPC]get";
+    private String commandSetTemplate = "[PREFIX]" + "[NODE]" + File.separator + "[EOJ]" + File.separator + "0x[EPC]set";
     
     private String propertyIndent = "    ";
     private String dataIndent     = "      ";
@@ -51,14 +57,22 @@ public class PropertyElementGenerator {
             return "disabled";
         }
     }
-    
 
-    public PropertyElementGenerator(EchonetObject object, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled) {
+    public PropertyElementGenerator(EchonetObject object, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, HashMap<String, String> config) {
         this.object = object;
         this.epc = epc;
         this.getEnabled = getEnabled;
         this.setEnabled = setEnabled;
         this.notifyEnabled = notifyEnabled;
+        this.config = config;
+        
+        if (config.get("GenerationType") != null) {
+            generationType = GenerationType.valueOf(config.get("GenerationType"));
+        }
+        
+        if (config.get("PathPrefix") != null) {
+            pathPrefix = config.get("PathPrefix") + File.separator;
+        }
     }
     
     public GenerationType getGenerationType() {
@@ -67,7 +81,7 @@ public class PropertyElementGenerator {
     
     public void setGenerationType(GenerationType generateMode) {
         this.generationType = generateMode;
-    } 
+    }
     
     public String generateVariableDataElement() throws GeneratorException {
         ObjectData data = null;
@@ -106,12 +120,21 @@ public class PropertyElementGenerator {
         }
     }
     
+    public void setPathPrefix(String pathPrefix) {
+        this.pathPrefix = pathPrefix;
+    }
+    
+    public String getPathPrefix() {
+        return pathPrefix;
+    }
+    
     private String generatePath(String template) {
         String nodeName = ((RemoteObject)object).getNode().toString();
         String eojName = object.getEOJ().toString();
         String epcName = epc.toString().substring(1);
         
-        return template.replace("[NODE]", nodeName)
+        return template.replace("[PREFIX]", pathPrefix)
+                       .replace("[NODE]", nodeName)
                        .replace("[EOJ]", eojName)
                        .replace("[EPC]", epcName);
     }
@@ -137,6 +160,7 @@ public class PropertyElementGenerator {
             String fileNotifyElement = "";
             String fileBlockElement = "";
             String fileLockElement = "";
+            String fileInProcessElement = "";
             
             if (notifyEnabled && fileNotifyTemplate != null) {
                 fileNotifyElement = String.format(innerIndent + "<notify>%s</notify>\n", generatePath(fileNotifyTemplate));
@@ -150,12 +174,17 @@ public class PropertyElementGenerator {
                 fileLockElement = String.format(innerIndent + "<lock>%s</lock>\n", generatePath(fileLockTemplate));
             }
             
+            if (fileInProcessTemplate != null) {
+                fileInProcessElement = String.format(innerIndent + "<in-process>%s</in-process>\n", generatePath(fileInProcessTemplate));
+            }
+            
             StringBuilder builder = new StringBuilder();
             builder.append(dataIndent + "<file>\n");
             builder.append(fileElement);
             builder.append(fileNotifyElement);
             builder.append(fileBlockElement);
             builder.append(fileLockElement);
+            builder.append(fileInProcessElement);
             builder.append(dataIndent + "</file>\n");
             
             return builder.toString();
