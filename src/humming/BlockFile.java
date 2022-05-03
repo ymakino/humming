@@ -19,10 +19,17 @@ public class BlockFile {
     private long interval = 100;
 
     public BlockFile(String filename) {
+        LOGGER.entering(CLASS_NAME, "BlockFile", filename);
+        
         this.file = new File(filename);
+        
+        LOGGER.exiting(CLASS_NAME, "BlockFile");
     }
 
     public File getFile() {
+        LOGGER.entering(CLASS_NAME, "getFile");
+        
+        LOGGER.exiting(CLASS_NAME, "getFile", file);
         return file;
     }
 
@@ -51,7 +58,11 @@ public class BlockFile {
     }
 
     public boolean existsFile() {
-        return file.exists();
+        LOGGER.entering(CLASS_NAME, "existsFile");
+        
+        boolean result = file.exists();
+        LOGGER.exiting(CLASS_NAME, "existsFile", result);
+        return result;
     }
 
     public boolean waitFile() throws InterruptedException {

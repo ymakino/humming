@@ -6,6 +6,8 @@ import echowand.object.ObjectData;
 import echowand.service.Core;
 import echowand.service.ExtendedSubnet;
 import echowand.service.LocalObjectServiceDelegate;
+import humming.HummingException;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,6 +26,42 @@ public class RandomFrameDropDelegate implements LocalObjectServiceDelegate {
     private double defaultSendDropRate = 0;
     private double defaultReceiveDropRate = 0;
     
+    public RandomFrameDropDelegate(HashMap<String, String> params) throws HummingException {
+        parseParams(params);
+    }
+    
+    private void parseParams(HashMap<String, String> params) throws HummingException {
+        LOGGER.entering(CLASS_NAME, "parseParams", params);
+        
+        for (String key : params.keySet()) {
+            String value = params.get(key).trim();
+            switch (key.toLowerCase()) {
+                case "senddroprate":
+                    setSendDropRate(Double.parseDouble(value));
+                    break;
+                case "receivedroprate":
+                    setReceiveDropRate(Double.parseDouble(value));
+                    break;
+                case "droprate":
+                    setDropRate(Double.parseDouble(value));
+                    break;
+                case "defaultsenddroprate":
+                    setDefaultSendDropRate(Double.parseDouble(value));
+                    break;
+                case "defaultreceivedroprate":
+                    setDefaultReceiveDropRate(Double.parseDouble(value));
+                    break;
+                case "defaultdroprate":
+                    setDefaultDropRate(Double.parseDouble(value));
+                    break;
+                default:
+                    throw new HummingException("invalid parameter: " + key + ": " + value);
+            }
+        }
+        
+        LOGGER.exiting(CLASS_NAME, "parseParams");
+    }
+    
     public void setSendDropRate(double sendDropRate) {
         this.sendDropRate = sendDropRate;
     }
@@ -40,6 +78,14 @@ public class RandomFrameDropDelegate implements LocalObjectServiceDelegate {
     public void setDropRate(double sendDropRate, double receiveDropRate) {
         this.sendDropRate = sendDropRate;
         this.receiveDropRate = receiveDropRate;
+    }
+    
+    public void setDefaultSendDropRate(double sendDropRate) {
+        this.defaultSendDropRate = sendDropRate;
+    }
+    
+    public void setDefaultReceiveDropRate(double receiveDropRate) {
+        this.defaultReceiveDropRate = receiveDropRate;
     }
     
     public void setDefaultDropRate(double dropRate) {
@@ -61,7 +107,7 @@ public class RandomFrameDropDelegate implements LocalObjectServiceDelegate {
             return null;
         }
     }
-
+    
     @Override
     public void notifyCreation(LocalObject object, Core core) {
         

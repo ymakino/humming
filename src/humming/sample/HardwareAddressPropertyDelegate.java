@@ -4,11 +4,13 @@ import echowand.common.EPC;
 import echowand.object.LocalObject;
 import echowand.object.ObjectData;
 import echowand.service.PropertyDelegate;
+import humming.HummingException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,16 +29,41 @@ public class HardwareAddressPropertyDelegate extends PropertyDelegate {
     private byte[] dataTemplate;
     private int dataOffset;
 
-    public HardwareAddressPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled) {
+    public HardwareAddressPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, HashMap<String, String> params) throws HummingException {
         super(epc, getEnabled, setEnabled, notifyEnabled);
-        LOGGER.entering(CLASS_NAME, "HardwareAddressPropertyDelegate", new Object[]{epc, getEnabled, setEnabled, notifyEnabled});
+        LOGGER.entering(CLASS_NAME, "HardwareAddressPropertyDelegate", new Object[]{epc, getEnabled, setEnabled, notifyEnabled, params});
         
         networkInterface = null;
         isStringMode = false;
         dataTemplate = new byte[]{(byte)0xFE,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
         dataOffset = 1;
         
+        parseParams(params);
+        
         LOGGER.exiting(CLASS_NAME, "HardwareAddressPropertyDelegate");
+    }
+    
+    private void parseParams(HashMap<String, String> params) throws HummingException {
+        LOGGER.entering(CLASS_NAME, "parseParams", params);
+        
+        for (String key : params.keySet()) {
+            String value = params.get(key).trim();
+            switch (key.toLowerCase()) {
+                case "interface":
+                    setNetworkInterface(value);
+                    break;
+                case "stringmode":
+                    setStringMode(Boolean.parseBoolean(value));
+                    break;
+                case "identificationmode":
+                    setIdentificationMode(Boolean.parseBoolean(value));
+                    break;
+                default:
+                    throw new HummingException("invalid parameter: " + key + ": " + value);
+            }
+        }
+        
+        LOGGER.exiting(CLASS_NAME, "parseParams");
     }
     
     public boolean setNetworkInterface(NetworkInterface networkInterface) {

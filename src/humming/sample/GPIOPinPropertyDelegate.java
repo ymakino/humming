@@ -5,6 +5,8 @@ import echowand.object.LocalObject;
 import echowand.object.ObjectData;
 import echowand.service.Core;
 import echowand.service.PropertyDelegate;
+import humming.HummingException;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
@@ -26,19 +28,57 @@ public class GPIOPinPropertyDelegate extends PropertyDelegate {
     private ObjectData onData = new ObjectData((byte)0x30);
     private ObjectData offData = new ObjectData((byte)0x31);
 
-    public GPIOPinPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled) {
+    public GPIOPinPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, HashMap<String, String> params) throws HummingException {
         super(epc, getEnabled, setEnabled, notifyEnabled);
-        LOGGER.entering(CLASS_NAME, "GPIOPinPropertyDelegate", new Object[]{epc, getEnabled, setEnabled, notifyEnabled});
+        LOGGER.entering(CLASS_NAME, "GPIOPinPropertyDelegate", new Object[]{epc, getEnabled, setEnabled, notifyEnabled, params});
+        
+        parseParams(params);
         
         LOGGER.exiting(CLASS_NAME, "GPIOPinPropertyDelegate");
     }
     
-    public void setPinNumber(int pinNumber) {
-        LOGGER.entering(CLASS_NAME, "setPinNumber", pinNumber);
+    private void parseParams(HashMap<String, String> params) throws HummingException {
+        LOGGER.entering(CLASS_NAME, "parseParams", params);
         
-        pin = new GPIOPin(pinNumber);
+        for (String key : params.keySet()) {
+            String value = params.get(key).trim();
+            switch (key.toLowerCase()) {
+                case "pinnumber":
+                    setPinNumber(Integer.parseInt(value));
+                    break;
+                case "delay":
+                    setDelay(Integer.parseInt(value));
+                    break;
+                case "interval":
+                    setInterval(Integer.parseInt(value));
+                    break;
+                case "negative":
+                    setNegative(Boolean.parseBoolean(value));
+                    break;
+                case "usesudo":
+                    setUseSudo(Boolean.parseBoolean(value));
+                    break;
+                case "groupname":
+                    setGroupName(value);
+                    break;
+                case "groupreadable":
+                    this.setGroupReadable(Boolean.parseBoolean(value));
+                    break;
+                case "groupwritable":
+                    this.setGroupWritable(Boolean.parseBoolean(value));
+                    break;
+                case "otherreadable":
+                    this.setOtherReadable(Boolean.parseBoolean(value));
+                    break;
+                case "otherwritable":
+                    this.setOtherWritable(Boolean.parseBoolean(value));
+                    break;
+                default:
+                    throw new HummingException("invalid parameter: " + key + ": " + value);
+            }
+        }
         
-        LOGGER.exiting(CLASS_NAME, "setPinNumber");
+        LOGGER.exiting(CLASS_NAME, "parseParams");
     }
     
     public void setOnData(byte... data) {
@@ -85,6 +125,14 @@ public class GPIOPinPropertyDelegate extends PropertyDelegate {
         
         LOGGER.exiting(CLASS_NAME, "getOffData", offData);
         return offData;
+    }
+    
+    public void setPinNumber(int pinNumber) {
+        LOGGER.entering(CLASS_NAME, "setPinNumber", pinNumber);
+        
+        pin = new GPIOPin(pinNumber);
+        
+        LOGGER.exiting(CLASS_NAME, "setPinNumber");
     }
     
     private void exportPin() {

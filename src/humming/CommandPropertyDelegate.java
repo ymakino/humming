@@ -28,6 +28,7 @@ public class CommandPropertyDelegate extends PropertyDelegate {
     
     public CommandPropertyDelegate(EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, String[] getCommand, String[] setCommand) {
         super(epc, getEnabled, setEnabled, notifyEnabled);
+        LOGGER.entering(CLASS_NAME, "CommandPropertyDelegate", new Object[]{epc, getEnabled, setEnabled, notifyEnabled, getCommand, setCommand});
         
         if (getCommand == null) {
             this.getCommand = null;
@@ -42,26 +43,45 @@ public class CommandPropertyDelegate extends PropertyDelegate {
         }
         
         LOGGER.logp(Level.INFO, CLASS_NAME, "CommandPropertyDelegate", "epc: " + epc + " -> get: " + joinString(getCommand) + ", set: " + joinString(setCommand));
+        
+        LOGGER.exiting(CLASS_NAME, "CommandPropertyDelegate");
     }
     
     public String[] getGetCommand() {
-        return Arrays.copyOf(getCommand, getCommand.length);
+        LOGGER.entering(CLASS_NAME, "getGetCommand");
+        
+        String[] result = Arrays.copyOf(getCommand, getCommand.length);
+        LOGGER.exiting(CLASS_NAME, "getGetCommand", result);
+        return result;
     }
     
     public String[] getSetCommand() {
-        return Arrays.copyOf(setCommand, setCommand.length);
+        LOGGER.entering(CLASS_NAME, "getSetCommand");
+        
+        String[] result = Arrays.copyOf(setCommand, setCommand.length);
+        LOGGER.exiting(CLASS_NAME, "getSetCommand", result);
+        return result;
     }
     
     public void setCommandPropertyDelegateNotifySender(CommandPropertyDelegateNotifySender sender) {
+        LOGGER.entering(CLASS_NAME, "setCommandPropertyDelegateNotifySender", sender);
+        
         this.sender = sender;
+        
+        LOGGER.exiting(CLASS_NAME, "setCommandPropertyDelegateNotifySender");
     }
     
     public CommandPropertyDelegateNotifySender getCommandPropertyDelegateNotifySender() {
+        LOGGER.entering(CLASS_NAME, "getCommandPropertyDelegateNotifySender");
+        
+        LOGGER.exiting(CLASS_NAME, "getCommandPropertyDelegateNotifySender", sender);
         return sender;
     }
     
     @Override
     public void notifyCreation(LocalObject object, Core core) {
+        LOGGER.entering(CLASS_NAME, "notifyCreation", new Object[]{object, core});
+        
         if (sender != null) {
             sender.addProperty(object, getEPC());
             
@@ -69,15 +89,20 @@ public class CommandPropertyDelegate extends PropertyDelegate {
                 sender.start();
             }
         }
+        
+        LOGGER.exiting(CLASS_NAME, "notifyCreation");
     }
     
     @Override
     public ObjectData getUserData(LocalObject object, EPC epc) {
+        LOGGER.entering(CLASS_NAME, "getUserData", new Object[]{object, epc});
+        
         Process proc;
         InputStreamReader reader;
         
         if (getCommand == null) {
             LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "get command is not set");
+            LOGGER.exiting(CLASS_NAME, "getUserData", null);
             return null;
         }
         
@@ -87,6 +112,7 @@ public class CommandPropertyDelegate extends PropertyDelegate {
             reader = new InputStreamReader(proc.getInputStream());
         } catch (IOException ex) {
             LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + joinString(getCommand), ex);
+            LOGGER.exiting(CLASS_NAME, "getUserData", null);
             return null;
         }
         
@@ -114,6 +140,7 @@ public class CommandPropertyDelegate extends PropertyDelegate {
             
             int exitValue = proc.waitFor();
             LOGGER.logp(Level.INFO, CLASS_NAME, "getUserData", "end: " + object + ", EPC: " + epc + " -> " + joinString(getCommand) + ", data: " + data + ", exit: " + exitValue);
+            LOGGER.exiting(CLASS_NAME, "getUserData", data);
             return data;
         } catch (IOException ex) {
             LOGGER.logp(Level.WARNING, CLASS_NAME, "getUserData", "failed: " + object + ", EPC: " + epc + " -> " + joinString(getCommand), ex);
@@ -128,10 +155,13 @@ public class CommandPropertyDelegate extends PropertyDelegate {
 
     @Override
     public boolean setUserData(LocalObject object, EPC epc, ObjectData data) {
+        LOGGER.entering(CLASS_NAME, "setUserData", new Object[]{object, epc, data});
+        
         Process proc;
         
         if (setCommand == null) {
             LOGGER.logp(Level.WARNING, CLASS_NAME, "setUserData", "set command is not set");
+            LOGGER.exiting(CLASS_NAME, "setUserData", false);
             return false;
         }
         
@@ -140,17 +170,20 @@ public class CommandPropertyDelegate extends PropertyDelegate {
             proc = Runtime.getRuntime().exec(concatString(setCommand, object.getEOJ().toString(), epc2str(epc), data.toString()));
         } catch (IOException ex) {
             LOGGER.logp(Level.WARNING, CLASS_NAME, "setUserData", "failed: " + object + ", EPC: " + epc + " -> " + joinString(setCommand) + ", data: " + data, ex);
+            LOGGER.exiting(CLASS_NAME, "setUserData", false);
             return false;
         }
         
         try {
             int exitValue = proc.waitFor();
             LOGGER.logp(Level.INFO, CLASS_NAME, "setUserData", "end: " + object + ", EPC: " + epc + " -> " + joinString(setCommand) + ", data: " + data + ", exit: " + exitValue);
+            LOGGER.exiting(CLASS_NAME, "setUserData", (exitValue == 0));
             return (exitValue == 0);
         } catch (InterruptedException ex) {
             LOGGER.logp(Level.WARNING, CLASS_NAME, "setUserData", "failed: " + object + ", EPC: " + epc + " -> " + joinString(setCommand) + ", data: " + data, ex);
         }
         
+        LOGGER.exiting(CLASS_NAME, "setUserData", false);
         return false;
     }
 }

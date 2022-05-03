@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <device>
   <profile>
+    <updater interval="30000" delay="1000">
+      <class>humming.sample.SampleNotifyInstanceListUpdater</class>
+    </updater>
     <property epc="83">
       <const>FE00000000000000000000000012345678</const>
     </property>

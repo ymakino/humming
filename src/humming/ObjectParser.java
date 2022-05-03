@@ -14,6 +14,9 @@ import echowand.service.LocalObjectConfig;
 import echowand.service.PropertyDelegate;
 import echowand.service.PropertyUpdater;
 import echowand.util.ConstraintAny;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -180,14 +183,59 @@ public class ObjectParser {
         }
     }
     
-    private void parseUpdater(Node propNode) throws HummingException {
+    private <C> C createObject(String className, HashMap<String, String> params) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        LOGGER.entering(CLASS_NAME, "createObject", new Object[]{className, params});
+        
+        Class cls = Class.forName(className);
+        
+        C propertyUpdater;
+        
+        if (!params.isEmpty()) {
+            Constructor constructor = cls.getConstructor(HashMap.class);
+            propertyUpdater = (C)constructor.newInstance(params);
+            LOGGER.logp(Level.INFO, CLASS_NAME, "createObject", className + ": constructor with params");
+        } else {
+            try {
+                Constructor constructor = cls.getConstructor(HashMap.class);
+                propertyUpdater = (C)constructor.newInstance(params);
+                LOGGER.logp(Level.INFO, CLASS_NAME, "createObject", className + ": constructor with params");
+            } catch (NoSuchMethodException ex) {
+                LOGGER.logp(Level.INFO, CLASS_NAME, "createObject", className + ": no constructor found with params");
+                Constructor constructor = cls.getConstructor();
+                propertyUpdater = (C)constructor.newInstance();
+                LOGGER.logp(Level.INFO, CLASS_NAME, "createObject", className + ": constructor without params");
+            }
+        }
+        
+        LOGGER.exiting(CLASS_NAME, "createObject", propertyUpdater);
+        return propertyUpdater;
+    }
+    
+    private PropertyUpdater createPropertyUpdater(String className, HashMap<String, String> params) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        LOGGER.entering(CLASS_NAME, "createPropertyUpdater", new Object[]{className, params});
+        
+        PropertyUpdater result = createObject(className, params);
+        LOGGER.exiting(CLASS_NAME, "createPropertyUpdater", result);
+        return result;
+    }
+    
+    private LocalObjectDelegate createLocalObjectDelegate(String className, HashMap<String, String> params) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        LOGGER.entering(CLASS_NAME, "createLocalObjectDelegate", new Object[]{className, params});
+        
+        LocalObjectDelegate result = createObject(className, params);
+        LOGGER.exiting(CLASS_NAME, "createLocalObjectDelegate", result);
+        return result;
+    }
+    
+    private void parseUpdater(Node propNode) throws HummingException, IllegalArgumentException {
+        LOGGER.entering(CLASS_NAME, "parseUpdater", propNode);
+                
         InstanceCreatorParser parser = new InstanceCreatorParser(propNode);
         Node delayNode = propNode.getAttributes().getNamedItem("delay");
         Node intervalNode = propNode.getAttributes().getNamedItem("interval");
         
         try {
-            Class<?> cls = Class.forName(parser.getClassName());
-            PropertyUpdater propertyUpdater = (PropertyUpdater)cls.newInstance();
+            PropertyUpdater propertyUpdater = createPropertyUpdater(parser.getClassName(), parser.getParams());
             
             String msg = "class: " +  parser.getClassName();
             
@@ -222,15 +270,22 @@ public class ObjectParser {
             throw new HummingException("cannot create PropertyUpdater", ex);
         } catch (ScriptException ex) {
             throw new HummingException("cannot create PropertyUpdater", ex);
+        } catch (NoSuchMethodException ex) {
+            throw new HummingException("cannot create PropertyUpdater", ex);
+        } catch (InvocationTargetException ex) {
+            throw new HummingException("cannot create PropertyUpdater", ex);
         }
+        
+        LOGGER.exiting(CLASS_NAME, "parseUpdater");
     }
     
     private void parseDelegate(Node propNode) throws HummingException {
+        LOGGER.entering(CLASS_NAME, "parseDelegate", propNode);
+        
         InstanceCreatorParser parser = new InstanceCreatorParser(propNode);
         
         try {
-            Class<?> cls = Class.forName(parser.getClassName());
-            LocalObjectDelegate delegate = (LocalObjectDelegate)cls.newInstance();
+            LocalObjectDelegate delegate = createLocalObjectDelegate(parser.getClassName(), parser.getParams());
             
             String msg = "class: " +  parser.getClassName();
             
@@ -253,24 +308,48 @@ public class ObjectParser {
             throw new HummingException("cannot create LocalObjectDelegate", ex);
         } catch (ScriptException ex) {
             throw new HummingException("cannot create LocalObjectDelegate", ex);
+        } catch (NoSuchMethodException ex) {
+            throw new HummingException("cannot create LocalObjectDelegate", ex);
+        } catch (SecurityException ex) {
+            throw new HummingException("cannot create LocalObjectDelegate", ex);
+        } catch (IllegalArgumentException ex) {
+            throw new HummingException("cannot create LocalObjectDelegate", ex);
+        } catch (InvocationTargetException ex) {
+            throw new HummingException("cannot create LocalObjectDelegate", ex);
         }
+        
+        LOGGER.exiting(CLASS_NAME, "parseDelegate");
     }
     
     private NodeInfo parseNodeInfo(Core core, Node node) throws SubnetException {
-        return core.getSubnet().getRemoteNode(node.getTextContent()).getNodeInfo();
+        LOGGER.entering(CLASS_NAME, "parseNodeInfo", new Object[]{core, node});
+        
+        NodeInfo result = core.getSubnet().getRemoteNode(node.getTextContent()).getNodeInfo();
+        LOGGER.exiting(CLASS_NAME, "parseNodeInfo", result);
+        return result;
     }
     
     private EOJ parseEOJInfo(Node node) throws SubnetException {
-        return new EOJ(node.getTextContent());
+        LOGGER.entering(CLASS_NAME, "parseEOJInfo", node);
+        
+        EOJ result = new EOJ(node.getTextContent());
+        LOGGER.exiting(CLASS_NAME, "parseEOJInfo", result);
+        return result;
     }
     
     private EOJ parseInstanceInfo(Node node, ClassEOJ ceoj) throws SubnetException {
+        LOGGER.entering(CLASS_NAME, "parseInstanceInfo", new Object[]{node, ceoj});
+        
         String instanceStr = node.getTextContent();
         byte instanceCode = (byte)Integer.parseInt(instanceStr);
-        return ceoj.getEOJWithInstanceCode(instanceCode);
+        EOJ result = ceoj.getEOJWithInstanceCode(instanceCode);
+        LOGGER.exiting(CLASS_NAME, "parseInstanceInfo", result);
+        return result;
     }
     
     private void parseProxy(Node propNode) throws HummingException {
+        LOGGER.entering(CLASS_NAME, "parseProxy", propNode);
+        
         Core proxyCore;
         NodeInfo proxyNode = null;
         EOJ proxyEOJ = null;
@@ -341,7 +420,7 @@ public class ObjectParser {
             }
             
         } catch (SubnetException ex) {
-            Logger.getLogger(ProxyPropertyDelegateCreator.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProxy", "failed", ex);
             throw new HummingException("failed", ex);
         }
         
@@ -366,9 +445,13 @@ public class ObjectParser {
             LOGGER.logp(Level.INFO, CLASS_NAME, "parseProxy", "delegate: " + processorDelegate + ", ClassEOJ: " + classEOJ + ", proxyNode: " + proxyNode + ", proxyEOJ: " + proxyEOJ);
             delegates.add(processorDelegate);
         }
+        
+        LOGGER.exiting(CLASS_NAME, "parseProxy");
     }
     
     private void parseObject(Node objectNode) throws HummingException {
+        LOGGER.entering(CLASS_NAME, "parseObject", objectNode);
+        
         Node ceojNode = objectNode.getAttributes().getNamedItem("ceoj");
         
         if (ceojNode != null) {
@@ -396,9 +479,13 @@ public class ObjectParser {
                 LOGGER.logp(Level.WARNING, CLASS_NAME, "parseObject", "invalid XML node: " + nodeName);
             }
         }
+        
+        LOGGER.exiting(CLASS_NAME, "parseObject");
     }
 
     public ObjectParser(Humming humming, PropertyDelegateFactory factory, HummingScripting hummingScripting) throws HummingException {
+        LOGGER.entering(CLASS_NAME, "ObjectParser", new Object[]{humming, factory, hummingScripting});
+        
         this.humming = humming;
         delegateFactory = factory;
         this.hummingScripting = hummingScripting;
@@ -407,13 +494,21 @@ public class ObjectParser {
         propertyInfos = new LinkedList<PropertyInfo>();
         propertyDelegates = new LinkedList<PropertyDelegate>();
         propertyUpdaters = new LinkedList<PropertyUpdater>();
+        
+        LOGGER.exiting(CLASS_NAME, "ObjectParser");
     }
     
     public void parse(Node objectNode) throws HummingException {
+        LOGGER.entering(CLASS_NAME, "parse", objectNode);
+        
         parseObject(objectNode);
+        
+        LOGGER.exiting(CLASS_NAME, "parse");
     }
      
     public void apply(LocalObjectConfig config) throws HummingException {
+        LOGGER.entering(CLASS_NAME, "apply", config);
+        
         BasicObjectInfo info = BasicObjectInfo.class.cast(config.getObjectInfo());
         
         if (info == null && (classEOJ != null || propertyInfos.size() > 0)) {
@@ -439,5 +534,7 @@ public class ObjectParser {
         for (PropertyUpdater propertyUpdater : propertyUpdaters) {
             config.addPropertyUpdater(propertyUpdater);
         }
+        
+        LOGGER.exiting(CLASS_NAME, "apply");
     }
 }

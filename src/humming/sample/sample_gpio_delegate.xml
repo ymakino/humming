@@ -4,12 +4,10 @@
     <property epc="80" set="enabled" notify="enabled">
       <delegate>
         <class>humming.sample.GPIOPinPropertyDelegate</class>
-        <config instance="delegate">
-          delegate.setPinNumber(20);
-          delegate.setGroupName("gpio");
-          delegate.setGroupWritable(true);
-          delegate.setUseSudo(true);
-        </config>
+        <param name="pinNumber">20</param>
+        <param name="groupName">gpio</param>
+        <param name="groupWritable">true</param>
+        <param name="useSudo">true</param>
       </delegate>
     </property>
     <property epc="E0">
@@ -21,13 +19,13 @@
     <property epc="80" notify="enabled">
       <delegate>
         <class>humming.sample.GPIOPinPropertyDelegate</class>
-        <config instance="delegate">
+        <script instance="delegate">
           delegate.setPinNumber(21);
           delegate.setGroupName("gpio");
           delegate.setGroupWritable(true);
           delegate.setUseSudo(true);
           delegate.setInterval(100);
-        </config>
+        </script>
       </delegate>
     </property>
     <property epc="E0">

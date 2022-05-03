@@ -57,7 +57,7 @@ public class PropertyElementGenerator {
             return "disabled";
         }
     }
-
+    
     public PropertyElementGenerator(EchonetObject object, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, HashMap<String, String> config) {
         this.object = object;
         this.epc = epc;
@@ -68,8 +68,8 @@ public class PropertyElementGenerator {
         
         if (config.get("GenerationType") != null) {
             generationType = GenerationType.valueOf(config.get("GenerationType"));
-        }
-        
+    }
+    
         if (config.get("PathPrefix") != null) {
             pathPrefix = config.get("PathPrefix") + File.separator;
         }
@@ -79,9 +79,9 @@ public class PropertyElementGenerator {
         return generationType;
     }
     
-    public void setGenerationType(GenerationType generateMode) {
-        this.generationType = generateMode;
-    }
+    public void setGenerationType(GenerationType generationType) {
+        this.generationType = generationType;
+    } 
     
     public String generateVariableDataElement() throws GeneratorException {
         ObjectData data = null;

@@ -118,6 +118,8 @@ public class CommandPropertyDelegateCreator implements PropertyDelegateCreator {
     
     @Override
     public PropertyDelegate newPropertyDelegate(ClassEOJ ceoj, EPC epc, boolean getEnabled, boolean setEnabled, boolean notifyEnabled, Node node) {
+        LOGGER.entering(CLASS_NAME, "newPropertyDelegate", new Object[]{ceoj, epc, getEnabled, setEnabled, notifyEnabled, node});
+        
         String[] getCommand = null;
         String[] setCommand = null;
         String[] notifyCommand = null;
@@ -164,28 +166,29 @@ public class CommandPropertyDelegateCreator implements PropertyDelegateCreator {
             }
         }
         
-        if (getCommand != null || setCommand != null || notifyCommand != null) {
-            CommandPropertyDelegate delegate = new CommandPropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, getCommand, setCommand);
-            
-            if (notifyCommand != null) {
-                CommandPropertyDelegateNotifySender notifySender = new CommandPropertyDelegateNotifySender(notifyCommand);
-            
-                if (interval >= 0) {
-                    notifySender.setInterval(interval);
-                }
-
-                if (delay >= 0) {
-                    notifySender.setDelay(delay);
-                }
-                
-                delegate.setCommandPropertyDelegateNotifySender(notifySender);
-            }
-            
-            return delegate;
-        } else {
+        if (getCommand == null && setCommand == null && notifyCommand == null) {
             LOGGER.logp(Level.WARNING, CLASS_NAME, "parseProperty", "there are no commands");
+            LOGGER.exiting(CLASS_NAME, "newPropertyDelegate", null);
+            return null;
         }
         
-        return null;
+        CommandPropertyDelegate delegate = new CommandPropertyDelegate(epc, getEnabled, setEnabled, notifyEnabled, getCommand, setCommand);
+
+        if (notifyCommand != null) {
+            CommandPropertyDelegateNotifySender notifySender = new CommandPropertyDelegateNotifySender(notifyCommand);
+
+            if (interval >= 0) {
+                notifySender.setInterval(interval);
+            }
+
+            if (delay >= 0) {
+                notifySender.setDelay(delay);
+            }
+
+            delegate.setCommandPropertyDelegateNotifySender(notifySender);
+        }
+
+        LOGGER.exiting(CLASS_NAME, "newPropertyDelegate", delegate);
+        return delegate;
     }
 }

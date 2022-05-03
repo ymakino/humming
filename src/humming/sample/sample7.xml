@@ -6,25 +6,19 @@
     </delegate>
     <delegate>
       <class>humming.sample.SampleObjectDelegate</class>
-      <config instance="delegate">
-        delegate.setEPC(Packages.echowand.common.EPC.xE1);
-        delegate.setValue(12.3 * 10);
-      </config>
+      <param name="epc">E2</param>
+      <param name="value">123</param>
     </delegate>
     <updater interval="1000">
       <class>humming.sample.SamplePropertyUpdater</class>
     </updater>
     <updater interval="1000" delay="5000">
       <class>humming.sample.SamplePropertyUpdater</class>
-      <config instance="updater">updater.setEPC(Packages.echowand.common.EPC.xE1);</config>
+      <param name="epc">E2</param>
     </updater>
     <property epc="E0" set="disabled" notify="enabled" value="0101"/>
     <property epc="E1" set="enabled" notify="enabled" value="0102" />
-    <property epc="E2" set="enabled" notify="enabled">
-      <delegate>
-        <class>humming.sample.ThermalZonePropertyDelegate</class>
-        <config>it.setIndex(1);</config>
-      </delegate>
-    </property>
+    <property epc="E2" set="enabled" notify="enabled" value="0102" />
+    <property epc="E3" set="enabled" notify="enabled" value="0102" />
   </object>
 </device>

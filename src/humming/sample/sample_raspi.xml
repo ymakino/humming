@@ -4,7 +4,7 @@
     <property epc="E0">
       <delegate>
         <class>humming.sample.ThermalZonePropertyDelegate</class>
-        <config instance="delegate">delegate.setIndex(1);</config>
+        <script instance="delegate">delegate.setIndex(1);</script>
       </delegate>
     </property>
   </object>
@@ -12,12 +12,12 @@
     <property epc="80" set="enabled" notify="enabled">
       <delegate>
         <class>humming.sample.GPIOPinPropertyDelegate</class>
-        <config instance="delegate">
+        <script instance="delegate">
           delegate.setPinNumber(21);
           delegate.setGroupName("gpio");
           delegate.setGroupWritable(true);
           delegate.setUseSudo(true);
-        </config>
+        </script>
       </delegate>
     </property>
     <property epc="E0">

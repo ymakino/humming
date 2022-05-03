@@ -12,20 +12,19 @@ import javax.script.ScriptException;
  * @author ymakino
  */
 public class HummingScripting {
+    private static final Logger LOGGER = Logger.getLogger(HummingScripting.class.getName());
+    private static final String CLASS_NAME = HummingScripting.class.getName();
+    
     private ScriptEngineManager manager;
     private ScriptEngine engine;
     private Bindings templateBindings;
     
     public HummingScripting() {
-        manager = new ScriptEngineManager();
-        engine = manager.getEngineByName("javascript");
-        templateBindings = engine.createBindings();
+        LOGGER.entering(CLASS_NAME, "HummingScripting");
         
-        try {
-            engine.eval("var shared={};", templateBindings);
-        } catch (ScriptException ex) {
-            Logger.getLogger(HummingScripting.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        manager = new ScriptEngineManager();
+        
+        LOGGER.exiting(CLASS_NAME, "HummingScripting");
     }
     
     public void setScriptEngine(ScriptEngine engine) {
@@ -33,6 +32,30 @@ public class HummingScripting {
     }
     
     public ScriptEngine getScriptEngine() {
+        
+        if (engine == null) {
+            
+            engine = manager.getEngineByName("javascript");
+
+            if (engine == null) {
+                engine = manager.getEngineByName("rhino");
+            }
+
+            if (engine == null) {
+                LOGGER.logp(Level.WARNING, CLASS_NAME, "HummingScripting", "Cannot get a ScriptEngine");
+                LOGGER.exiting(CLASS_NAME, "HummingScripting");
+                return null;
+            }
+
+            templateBindings = engine.createBindings();
+
+            try {
+                engine.eval("var shared={};", templateBindings);
+            } catch (ScriptException ex) {
+                Logger.getLogger(HummingScripting.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
         return engine;
     }
     
@@ -45,7 +68,7 @@ public class HummingScripting {
     }
     
     public Bindings createBindings() {
-        Bindings bindings = engine.createBindings();
+        Bindings bindings = getScriptEngine().createBindings();
         bindings.putAll(templateBindings);
         return bindings;
     }

@@ -29,7 +29,7 @@ public class FrameDropDelegate implements LocalObjectServiceDelegate {
     public void setReceiveDropper(FrameDropper dropper) {
         receiveDropper = dropper;
     }
-
+    
     @Override
     public void notifyCreation(LocalObject object, Core core) {
         

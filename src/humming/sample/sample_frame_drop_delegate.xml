@@ -3,10 +3,8 @@
   <object ceoj="0011">
     <delegate>
       <class>humming.dropper.RandomFrameDropDelegate</class>
-      <config instance="delegate">
-        delegate.setDropRate(0.1);
-        delegate.setDefaultDropRate(0.01);
-      </config>
+      <param name="dropRate">0.1</param>
+      <param name="defaultDropRate">0.01</param>
     </delegate>
     <property epc="80">
       <const>30</const>
@@ -18,7 +16,7 @@
   <object ceoj="0011">
     <delegate>
       <class>humming.dropper.RandomFrameDropDelegate</class>
-      <config instance="delegate">delegate.setDropRate(0.05);</config>
+      <script instance="delegate">delegate.setDropRate(0.05);</script>
     </delegate>
     <property epc="80">
       <const>30</const>

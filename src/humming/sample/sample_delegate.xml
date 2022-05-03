@@ -3,15 +3,15 @@
   <object ceoj="0011">
     <delegate>
       <class>humming.sample.SampleObjectDelegate</class>
-      <config instance="delegate">
+      <script instance="delegate">
         delegate.setEPC(Packages.echowand.common.EPC.xE1);
         delegate.setValue(12.3 * 10);
-      </config>
+      </script>
     </delegate>
     <property epc="E0" set="enabled" notify="enabled">
       <delegate>
         <class>humming.sample.ThermalZonePropertyDelegate</class>
-        <config>it.setIndex(1);</config>
+        <param name="index">1</param>
       </delegate>
     </property>
     <property epc="E1" set="enabled" notify="enabled" />

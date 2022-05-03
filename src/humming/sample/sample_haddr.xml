@@ -4,25 +4,21 @@
     <property epc="83">
       <delegate>
         <class>humming.sample.HardwareAddressPropertyDelegate</class>
-        <config>
-          it.setNetworkInterface("en0")
-          it.setIdentificationMode(true);
-        </config>
+        <param name="interface">en0</param>
+        <param name="identificationMode">true</param>
       </delegate>
     </property>
     <property epc="FE">
       <delegate>
         <class>humming.sample.HardwareAddressPropertyDelegate</class>
-        <config>it.setNetworkInterface("en0")</config>
+        <param name="interface">en0</param>
       </delegate>
     </property>
     <property epc="FF">
       <delegate>
         <class>humming.sample.HardwareAddressPropertyDelegate</class>
-        <config>
-          it.setNetworkInterface("en0")
-          it.setStringMode(true);
-        </config>
+        <param name="interface">en0</param>
+        <param name="stringMode">true</param>
       </delegate>
     </property>
   </profile>
