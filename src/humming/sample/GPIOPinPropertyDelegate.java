@@ -46,6 +46,14 @@ public class GPIOPinPropertyDelegate extends PropertyDelegate {
                 case "pinnumber":
                     setPinNumber(Integer.parseInt(value));
                     break;
+            }
+        }
+        
+        for (String key : params.keySet()) {
+            String value = params.get(key).trim();
+            switch (key.toLowerCase()) {
+                case "pinnumber":
+                    break;
                 case "delay":
                     setDelay(Integer.parseInt(value));
                     break;
@@ -72,6 +80,12 @@ public class GPIOPinPropertyDelegate extends PropertyDelegate {
                     break;
                 case "otherwritable":
                     this.setOtherWritable(Boolean.parseBoolean(value));
+                    break;
+                case "ondata":
+                    this.setOnData(value);
+                    break;
+                case "offdata":
+                    this.setOffData(value);
                     break;
                 default:
                     throw new HummingException("invalid parameter: " + key + ": " + value);
@@ -232,6 +246,51 @@ public class GPIOPinPropertyDelegate extends PropertyDelegate {
     
     public void setUseSudo(boolean useSudo) {
         pin.setUseSudo(useSudo);
+    }
+    
+    private ObjectData newObjectData(String s) {
+        if (s.startsWith("0x") || s.startsWith("0X")) {
+            s = s.substring(2);
+        }
+        
+        if (s.length() == 0 || (s.length() % 2) == 1) {
+            return null;
+        }
+        
+        byte[] bytes = new byte[s.length() / 2];
+        
+        try {
+            for (int i=0; i<bytes.length; i++) {
+                String d = s.substring(i*2, i*2 + 2);
+                bytes[i] = (byte)Integer.parseInt(d, 16);
+            }
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+        
+        return new ObjectData(bytes);
+    }
+    
+    public void setOnData(String value) {
+        ObjectData data = newObjectData(value);
+        
+        if (data == null) {
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "setOnData", "invalid data: " + value);
+            return;
+        }
+        
+        onData = data;
+    }
+    
+    public void setOffData(String value) {
+        ObjectData data = newObjectData(value);
+        
+        if (data == null) {
+            LOGGER.logp(Level.WARNING, CLASS_NAME, "setOffData", "invalid data: " + value);
+            return;
+        }
+        
+        offData = data;
     }
     
     private int lastValue;
